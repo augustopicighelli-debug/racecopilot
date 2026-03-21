@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="RaceCopilot Test" xmlns="http://www.topografix.com/GPX/1/1">
+  <trk>
+    <name>Sample Hilly Route</name>
+    <trkseg>
+      <trkpt lat="-34.603684" lon="-58.381559">
+        <ele>100</ele>
+      </trkpt>
+      <trkpt lat="-34.603684" lon="-58.375479">
+        <ele>150</ele>
+      </trkpt>
+      <trkpt lat="-34.603684" lon="-58.369399">
+        <ele>200</ele>
+      </trkpt>
+      <trkpt lat="-34.603684" lon="-58.363319">
+        <ele>240</ele>
+      </trkpt>
+      <trkpt lat="-34.603684" lon="-58.357239">
+        <ele>250</ele>
+      </trkpt>
+      <trkpt lat="-34.603684" lon="-58.351159">
+        <ele>220</ele>
+      </trkpt>
+      <trkpt lat="-34.603684" lon="-58.345079">
+        <ele>180</ele>
+      </trkpt>
+      <trkpt lat="-34.603684" lon="-58.338999">
+        <ele>140</ele>
+      </trkpt>
+      <trkpt lat="-34.603684" lon="-58.332919">
+        <ele>110</ele>
+      </trkpt>
+      <trkpt lat="-34.603684" lon="-58.326839">
+        <ele>100</ele>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
