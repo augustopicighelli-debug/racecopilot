@@ -34,10 +34,10 @@ export default function Home() {
         hasGpx={course.hasGpx}
         confidence={plan.forecast.confidence}
       />
-      <RacePlanClient plan={plan} />
       {plan.forecast.waterfall && (
         <WaterfallChart waterfall={plan.forecast.waterfall} weather={weather} course={course} />
       )}
+      <RacePlanClient plan={plan} />
       <ElevationChart course={course} />
       <Disclaimer />
     </main>
