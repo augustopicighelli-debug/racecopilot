@@ -7,6 +7,9 @@ export interface ReferenceRace {
   timeSeconds: number;
   date: string;
   type: 'race' | 'training';
+  avgHeartRate?: number;       // average HR during the race
+  temperatureC?: number;       // ambient temperature during the race
+  humidityPercent?: number;    // ambient humidity during the race
 }
 
 export interface NutritionProduct {
@@ -17,15 +20,25 @@ export interface NutritionProduct {
   type: 'gel' | 'salt_pill';
 }
 
+export interface IntervalSession {
+  distanceM: number;         // interval distance in meters (400, 1000, 2000)
+  reps: number;              // number of reps
+  paceSecondsPerKm: number;  // average pace per km
+  date: string;              // ISO date
+  avgHeartRate?: number;     // average HR during intervals
+  temperatureC?: number;     // ambient temperature during session
+  humidityPercent?: number;  // ambient humidity during session
+}
+
 export interface RunnerProfile {
   weightKg: number;
   heightCm: number;
   sweatLevel: SweatLevel;
+  maxHeartRate?: number;       // max HR (from test or 220-age). Needed to interpret race/interval HR.
   referenceRaces: ReferenceRace[];
   weeklyKm?: number;
-  vam?: number; // TODO v2: use for performance ceiling adjustment
-  speed400m?: number; // TODO v2: use for VO2max estimation
-  speed1000m?: number; // TODO v2: use for lactate threshold estimation
+  vam?: number;
+  intervals?: IntervalSession[];
   nutritionProducts: NutritionProduct[];
 }
 
@@ -69,13 +82,24 @@ export interface WeatherData {
 }
 
 export interface AggregatedWeather {
-  temperature: number;
+  temperature: number;       // expected temperature at race start (°C)
+  temperatureEnd?: number;   // expected temperature at race end (°C) — if omitted, modeled as +1.5°C/hour
   humidity: number;
   windSpeedKmh: number;
   windDirectionDeg: number;
   sourcesCount: number;
   sourceAgreement: 'high' | 'medium' | 'low';
   daysUntilRace: number;
+}
+
+// --- Pacing Strategy ---
+
+export type PacingStrategyType = 'even' | 'negative' | 'positive';
+
+export interface PacingStrategyConfig {
+  type: PacingStrategyType;
+  segments: number;         // how many segments to split the race into (2, 3, 4...)
+  deltaSecondsPerKm: number; // pace difference between consecutive segments
 }
 
 // --- Prediction ---
@@ -91,12 +115,33 @@ export interface Prediction {
 
 // --- Plans ---
 
+export interface SplitBreakdown {
+  basePace: number;          // pace before any adjustments
+  strategyDelta: number;     // +/- from pacing strategy
+  elevationDelta: number;    // +/- from gradient
+  windDelta: number;         // +/- from wind
+  climateFactor: number;     // multiplier from temperature at this km
+  fatigueFactor: number;     // multiplier from glycogen depletion (>1.0 after ~km 30)
+  finalPace: number;         // after all adjustments + normalization
+}
+
 export interface SplitKm {
   km: number;
   paceSecondsPerKm: number;
   cumulativeTimeSeconds: number;
   elevationNote?: string;
   windNote?: string;
+  breakdown: SplitBreakdown;
+}
+
+export interface RaceWaterfall {
+  baseTimeSeconds: number;           // blended prediction (Riegel + intervals) in neutral conditions
+  riegelTimeSeconds?: number;        // pure Riegel prediction
+  intervalTimeSeconds?: number;      // pure interval-based prediction
+  climateAdjustment: number;         // +/- seconds from climate
+  elevationAdjustment: number;       // +/- seconds from elevation
+  windAdjustment: number;            // +/- seconds from wind
+  finalTimeSeconds: number;          // after all adjustments
 }
 
 export interface HydrationEvent {
@@ -138,6 +183,7 @@ export interface RacePlan {
   confidence: number;
   course: CourseProfile;
   weather: AggregatedWeather;
+  waterfall?: RaceWaterfall;
 }
 
 export interface TripleObjectivePlan {
@@ -153,4 +199,5 @@ export interface ConfidenceInputs {
   weatherSourceAgreement: 'high' | 'medium' | 'low';
   daysUntilRace: number;
   hasGpx: boolean;
+  hasIntervals: boolean;
 }

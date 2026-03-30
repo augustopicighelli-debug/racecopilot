@@ -13,7 +13,7 @@ describe('generateNutritionPlan', () => {
   it('returns short race message for <75 min effort', () => {
     const plan = generateNutritionPlan({
       totalTimeSeconds: 4200, distanceKm: 10, paceSecondsPerKm: 420,
-      products: [gel], sweatRateMlPerHour: 800, breakfastHoursAgo: 1,
+      products: [gel], sweatLevel: 'medium', sweatRateMlPerHour: 800, breakfastHoursAgo: 1,
     });
     expect(plan.isShortRace).toBe(true);
     expect(plan.shortRaceMessage).toBeDefined();
@@ -23,7 +23,7 @@ describe('generateNutritionPlan', () => {
   it('suggests pre-race gel when breakfast >2h ago even for short race', () => {
     const plan = generateNutritionPlan({
       totalTimeSeconds: 4200, distanceKm: 10, paceSecondsPerKm: 420,
-      products: [gel], sweatRateMlPerHour: 800, breakfastHoursAgo: 3,
+      products: [gel], sweatLevel: 'medium', sweatRateMlPerHour: 800, breakfastHoursAgo: 3,
     });
     expect(plan.preRaceGel).toBeDefined();
     expect(plan.preRaceGel!.note).toContain('pre-carrera');
@@ -32,7 +32,7 @@ describe('generateNutritionPlan', () => {
   it('no pre-race gel when breakfast was recent', () => {
     const plan = generateNutritionPlan({
       totalTimeSeconds: 4200, distanceKm: 10, paceSecondsPerKm: 420,
-      products: [gel], sweatRateMlPerHour: 800, breakfastHoursAgo: 1,
+      products: [gel], sweatLevel: 'medium', sweatRateMlPerHour: 800, breakfastHoursAgo: 1,
     });
     expect(plan.preRaceGel).toBeUndefined();
   });
@@ -40,7 +40,7 @@ describe('generateNutritionPlan', () => {
   it('generates gel events for marathon (>75 min)', () => {
     const plan = generateNutritionPlan({
       totalTimeSeconds: 14400, distanceKm: 42.195, paceSecondsPerKm: 341,
-      products: [gel, saltPill], sweatRateMlPerHour: 1000, breakfastHoursAgo: 3,
+      products: [gel, saltPill], sweatLevel: 'medium', sweatRateMlPerHour: 1000, breakfastHoursAgo: 3,
     });
     expect(plan.isShortRace).toBe(false);
     expect(plan.events.length).toBeGreaterThan(5);
@@ -50,7 +50,7 @@ describe('generateNutritionPlan', () => {
   it('includes salt pills based on sweat rate', () => {
     const plan = generateNutritionPlan({
       totalTimeSeconds: 14400, distanceKm: 42.195, paceSecondsPerKm: 341,
-      products: [gel, saltPill], sweatRateMlPerHour: 1500, breakfastHoursAgo: 3,
+      products: [gel, saltPill], sweatLevel: 'medium', sweatRateMlPerHour: 1500, breakfastHoursAgo: 3,
     });
     const saltEvents = plan.events.filter(e => e.product.type === 'salt_pill');
     expect(saltEvents.length).toBeGreaterThan(0);
@@ -59,18 +59,18 @@ describe('generateNutritionPlan', () => {
   it('always includes disclaimer', () => {
     const plan = generateNutritionPlan({
       totalTimeSeconds: 14400, distanceKm: 42.195, paceSecondsPerKm: 341,
-      products: [gel], sweatRateMlPerHour: 800, breakfastHoursAgo: 3,
+      products: [gel], sweatLevel: 'medium', sweatRateMlPerHour: 800, breakfastHoursAgo: 3,
     });
     expect(plan.disclaimer).toContain('médico');
   });
 
-  it('first gel around 45 minutes', () => {
+  it('first gel around 25 minutes (Jeukendrup 2014: fuel within first 30min)', () => {
     const plan = generateNutritionPlan({
       totalTimeSeconds: 14400, distanceKm: 42.195, paceSecondsPerKm: 341,
-      products: [gel], sweatRateMlPerHour: 800, breakfastHoursAgo: 3,
+      products: [gel], sweatLevel: 'medium', sweatRateMlPerHour: 800, breakfastHoursAgo: 3,
     });
     const firstGel = plan.events[0];
-    expect(firstGel.minutesSinceStart).toBeGreaterThanOrEqual(40);
-    expect(firstGel.minutesSinceStart).toBeLessThanOrEqual(50);
+    expect(firstGel.minutesSinceStart).toBeGreaterThanOrEqual(20);
+    expect(firstGel.minutesSinceStart).toBeLessThanOrEqual(30);
   });
 });

@@ -4,15 +4,18 @@ import { useState } from 'react';
 import { ObjectiveCards } from '@/components/objective-cards';
 import { RaceTable } from '@/components/race-table';
 import { PaceChart } from '@/components/pace-chart';
-import type { TripleObjectivePlan } from '@/lib/engine/types';
+import { CourseMap } from '@/components/course-map';
+import type { TripleObjectivePlan, GpxPoint } from '@/lib/engine/types';
 
 type Objective = 'forecast' | 'target' | 'consensus';
 
 interface RacePlanClientProps {
   plan: TripleObjectivePlan;
+  mapPoints: GpxPoint[];
+  distanceKm: number;
 }
 
-export function RacePlanClient({ plan }: RacePlanClientProps) {
+export function RacePlanClient({ plan, mapPoints, distanceKm }: RacePlanClientProps) {
   const [selected, setSelected] = useState<Objective>(plan.consensus ? 'consensus' : 'forecast');
 
   const activePlan =
@@ -28,6 +31,12 @@ export function RacePlanClient({ plan }: RacePlanClientProps) {
         avgPace={activePlan.prediction.paceSecondsPerKm}
         hydration={activePlan.hydration}
         nutrition={activePlan.nutrition}
+      />
+      <CourseMap
+        points={mapPoints}
+        distanceKm={distanceKm}
+        splits={activePlan.splits}
+        avgPace={activePlan.prediction.paceSecondsPerKm}
       />
       <PaceChart
         splits={activePlan.splits}

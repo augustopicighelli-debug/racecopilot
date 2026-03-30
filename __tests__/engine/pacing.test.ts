@@ -9,12 +9,14 @@ const calmWeather: AggregatedWeather = {
 };
 
 describe('generateSplits', () => {
-  it('produces uniform splits on flat course with no wind', () => {
+  it('produces near-uniform splits on flat course with no wind (slight climate drift)', () => {
     const profile = buildFlatProfile(10);
     const splits = generateSplits(3000, profile, calmWeather);
     expect(splits.length).toBe(10);
+    // With per-km climate (temp rises during race), splits drift slightly
+    // but should all be within ~2s of base pace
     splits.forEach(s => {
-      expect(s.paceSecondsPerKm).toBeCloseTo(300, 0);
+      expect(s.paceSecondsPerKm).toBeCloseTo(300, -1); // within ~5s
     });
   });
 
@@ -48,12 +50,16 @@ describe('generateSplits', () => {
     expect(splits[3].paceSecondsPerKm).toBeLessThan(splits[0].paceSecondsPerKm);
   });
 
-  it('adjusts for hot weather', () => {
+  it('adjusts for hot weather (last km penalized more)', () => {
     const profile = buildFlatProfile(10);
     const hotWeather: AggregatedWeather = { ...calmWeather, temperature: 30, humidity: 75 };
     const coolSplits = generateSplits(3000, profile, calmWeather);
     const hotSplits = generateSplits(3000, profile, hotWeather);
-    expect(hotSplits[0].paceSecondsPerKm).toBeGreaterThanOrEqual(coolSplits[0].paceSecondsPerKm);
+    // With multiplicative humidity × temperature, hot weather produces a wider
+    // spread between first and last km (more penalty at the end where it's hottest)
+    const hotSpread = hotSplits[9].paceSecondsPerKm - hotSplits[0].paceSecondsPerKm;
+    const coolSpread = coolSplits[9].paceSecondsPerKm - coolSplits[0].paceSecondsPerKm;
+    expect(hotSpread).toBeGreaterThan(coolSpread);
   });
 
   it('adjusts for headwind on segment', () => {

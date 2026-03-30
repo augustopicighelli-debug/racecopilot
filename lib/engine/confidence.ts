@@ -7,9 +7,13 @@ export function calculateConfidence(inputs: ConfidenceInputs): number {
   const weatherScore = weatherAgreementScore(inputs.weatherSourceAgreement);
   const gpxScore = inputs.hasGpx ? 100 : 75;
 
+  // Intervals provide a second independent prediction source → boosts prediction confidence
+  const intervalScore = inputs.hasIntervals ? 100 : 50;
+
   const confidence =
-    racesScore * 0.20 +
-    recencyScore * 0.15 +
+    racesScore * 0.15 +
+    recencyScore * 0.10 +
+    intervalScore * 0.10 +
     daysScore * 0.25 +
     weatherScore * 0.25 +
     gpxScore * 0.15;
@@ -25,10 +29,12 @@ function raceCountScore(count: number): number {
 }
 
 function recencyScoreCalc(mostRecentMonths: number, allWithin6: boolean): number {
-  let score = allWithin6 ? 100 : 70;
-  if (mostRecentMonths > 12) score -= 30;
-  else if (mostRecentMonths > 6) score -= 20;
-  return Math.max(0, score);
+  // Primary window: 3 months. Beyond that, confidence drops fast.
+  if (mostRecentMonths <= 1) return 100;
+  if (mostRecentMonths <= 3) return allWithin6 ? 90 : 80;
+  if (mostRecentMonths <= 6) return 60;
+  if (mostRecentMonths <= 12) return 35;
+  return 15;
 }
 
 function daysUntilRaceScore(days: number): number {

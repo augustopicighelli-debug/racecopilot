@@ -1,12 +1,13 @@
-export { generateRacePlan } from './plan';
+export { generateRacePlan, computeClimateFactor } from './plan';
 export { predictTime, fitExponent } from './predictor';
 export { calculateConsensus } from './consensus';
-export { generateSplits } from './pacing';
+export { generateSplits, computeStrategyDeltas, computeClimateFactorAtKm, fatigueFactor } from './pacing';
 export { generateHydrationPlan } from './hydration';
 export { generateNutritionPlan } from './nutrition';
 export { calculateConfidence } from './confidence';
 export { calculateBSA } from './bsa';
 export { buildElevationProfile, buildFlatProfile } from './elevation';
 export { windImpactPerKm } from './wind';
+export { estimateMarathonPaceFromIntervals } from './intervals';
 export { parseGpx } from '../gpx/parser';
 export * from './types';

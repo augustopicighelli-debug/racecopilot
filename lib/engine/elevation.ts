@@ -4,6 +4,31 @@ const FLAT_PROFILE_WARNING =
   'Sin perfil de elevación, los splits son estimados en terreno plano. Subí el GPX para mejor precisión.';
 
 /**
+ * Dead-band elevation filter to remove GPS noise.
+ * Only registers a change when cumulative drift exceeds the threshold (default 2m).
+ * This is the standard approach used by Garmin, Strava, and most GPS platforms.
+ */
+function smoothElevation(points: GpxPoint[], deadBandM: number = 4): GpxPoint[] {
+  if (points.length === 0) return points;
+
+  const smoothed: GpxPoint[] = [{ ...points[0] }];
+  let lastAnchorEle = points[0].elevation;
+
+  for (let i = 1; i < points.length; i++) {
+    const diff = points[i].elevation - lastAnchorEle;
+    if (Math.abs(diff) >= deadBandM) {
+      lastAnchorEle = points[i].elevation;
+      smoothed.push({ ...points[i] });
+    } else {
+      // Keep point but with anchored elevation (preserves lat/lon/distance)
+      smoothed.push({ ...points[i], elevation: lastAnchorEle });
+    }
+  }
+
+  return smoothed;
+}
+
+/**
  * Builds a CourseProfile from parsed GPX points.
  * Groups points into per-km segments, computing elevation gain/loss, gradient, and bearing.
  */
@@ -14,6 +39,9 @@ export function buildElevationProfile(
   if (points.length === 0) {
     return buildFlatProfile(distanceKm);
   }
+
+  // Smooth elevation to remove GPS noise before computing D+/D-
+  const smoothedPoints = smoothElevation(points);
 
   const totalDistanceM = distanceKm * 1000;
   const segments: ElevationSegment[] = [];
@@ -26,14 +54,14 @@ export function buildElevationProfile(
     const endDistanceM = Math.min((km + 1) * 1000, totalDistanceM);
 
     // Collect points within this km segment (inclusive boundaries)
-    const segmentPoints = points.filter(
+    const segmentPoints = smoothedPoints.filter(
       p => p.distanceFromStart >= startDistanceM && p.distanceFromStart <= endDistanceM
     );
 
     // If no points fall directly in range, interpolate from nearest neighbors
     const effectivePoints = segmentPoints.length >= 2
       ? segmentPoints
-      : getInterpolatedBoundaryPoints(points, startDistanceM, endDistanceM);
+      : getInterpolatedBoundaryPoints(smoothedPoints, startDistanceM, endDistanceM);
 
     let elevationGain = 0;
     let elevationLoss = 0;
@@ -88,18 +116,21 @@ export function buildElevationProfile(
 
 /**
  * Creates a uniform CourseProfile when no GPX is available.
- * Elevation gain (if provided) is evenly distributed across all segments.
+ * D+ and D- are distributed separately and stored as elevationGain/elevationLoss per segment.
+ * avgGradientPercent uses the NET (gain - loss) for pace adjustment direction,
+ * but the gross D+ and D- are preserved for fatigue modeling.
  */
 export function buildFlatProfile(
   distanceKm: number,
-  manualElevationGain?: number
+  manualElevationGain?: number,
+  manualElevationLoss?: number
 ): CourseProfile {
   const numSegments = Math.ceil(distanceKm);
   const totalDistanceM = distanceKm * 1000;
-  const gainPerSegment =
-    manualElevationGain !== undefined && numSegments > 0
-      ? manualElevationGain / numSegments
-      : 0;
+  const gain = manualElevationGain ?? 0;
+  const loss = manualElevationLoss ?? 0;
+  const gainPerSegment = numSegments > 0 ? gain / numSegments : 0;
+  const lossPerSegment = numSegments > 0 ? loss / numSegments : 0;
 
   const segments: ElevationSegment[] = [];
 
@@ -107,17 +138,17 @@ export function buildFlatProfile(
     const startDistanceM = km * 1000;
     const endDistanceM = Math.min((km + 1) * 1000, totalDistanceM);
     const segmentLengthM = endDistanceM - startDistanceM;
+    // Net gradient for pace direction (up = slower, down = faster)
+    const netElevation = gainPerSegment - lossPerSegment;
     const avgGradientPercent =
-      gainPerSegment > 0 && segmentLengthM > 0
-        ? (gainPerSegment / segmentLengthM) * 100
-        : 0;
+      segmentLengthM > 0 ? (netElevation / segmentLengthM) * 100 : 0;
 
     segments.push({
       kmIndex: km,
       startDistance: startDistanceM,
       endDistance: endDistanceM,
       elevationGain: gainPerSegment,
-      elevationLoss: 0,
+      elevationLoss: lossPerSegment,
       avgGradientPercent,
       bearing: 0,
     });
@@ -125,11 +156,11 @@ export function buildFlatProfile(
 
   return {
     distanceKm,
-    totalElevationGain: manualElevationGain ?? 0,
-    totalElevationLoss: 0,
+    totalElevationGain: gain,
+    totalElevationLoss: loss,
     segments,
     hasGpx: false,
-    manualElevationGain,
+    manualElevationGain: gain,
     warningMessage: FLAT_PROFILE_WARNING,
   };
 }

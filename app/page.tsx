@@ -5,7 +5,6 @@ import { RaceHeader } from '@/components/race-header';
 import { WeatherCard } from '@/components/weather-card';
 import { WaterfallChart } from '@/components/waterfall-chart';
 import { ElevationChart } from '@/components/elevation-chart';
-import { CourseMap } from '@/components/course-map';
 import { Disclaimer } from '@/components/disclaimer';
 import { RacePlanClient } from '@/components/race-plan-client';
 
@@ -44,8 +43,7 @@ export default function Home() {
       {plan.forecast.waterfall && (
         <WaterfallChart waterfall={plan.forecast.waterfall} weather={weather} course={course} />
       )}
-      <RacePlanClient plan={plan} />
-      <CourseMap points={mapPoints} distanceKm={raceConfig.distanceKm} />
+      <RacePlanClient plan={plan} mapPoints={mapPoints} distanceKm={raceConfig.distanceKm} />
       <ElevationChart course={course} />
       <Disclaimer />
     </main>

@@ -35,6 +35,7 @@ export interface HydrationInput {
   paceSecondsPerKm: number;
   distanceKm: number;
   weather: AggregatedWeather;
+  aidStationKms?: number[];  // custom aid station positions (e.g. [5, 10, 15, 20, ...])
 }
 
 const SWEAT_LEVEL_MULTIPLIER: Record<SweatLevel, number> = {
@@ -166,48 +167,79 @@ function calculateSweatRateMlPerHour(
 }
 
 /**
+ * Compute sweat rate at a specific km based on interpolated temperature.
+ * Temperature rises during the race → sweat rate increases.
+ */
+function sweatRateAtKm(
+  km: number,
+  distanceKm: number,
+  paceSecondsPerKm: number,
+  weightKg: number,
+  heightCm: number,
+  sweatLevel: SweatLevel,
+  weather: AggregatedWeather,
+): number {
+  const totalTimeHours = (paceSecondsPerKm * distanceKm) / 3600;
+  const tempEnd = weather.temperatureEnd ?? weather.temperature + 1.5 * totalTimeHours;
+  const progress = km / distanceKm;
+  const tempAtKm = weather.temperature + (tempEnd - weather.temperature) * progress;
+
+  // Create a weather snapshot at this km's temperature
+  const weatherAtKm: AggregatedWeather = { ...weather, temperature: tempAtKm };
+  return calculateSweatRateMlPerHour(weightKg, heightCm, sweatLevel, paceSecondsPerKm, weatherAtKm);
+}
+
+/**
  * Generate a hydration plan with drink events spaced every ~4 km.
+ * Sweat rate varies per-km based on temperature progression.
  * Each drink is clamped to 150–300 ml.
  */
 export function generateHydrationPlan(input: HydrationInput): HydrationPlan {
   const { weightKg, heightCm, sweatLevel, paceSecondsPerKm, distanceKm, weather } = input;
 
-  const sweatRateMlPerHour = calculateSweatRateMlPerHour(
+  // Average sweat rate (for summary stats)
+  const sweatRateStart = calculateSweatRateMlPerHour(
     weightKg, heightCm, sweatLevel, paceSecondsPerKm, weather,
   );
+  const totalTimeHours = (paceSecondsPerKm * distanceKm) / 3600;
+  const tempEnd = weather.temperatureEnd ?? weather.temperature + 1.5 * totalTimeHours;
+  const weatherEnd: AggregatedWeather = { ...weather, temperature: tempEnd };
+  const sweatRateEnd = calculateSweatRateMlPerHour(
+    weightKg, heightCm, sweatLevel, paceSecondsPerKm, weatherEnd,
+  );
+  const avgSweatRate = (sweatRateStart + sweatRateEnd) / 2;
 
-  // Total race duration in hours
-  const raceDurationHours = (paceSecondsPerKm * distanceKm) / 3600;
+  // Total estimated fluid loss using average rate
+  const totalFluidLosseMl = avgSweatRate * totalTimeHours;
 
-  // Total estimated fluid loss
-  const totalFluidLosseMl = sweatRateMlPerHour * raceDurationHours;
-
-  // ml lost per km of running
-  const mlPerKm = sweatRateMlPerHour / (3600 / paceSecondsPerKm);
-
-  // Target spacing: 4 km between drinks (stays within 3-5 km test expectation)
-  const targetSpacingKm = 4;
+  // Aid station positions: custom list or default every 5km starting at km 5
+  const stationKms = (input.aidStationKms && input.aidStationKms.length > 0)
+    ? input.aidStationKms.filter(k => k > 0 && k < distanceKm).sort((a, b) => a - b)
+    : Array.from({ length: Math.floor(distanceKm / 5) }, (_, i) => (i + 1) * 5).filter(k => k < distanceKm);
 
   const events: HydrationEvent[] = [];
   let cumulativeMl = 0;
-  let nextKm = targetSpacingKm;
 
-  while (nextKm < distanceKm) {
-    const kmSinceLast = events.length === 0 ? nextKm : nextKm - events[events.length - 1].km;
+  for (const stationKm of stationKms) {
+    const localSweatRate = sweatRateAtKm(
+      stationKm, distanceKm, paceSecondsPerKm,
+      weightKg, heightCm, sweatLevel, weather,
+    );
+    const mlPerKm = localSweatRate / (3600 / paceSecondsPerKm);
+
+    const kmSinceLast = events.length === 0 ? stationKm : stationKm - events[events.length - 1].km;
     const rawMl = mlPerKm * kmSinceLast;
 
     // Clamp to 150–300 ml per drink
     const mlToDrink = Math.min(300, Math.max(150, Math.round(rawMl)));
 
     cumulativeMl += mlToDrink;
-    events.push({ km: Math.round(nextKm * 10) / 10, mlToDrink, cumulativeMl });
-
-    nextKm += targetSpacingKm;
+    events.push({ km: stationKm, mlToDrink, cumulativeMl });
   }
 
   return {
     totalFluidLosseMl: Math.round(totalFluidLosseMl),
-    sweatRateMlPerHour: Math.round(sweatRateMlPerHour),
+    sweatRateMlPerHour: Math.round(avgSweatRate),
     events,
   };
 }

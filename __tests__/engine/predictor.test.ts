@@ -3,11 +3,18 @@ import { predictTime, fitExponent } from '../../lib/engine/predictor';
 import type { ReferenceRace } from '../../lib/engine/types';
 
 describe('fitExponent', () => {
-  it('returns default 1.06 with only 1 reference race', () => {
+  it('returns ability-scaled default with only 1 reference race', () => {
+    // 3000s / 10km = 300 s/km (5:00/km) → competitive → 1.10
     const races: ReferenceRace[] = [
       { distanceKm: 10, timeSeconds: 3000, date: '2026-03-01', type: 'race' },
     ];
-    expect(fitExponent(races)).toBeCloseTo(1.06, 2);
+    expect(fitExponent(races)).toBeCloseTo(1.10, 2);
+
+    // Fast runner: 2000s / 10km = 200 s/km (3:20/km) → elite → 1.06
+    const fastRaces: ReferenceRace[] = [
+      { distanceKm: 10, timeSeconds: 2000, date: '2026-03-01', type: 'race' },
+    ];
+    expect(fitExponent(fastRaces)).toBeCloseTo(1.06, 2);
   });
 
   it('fits exponent from 2 races at different distances', () => {
@@ -38,13 +45,14 @@ describe('fitExponent', () => {
 });
 
 describe('predictTime', () => {
-  it('predicts 21K from a 10K using default exponent', () => {
+  it('predicts 21K from a 10K using ability-scaled exponent', () => {
+    // 5:00/km runner → exponent 1.10 → prediction is higher than with 1.06
     const races: ReferenceRace[] = [
       { distanceKm: 10, timeSeconds: 3000, date: '2026-03-01', type: 'race' },
     ];
     const prediction = predictTime(races, 21.1);
-    expect(prediction).toBeGreaterThan(6300);
-    expect(prediction).toBeLessThan(6700);
+    expect(prediction).toBeGreaterThan(6500);
+    expect(prediction).toBeLessThan(7200);
   });
 
   it('predicts 42K from multiple references', () => {
