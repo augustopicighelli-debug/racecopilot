@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ObjectiveCards } from '@/components/objective-cards';
 import { RaceTable } from '@/components/race-table';
+import { PaceChart } from '@/components/pace-chart';
 import type { TripleObjectivePlan } from '@/lib/engine/types';
 
 type Objective = 'forecast' | 'target' | 'consensus';
@@ -27,6 +28,10 @@ export function RacePlanClient({ plan }: RacePlanClientProps) {
         avgPace={activePlan.prediction.paceSecondsPerKm}
         hydration={activePlan.hydration}
         nutrition={activePlan.nutrition}
+      />
+      <PaceChart
+        splits={activePlan.splits}
+        avgPace={activePlan.prediction.paceSecondsPerKm}
       />
     </>
   );
