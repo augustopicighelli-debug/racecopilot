@@ -5,6 +5,7 @@ import { RaceHeader } from '@/components/race-header';
 import { WeatherCard } from '@/components/weather-card';
 import { WaterfallChart } from '@/components/waterfall-chart';
 import { ElevationChart } from '@/components/elevation-chart';
+import { CourseMap } from '@/components/course-map';
 import { Disclaimer } from '@/components/disclaimer';
 import { RacePlanClient } from '@/components/race-plan-client';
 
@@ -12,6 +13,10 @@ export default function Home() {
   const gpxContent = readFileSync(raceConfig.gpxPath, 'utf-8');
   const gpxPoints = parseGpx(gpxContent);
   const course = buildElevationProfile(gpxPoints, raceConfig.distanceKm);
+
+  // Sample GPX points for the course map (every ~50m for smooth rendering)
+  const step = Math.max(1, Math.floor(gpxPoints.length / 800));
+  const mapPoints = gpxPoints.filter((_, i) => i % step === 0 || i === gpxPoints.length - 1);
 
   const targetPace = raceConfig.targetTime / raceConfig.distanceKm;
 
@@ -40,6 +45,7 @@ export default function Home() {
         <WaterfallChart waterfall={plan.forecast.waterfall} weather={weather} course={course} />
       )}
       <RacePlanClient plan={plan} />
+      <CourseMap points={mapPoints} distanceKm={raceConfig.distanceKm} />
       <ElevationChart course={course} />
       <Disclaimer />
     </main>
