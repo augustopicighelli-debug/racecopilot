@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { formatPaceShort, formatTime } from '@/lib/format';
 import type { SplitKm, HydrationPlan, NutritionPlan } from '@/lib/engine/types';
 
@@ -20,10 +19,19 @@ function paceColor(pace: number, avgPace: number): string {
   return '';
 }
 
-export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTableProps) {
-  const [expanded, setExpanded] = useState(false);
+interface Chunk {
+  index: number;
+  label: string;
+  avgPaceChunk: number;
+  endTime: number;
+  splits: SplitKm[];
+}
 
-  // Build lookup maps for hydration and nutrition events by km
+export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTableProps) {
+  const [expandAll, setExpandAll] = useState(false);
+  const [expandedChunks, setExpandedChunks] = useState<Set<number>>(new Set());
+
+  // Build lookup maps
   const hydrationByKm = new Map<number, number>();
   for (const e of hydration.events) {
     hydrationByKm.set(e.km, e.mlToDrink);
@@ -33,23 +41,74 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
   for (const e of nutrition.events) {
     const items = nutritionByKm.get(e.km) ?? [];
     const label = e.product.type === 'salt_pill'
-      ? `${e.product.name}`
+      ? e.product.name
       : `${e.product.name} (${e.carbsGrams}g)`;
     items.push(label);
     nutritionByKm.set(e.km, items);
   }
 
-  // Group splits into 5km chunks for collapsed view
+  // Group into 5km chunks
   const chunkSize = 5;
-  const chunks: { label: string; startKm: number; endKm: number; avgPaceChunk: number; endTime: number; splits: SplitKm[] }[] = [];
-
+  const chunks: Chunk[] = [];
   for (let i = 0; i < splits.length; i += chunkSize) {
     const chunk = splits.slice(i, i + chunkSize);
     const startKm = chunk[0].km;
     const endKm = chunk[chunk.length - 1].km;
     const avgPaceChunk = chunk.reduce((sum, s) => sum + s.paceSecondsPerKm, 0) / chunk.length;
     const endTime = chunk[chunk.length - 1].cumulativeTimeSeconds;
-    chunks.push({ label: `Km ${startKm}-${endKm}`, startKm, endKm, avgPaceChunk, endTime, splits: chunk });
+    chunks.push({ index: Math.floor(i / chunkSize), label: `Km ${startKm}-${endKm}`, avgPaceChunk, endTime, splits: chunk });
+  }
+
+  function toggleChunk(index: number) {
+    setExpandedChunks(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  }
+
+  function handleExpandAll() {
+    if (expandAll) {
+      setExpandAll(false);
+      setExpandedChunks(new Set());
+    } else {
+      setExpandAll(true);
+      setExpandedChunks(new Set(chunks.map(c => c.index)));
+    }
+  }
+
+  function isChunkExpanded(index: number) {
+    return expandAll || expandedChunks.has(index);
+  }
+
+  function renderDetailRow(s: SplitKm) {
+    const ml = hydrationByKm.get(s.km);
+    const nutItems = nutritionByKm.get(s.km);
+    const notes = [s.elevationNote, s.windNote].filter(Boolean);
+
+    return (
+      <tr key={`detail-${s.km}`} className="border-b border-[var(--border)]/30 bg-[var(--background)]/50">
+        <td className="py-1 pl-6 pr-2 font-mono text-[var(--muted-foreground)]">{s.km}</td>
+        <td className={`py-1 px-2 text-right font-mono ${paceColor(s.paceSecondsPerKm, avgPace)}`}>
+          {formatPaceShort(s.paceSecondsPerKm)}
+        </td>
+        <td className="py-1 px-2 text-right font-mono text-[var(--muted-foreground)]">
+          {formatTime(s.cumulativeTimeSeconds)}
+        </td>
+        <td className="py-1 px-2">
+          {ml ? <span className="text-blue-400 text-xs">{ml}ml</span> : null}
+        </td>
+        <td className="py-1 px-2 text-xs">
+          {nutItems && nutItems.map((n, i) => (
+            <span key={i} className="text-amber-400">{n}{i < nutItems.length - 1 ? ', ' : ''}</span>
+          ))}
+        </td>
+        <td className="py-1 pl-2 text-xs text-[var(--muted-foreground)]">
+          {notes.join(', ')}
+        </td>
+      </tr>
+    );
   }
 
   return (
@@ -65,10 +124,10 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
           </p>
         </div>
         <button
-          onClick={() => setExpanded(!expanded)}
+          onClick={handleExpandAll}
           className="text-xs text-[var(--primary)] hover:underline flex-shrink-0"
         >
-          {expanded ? 'Resumen 5K' : 'Ver km a km'}
+          {expandAll ? 'Colapsar todo' : 'Ver km a km'}
         </button>
       </CardHeader>
       <CardContent className="overflow-x-auto">
@@ -79,62 +138,51 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
               <th className="text-right py-2 px-2">Ritmo</th>
               <th className="text-right py-2 px-2">Tiempo</th>
               <th className="text-left py-2 px-2">Hidrat.</th>
-              <th className="text-left py-2 pl-2">Nutricion</th>
+              <th className="text-left py-2 px-2">Nutricion</th>
+              <th className="text-left py-2 pl-2">Terreno</th>
             </tr>
           </thead>
           <tbody>
-            {expanded
-              ? splits.map((s) => {
-                  const ml = hydrationByKm.get(s.km);
-                  const nutItems = nutritionByKm.get(s.km);
-                  const notes = [s.elevationNote, s.windNote].filter(Boolean).join(', ');
-                  return (
-                    <tr key={s.km} className="border-b border-[var(--border)]/50">
-                      <td className="py-1.5 pr-2 font-mono">{s.km}</td>
-                      <td className={`py-1.5 px-2 text-right font-mono ${paceColor(s.paceSecondsPerKm, avgPace)}`}>
-                        {formatPaceShort(s.paceSecondsPerKm)}
-                      </td>
-                      <td className="py-1.5 px-2 text-right font-mono text-[var(--muted-foreground)]">
-                        {formatTime(s.cumulativeTimeSeconds)}
-                      </td>
-                      <td className="py-1.5 px-2">
-                        {ml && <span className="text-blue-400 text-xs">{ml}ml</span>}
-                      </td>
-                      <td className="py-1.5 pl-2 text-xs">
-                        {nutItems && nutItems.map((n, i) => (
-                          <span key={i} className="text-amber-400">{n}{i < nutItems.length - 1 ? ', ' : ''}</span>
-                        ))}
-                        {notes && !nutItems && (
-                          <span className="text-[var(--muted-foreground)]">{notes}</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
-              : chunks.map((chunk) => {
-                  // Collect hydration and nutrition events in this chunk
-                  const chunkMl = chunk.splits.reduce((sum, s) => sum + (hydrationByKm.get(s.km) ?? 0), 0);
-                  const chunkNut = chunk.splits.flatMap(s => nutritionByKm.get(s.km) ?? []);
-                  return (
-                    <tr key={chunk.label} className="border-b border-[var(--border)]/50">
-                      <td className="py-2 pr-2 font-medium">{chunk.label}</td>
-                      <td className={`py-2 px-2 text-right font-mono ${paceColor(chunk.avgPaceChunk, avgPace)}`}>
-                        {formatPaceShort(chunk.avgPaceChunk)}
-                      </td>
-                      <td className="py-2 px-2 text-right font-mono text-[var(--muted-foreground)]">
-                        {formatTime(chunk.endTime)}
-                      </td>
-                      <td className="py-2 px-2">
-                        {chunkMl > 0 && <span className="text-blue-400 text-xs">{chunkMl}ml</span>}
-                      </td>
-                      <td className="py-2 pl-2 text-xs">
-                        {chunkNut.length > 0 && (
-                          <span className="text-amber-400">{chunkNut.length}x gel/sal</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+            {chunks.map((chunk) => {
+              const open = isChunkExpanded(chunk.index);
+              const chunkMl = chunk.splits.reduce((sum, s) => sum + (hydrationByKm.get(s.km) ?? 0), 0);
+              const chunkNut = chunk.splits.flatMap(s => nutritionByKm.get(s.km) ?? []);
+              const chunkNotes = chunk.splits.flatMap(s => [s.elevationNote, s.windNote].filter(Boolean));
+              const uniqueNotes = [...new Set(chunkNotes)];
+
+              return [
+                <tr
+                  key={`chunk-${chunk.index}`}
+                  className="border-b border-[var(--border)]/50 cursor-pointer hover:bg-[var(--accent)]/30 transition-colors"
+                  onClick={() => toggleChunk(chunk.index)}
+                >
+                  <td className="py-2 pr-2 font-medium">
+                    <span className="inline-block w-4 text-[var(--muted-foreground)] text-xs">
+                      {open ? '▾' : '▸'}
+                    </span>
+                    {chunk.label}
+                  </td>
+                  <td className={`py-2 px-2 text-right font-mono ${paceColor(chunk.avgPaceChunk, avgPace)}`}>
+                    {formatPaceShort(chunk.avgPaceChunk)}
+                  </td>
+                  <td className="py-2 px-2 text-right font-mono text-[var(--muted-foreground)]">
+                    {formatTime(chunk.endTime)}
+                  </td>
+                  <td className="py-2 px-2">
+                    {chunkMl > 0 && <span className="text-blue-400 text-xs">{chunkMl}ml</span>}
+                  </td>
+                  <td className="py-2 px-2 text-xs">
+                    {chunkNut.length > 0 && (
+                      <span className="text-amber-400">{chunkNut.length}x gel/sal</span>
+                    )}
+                  </td>
+                  <td className="py-2 pl-2 text-xs text-[var(--muted-foreground)]">
+                    {uniqueNotes.length > 0 && uniqueNotes.join(', ')}
+                  </td>
+                </tr>,
+                ...(open ? chunk.splits.map(s => renderDetailRow(s)) : []),
+              ];
+            })}
           </tbody>
         </table>
       </CardContent>
