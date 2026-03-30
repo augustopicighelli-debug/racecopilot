@@ -19,6 +19,58 @@ function paceColor(pace: number, avgPace: number): string {
   return '';
 }
 
+/** Build rich explanatory notes from the split breakdown + events */
+function buildNotes(
+  s: SplitKm,
+  hasHydration: boolean,
+  hasNutrition: boolean,
+  totalKm: number,
+): string[] {
+  const notes: string[] = [];
+  const bd = s.breakdown;
+
+  // Km 1: largada
+  if (s.km === 1) {
+    notes.push('largada');
+  }
+
+  // Elevation
+  if (bd.elevationDelta > 2) {
+    notes.push('subida');
+  } else if (bd.elevationDelta < -2) {
+    notes.push('bajada');
+  }
+
+  // Wind
+  if (bd.windDelta > 1) {
+    notes.push('viento en contra');
+  } else if (bd.windDelta < -1) {
+    notes.push('viento a favor');
+  }
+
+  // Fatigue (glycogen depletion, typically after km 30)
+  if (bd.fatigueFactor > 1.01) {
+    notes.push('fatiga');
+  }
+
+  // Hydration stop — costs a few seconds
+  if (hasHydration) {
+    notes.push('hidratacion');
+  }
+
+  // Nutrition stop — costs a few seconds
+  if (hasNutrition) {
+    notes.push('alimentacion');
+  }
+
+  // Climate if significant
+  if (bd.climateFactor > 1.02) {
+    notes.push('calor');
+  }
+
+  return notes;
+}
+
 interface Chunk {
   index: number;
   label: string;
@@ -82,10 +134,14 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
     return expandAll || expandedChunks.has(index);
   }
 
+  const totalKm = splits.length;
+
   function renderDetailRow(s: SplitKm) {
     const ml = hydrationByKm.get(s.km);
     const nutItems = nutritionByKm.get(s.km);
-    const notes = [s.elevationNote, s.windNote].filter(Boolean);
+    const hasHyd = hydrationByKm.has(s.km);
+    const hasNut = nutritionByKm.has(s.km);
+    const notes = buildNotes(s, hasHyd, hasNut, totalKm);
 
     return (
       <tr key={`detail-${s.km}`} className="border-b border-[var(--border)]/30 bg-[var(--background)]/50">
@@ -139,7 +195,7 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
               <th className="text-right py-2 px-2">Tiempo</th>
               <th className="text-left py-2 px-2">Hidrat.</th>
               <th className="text-left py-2 px-2">Nutricion</th>
-              <th className="text-left py-2 pl-2">Terreno</th>
+              <th className="text-left py-2 pl-2">Notas</th>
             </tr>
           </thead>
           <tbody>
@@ -147,8 +203,6 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
               const open = isChunkExpanded(chunk.index);
               const chunkMl = chunk.splits.reduce((sum, s) => sum + (hydrationByKm.get(s.km) ?? 0), 0);
               const chunkNut = chunk.splits.flatMap(s => nutritionByKm.get(s.km) ?? []);
-              const chunkNotes = chunk.splits.flatMap(s => [s.elevationNote, s.windNote].filter(Boolean));
-              const uniqueNotes = [...new Set(chunkNotes)];
 
               return [
                 <tr
@@ -176,9 +230,7 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
                       <span className="text-amber-400">{chunkNut.length}x gel/sal</span>
                     )}
                   </td>
-                  <td className="py-2 pl-2 text-xs text-[var(--muted-foreground)]">
-                    {uniqueNotes.length > 0 && uniqueNotes.join(', ')}
-                  </td>
+                  <td />
                 </tr>,
                 ...(open ? chunk.splits.map(s => renderDetailRow(s)) : []),
               ];
