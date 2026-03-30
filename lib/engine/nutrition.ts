@@ -1,4 +1,4 @@
-import type { NutritionEvent, NutritionPlan, NutritionProduct } from './types';
+import type { NutritionEvent, NutritionPlan, NutritionProduct, SweatLevel } from './types';
 
 const SHORT_RACE_THRESHOLD = 75 * 60; // 75 minutes in seconds
 const DISCLAIMER =
@@ -9,8 +9,16 @@ const CARBS_PER_HOUR_MIN = 60;
 const CARBS_PER_HOUR_MAX = 90;
 const CARBS_PER_HOUR_TARGET = (CARBS_PER_HOUR_MIN + CARBS_PER_HOUR_MAX) / 2; // 75 g/h
 
-// Sodium lost per litre of sweat (mg)
-const SODIUM_PER_LITRE_MG = 1000;
+// Sodium target per hour by sweat level (mg/h) — based on ACSM guidelines
+// Adjusted upward per Baker et al. 2016 and Del Coso et al. 2016
+// Low: 300-400, Medium: 500-600, High: 700-900
+const SODIUM_TARGET_PER_HOUR: Record<SweatLevel, number> = {
+  low: 350,
+  medium: 550,
+  high: 800,
+};
+
+// Minimum interval between salt pills = time to run 5km at race pace
 
 export interface GenerateNutritionPlanInput {
   totalTimeSeconds: number;
@@ -18,7 +26,33 @@ export interface GenerateNutritionPlanInput {
   paceSecondsPerKm: number;
   products: NutritionProduct[];
   sweatRateMlPerHour: number;
+  sweatLevel: SweatLevel;
   breakfastHoursAgo: number;
+  hydrationKms?: number[];  // km points where hydration events occur, for alignment
+}
+
+/** Round to nearest 0.5 km (e.g. 12.1 → 12, 12.3 → 12.5, 17.9 → 18) */
+function roundToHalf(km: number): number {
+  return Math.round(km * 2) / 2;
+}
+
+/**
+ * Snap a km value to the nearest hydration point if within maxDriftKm.
+ * This lets the runner take gel + water at the same aid station.
+ * Falls back to rounding to nearest 0.5 km.
+ */
+function snapToHydration(km: number, hydrationKms: number[], maxDriftKm: number): number {
+  if (hydrationKms.length === 0) return roundToHalf(km);
+  let best = km;
+  let bestDist = Infinity;
+  for (const hKm of hydrationKms) {
+    const dist = Math.abs(hKm - km);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = hKm;
+    }
+  }
+  return bestDist <= maxDriftKm ? best : roundToHalf(km);
 }
 
 export function generateNutritionPlan(input: GenerateNutritionPlanInput): NutritionPlan {
@@ -28,23 +62,33 @@ export function generateNutritionPlan(input: GenerateNutritionPlanInput): Nutrit
     paceSecondsPerKm,
     products,
     sweatRateMlPerHour,
+    sweatLevel,
     breakfastHoursAgo,
+    hydrationKms = [],
   } = input;
 
   const totalHours = totalTimeSeconds / 3600;
   const isShortRace = totalTimeSeconds < SHORT_RACE_THRESHOLD;
 
-  // Pre-race gel: suggest when breakfast was more than 2 hours ago
+  // Pre-race: recommend real food (banana or membrillo) ~15 min before start
+  // Only when breakfast was >2h ago — otherwise glycogen stores are sufficient
   let preRaceGel: NutritionEvent | undefined;
   const gelProduct = products.find(p => p.type === 'gel');
-  if (breakfastHoursAgo > 2 && gelProduct) {
+  if (breakfastHoursAgo > 2) {
+    const preRaceProduct: NutritionProduct = {
+      name: 'Banana o membrillo',
+      carbsGrams: 25,
+      sodiumMg: 0,
+      caffeineMg: 0,
+      type: 'gel', // reuse type for compatibility
+    };
     preRaceGel = {
       km: 0,
       minutesSinceStart: -15,
-      product: gelProduct,
-      carbsGrams: gelProduct.carbsGrams,
-      sodiumMg: gelProduct.sodiumMg,
-      note: 'Gel pre-carrera: tomarlo ~15 min antes de la largada',
+      product: preRaceProduct,
+      carbsGrams: preRaceProduct.carbsGrams,
+      sodiumMg: 0,
+      note: 'Snack pre-carrera: banana o bocado de membrillo ~15 min antes de la largada',
     };
   }
 
@@ -66,28 +110,31 @@ export function generateNutritionPlan(input: GenerateNutritionPlanInput): Nutrit
   // Total carbs needed
   const totalCarbsNeeded = Math.round(CARBS_PER_HOUR_TARGET * totalHours);
 
-  // Total sodium lost via sweat
-  const totalFluidLiters = (sweatRateMlPerHour * totalHours) / 1000;
-  const totalSodiumNeeded = Math.round(totalFluidLiters * SODIUM_PER_LITRE_MG);
+  // Total sodium target based on ACSM guidelines per sweat level (mg/h × hours)
+  const totalSodiumNeeded = Math.round(SODIUM_TARGET_PER_HOUR[sweatLevel] * totalHours);
 
-  // Build gel events: first at 45 min, then every 30 min
+  // Build gel events: first at 25 min (~km 5), then every 25 min
+  // Jeukendrup 2014: start fueling within first 30min, peak exogenous oxidation at ~75-90min
   const gelEvents: NutritionEvent[] = [];
-  const firstGelMinute = 45;
-  const gelIntervalMinutes = 30;
+  const firstGelMinute = 25;
+  const gelIntervalMinutes = 25;
   const totalMinutes = totalTimeSeconds / 60;
 
   let currentMinute = firstGelMinute;
   let cumulativeCarbs = 0;
 
   while (currentMinute <= totalMinutes - 5 && gelProduct) {
-    const km = Math.min((currentMinute / totalMinutes) * distanceKm, distanceKm);
+    const rawKm = Math.min((currentMinute / totalMinutes) * distanceKm, distanceKm);
+    const km = snapToHydration(Math.round(rawKm * 10) / 10, hydrationKms, 2);
+    // Recalculate minute from snapped km
+    const snappedMinute = (km / distanceKm) * totalMinutes;
     gelEvents.push({
-      km: Math.round(km * 10) / 10,
-      minutesSinceStart: currentMinute,
+      km,
+      minutesSinceStart: Math.round(snappedMinute),
       product: gelProduct,
       carbsGrams: gelProduct.carbsGrams,
       sodiumMg: gelProduct.sodiumMg,
-      note: `Gel en km ${Math.round(km * 10) / 10}`,
+      note: `Gel en km ${km}`,
     });
     cumulativeCarbs += gelProduct.carbsGrams;
     currentMinute += gelIntervalMinutes;
@@ -105,22 +152,30 @@ export function generateNutritionPlan(input: GenerateNutritionPlanInput): Nutrit
     const pillsNeeded = Math.ceil(sodiumDeficit / saltPillProduct.sodiumMg);
 
     // Distribute salt pills evenly across the race (starting at ~1h mark)
+    // Minimum interval = time to run 5km at race pace
+    const minSaltIntervalMinutes = (paceSecondsPerKm * 5) / 60;
     const saltStartMinute = 60;
-    const saltInterval =
-      pillsNeeded > 1
-        ? Math.floor((totalMinutes - saltStartMinute) / (pillsNeeded - 1))
-        : totalMinutes;
+    const availableMinutes = totalMinutes - saltStartMinute - 5;
+    const maxPillsByInterval = Math.max(1, Math.floor(availableMinutes / minSaltIntervalMinutes) + 1);
+    const actualPills = Math.min(pillsNeeded, maxPillsByInterval);
 
-    for (let i = 0; i < pillsNeeded; i++) {
+    const saltInterval =
+      actualPills > 1
+        ? Math.max(minSaltIntervalMinutes, Math.floor(availableMinutes / (actualPills - 1)))
+        : availableMinutes;
+
+    for (let i = 0; i < actualPills; i++) {
       const minute = Math.min(saltStartMinute + i * saltInterval, totalMinutes - 5);
-      const km = Math.min((minute / totalMinutes) * distanceKm, distanceKm);
+      const rawKm = Math.min((minute / totalMinutes) * distanceKm, distanceKm);
+      const km = snapToHydration(Math.round(rawKm * 10) / 10, hydrationKms, 2);
+      const snappedMinute = (km / distanceKm) * totalMinutes;
       saltPillEvents.push({
-        km: Math.round(km * 10) / 10,
-        minutesSinceStart: minute,
+        km,
+        minutesSinceStart: Math.round(snappedMinute),
         product: saltPillProduct,
         carbsGrams: 0,
         sodiumMg: saltPillProduct.sodiumMg,
-        note: `Sal en km ${Math.round(km * 10) / 10}`,
+        note: `Sal en km ${km}`,
       });
     }
   }
