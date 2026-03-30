@@ -89,13 +89,13 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
     hydrationByKm.set(e.km, e.mlToDrink);
   }
 
-  const nutritionByKm = new Map<number, string[]>();
+  const nutritionByKm = new Map<number, { label: string; type: string }[]>();
   for (const e of nutrition.events) {
     const items = nutritionByKm.get(e.km) ?? [];
     const label = e.product.type === 'salt_pill'
       ? e.product.name
       : `${e.product.name} (${e.carbsGrams}g)`;
-    items.push(label);
+    items.push({ label, type: e.product.type });
     nutritionByKm.set(e.km, items);
   }
 
@@ -157,7 +157,7 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
         </td>
         <td className="py-1 px-2 text-xs">
           {nutItems && nutItems.map((n, i) => (
-            <span key={i} className="text-amber-400">{n}{i < nutItems.length - 1 ? ', ' : ''}</span>
+            <span key={i} className="text-amber-400">{n.label}{i < nutItems.length - 1 ? ', ' : ''}</span>
           ))}
         </td>
         <td className="py-1 pl-2 text-xs text-[var(--muted-foreground)]">
@@ -202,7 +202,12 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
             {chunks.map((chunk) => {
               const open = isChunkExpanded(chunk.index);
               const chunkMl = chunk.splits.reduce((sum, s) => sum + (hydrationByKm.get(s.km) ?? 0), 0);
-              const chunkNut = chunk.splits.flatMap(s => nutritionByKm.get(s.km) ?? []);
+              const chunkNutItems = chunk.splits.flatMap(s => nutritionByKm.get(s.km) ?? []);
+              const gelCount = chunkNutItems.filter(n => n.type === 'gel').length;
+              const saltCount = chunkNutItems.filter(n => n.type === 'salt_pill').length;
+              const nutSummary: string[] = [];
+              if (gelCount > 0) nutSummary.push(`${gelCount} gel${gelCount > 1 ? 'es' : ''}`);
+              if (saltCount > 0) nutSummary.push(`${saltCount} sal${saltCount > 1 ? 'es' : ''}`);
 
               return [
                 <tr
@@ -226,8 +231,8 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
                     {chunkMl > 0 && <span className="text-blue-400 text-xs">{chunkMl}ml</span>}
                   </td>
                   <td className="py-2 px-2 text-xs">
-                    {chunkNut.length > 0 && (
-                      <span className="text-amber-400">{chunkNut.length}x gel/sal</span>
+                    {nutSummary.length > 0 && (
+                      <span className="text-amber-400">{nutSummary.join(', ')}</span>
                     )}
                   </td>
                   <td />
