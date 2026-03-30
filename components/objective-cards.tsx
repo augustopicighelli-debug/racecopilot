@@ -50,7 +50,7 @@ export function ObjectiveCards({ plan, selected, onSelect }: ObjectiveCardsProps
                 <p className="text-2xl font-bold tabular-nums">
                   {formatTime(obj.data.prediction.timeSeconds)}
                 </p>
-                <p className="text-sm text-[var(--muted-foreground)]">
+                <p className="text-lg font-semibold text-[var(--primary)] tabular-nums">
                   {formatPace(obj.data.prediction.paceSecondsPerKm)}
                 </p>
                 {obj.sublabel && (

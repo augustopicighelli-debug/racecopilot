@@ -19,6 +19,33 @@ interface PaceChartProps {
   avgPace: number;
 }
 
+const CustomTooltip = ({ active, payload, label, avgPace }: any) => {
+  if (!active || !payload?.[0]) return null;
+  const d = payload[0].payload;
+  const sign = d.delta >= 0 ? '+' : '';
+  const color = d.delta > 3 ? '#f87171' : d.delta < -3 ? '#34d399' : '#a1a1aa';
+
+  return (
+    <div style={{
+      background: 'oklch(0.178 0 0)',
+      border: '1px solid oklch(0.269 0 0)',
+      borderRadius: '8px',
+      padding: '8px 12px',
+      fontSize: '13px',
+    }}>
+      <div style={{ color: '#e4e4e7', fontWeight: 600, marginBottom: '4px' }}>
+        Km {d.km}
+      </div>
+      <div style={{ color, fontFamily: 'monospace', fontSize: '16px', fontWeight: 700 }}>
+        {formatPaceShort(d.pace)}/km
+      </div>
+      <div style={{ color: '#a1a1aa', fontSize: '11px', marginTop: '2px' }}>
+        {sign}{d.delta}s vs promedio
+      </div>
+    </div>
+  );
+};
+
 export function PaceChart({ splits, avgPace }: PaceChartProps) {
   const data = splits.map((s) => ({
     km: s.km,
@@ -52,18 +79,8 @@ export function PaceChart({ splits, avgPace }: PaceChartProps) {
                 domain={['auto', 'auto']}
               />
               <Tooltip
-                contentStyle={{
-                  background: 'oklch(0.178 0 0)',
-                  border: '1px solid oklch(0.269 0 0)',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                }}
-                formatter={(value: any, name: string, props: any) => {
-                  const d = props.payload;
-                  const sign = d.delta >= 0 ? '+' : '';
-                  return [`${formatPaceShort(d.pace)}/km (${sign}${d.delta}s)`, 'Ritmo'];
-                }}
-                labelFormatter={(km) => `Km ${km}`}
+                content={<CustomTooltip avgPace={avgPace} />}
+                cursor={{ fill: 'oklch(0.3 0 0 / 0.3)' }}
               />
               <ReferenceLine y={0} stroke="oklch(0.708 0 0)" strokeDasharray="3 3" />
               <Bar dataKey="delta" radius={[2, 2, 0, 0]}>
