@@ -55,7 +55,8 @@ export function ElevationChart({ course }: ElevationChartProps) {
                   borderRadius: '8px',
                   fontSize: '12px',
                 }}
-                formatter={(value: number, name: string) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                formatter={(value: any, name: any) => {
                   if (name === 'elevation') return [`${value}m`, 'Elevacion'];
                   return [value, name];
                 }}
