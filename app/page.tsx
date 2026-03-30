@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { generateRacePlan, buildElevationProfile, parseGpx } from '@/lib/engine';
 import { runner, weather, strategy, raceConfig } from '@/lib/data/mendoza';
 import { RaceHeader } from '@/components/race-header';
+import { WeatherCard } from '@/components/weather-card';
 import { WaterfallChart } from '@/components/waterfall-chart';
 import { ElevationChart } from '@/components/elevation-chart';
 import { Disclaimer } from '@/components/disclaimer';
@@ -34,6 +35,7 @@ export default function Home() {
         hasGpx={course.hasGpx}
         confidence={plan.forecast.confidence}
       />
+      <WeatherCard weather={weather} />
       {plan.forecast.waterfall && (
         <WaterfallChart waterfall={plan.forecast.waterfall} weather={weather} course={course} />
       )}
