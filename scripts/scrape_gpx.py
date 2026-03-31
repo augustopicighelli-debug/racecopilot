@@ -26,6 +26,38 @@ SESSION.headers.update({"User-Agent": USER_AGENT})
 
 DELAY_RANGE = (1.0, 2.0)
 
+# Countries with major running events on GoAndRace
+COUNTRIES = [
+    "Argentina", "Brazil", "Chile", "Colombia", "Mexico", "Peru", "Uruguay",
+    "United-States", "Canada",
+    "Spain", "France", "Italy", "Germany", "United-Kingdom", "Netherlands",
+    "Portugal", "Switzerland", "Belgium", "Austria",
+    "Japan", "China", "South-Korea", "Australia", "New-Zealand",
+    "South-Africa", "Kenya", "Ethiopia",
+]
+
+# Race type filters
+RACE_TYPES = [
+    {"ok_marath": "ok_marath"},          # Marathon
+    {"ok_half_marath": "ok_half_marath"}, # Half-marathon
+]
+
+
+def fetch_index(country: str, race_type_params: dict) -> str:
+    """Fetch race index page for a country and race type."""
+    params = {"Country": country, **race_type_params}
+    resp = SESSION.get(INDEX_URL, params=params, timeout=30)
+    resp.raise_for_status()
+    return resp.text
+
+
+def fetch_page(url: str) -> str:
+    """Fetch any page with rate limiting."""
+    delay()
+    resp = SESSION.get(url, timeout=30)
+    resp.raise_for_status()
+    return resp.text
+
 
 def delay():
     """Sleep a random 1-2s between requests."""
