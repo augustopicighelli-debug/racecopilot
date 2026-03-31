@@ -1,7 +1,7 @@
 # scripts/test_scrape_gpx.py
 """Tests for GoAndRace GPX scraper parsing logic."""
 
-from scrape_gpx import parse_index_page, parse_detail_page, parse_map_page
+from scrape_gpx import parse_index_page, parse_detail_page, parse_map_page, make_gpx_slug, is_already_downloaded
 
 INDEX_HTML = """
 <html><body>
@@ -112,3 +112,17 @@ def test_parse_map_page():
 def test_parse_map_page_no_gpx():
     url = parse_map_page(MAP_HTML_NO_GPX)
     assert url is None
+
+
+def test_make_gpx_slug():
+    assert make_gpx_slug("Buenos Aires Marathon", 2026, "42.195 km") == "buenos-aires-marathon-2026-42k"
+    assert make_gpx_slug("Maratón de Mendoza", 2026, "21.1 km") == "maraton-de-mendoza-2026-21k"
+    assert make_gpx_slug("Berlin Marathon", 2025, "42.195 km") == "berlin-marathon-2025-42k"
+
+
+def test_is_already_downloaded():
+    catalog = [
+        {"source_url": "https://goandrace.com/gpx/2026/test.gpx"},
+    ]
+    assert is_already_downloaded(catalog, "https://goandrace.com/gpx/2026/test.gpx") is True
+    assert is_already_downloaded(catalog, "https://goandrace.com/gpx/2026/other.gpx") is False

@@ -8,6 +8,7 @@ import sys
 import time
 import random
 import argparse
+import unicodedata
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -117,6 +118,30 @@ def parse_map_page(html: str) -> str | None:
     if not link:
         return None
     return link["href"]
+
+
+def _strip_accents(text: str) -> str:
+    """Remove accents from text."""
+    nfkd = unicodedata.normalize("NFKD", text)
+    return "".join(c for c in nfkd if not unicodedata.combining(c))
+
+
+def make_gpx_slug(name: str, year: int, distance: str) -> str:
+    """Generate a clean slug for a GPX filename."""
+    # Normalize distance: "42.195 km" -> "42k", "21.1 km" -> "21k"
+    dist_short = ""
+    dist_match = re.match(r"([\d.]+)", distance)
+    if dist_match:
+        dist_short = str(int(float(dist_match.group(1)))) + "k"
+
+    slug = _strip_accents(name).lower()
+    slug = re.sub(r"[^a-z0-9]+", "-", slug).strip("-")
+    return f"{slug}-{year}-{dist_short}" if dist_short else f"{slug}-{year}"
+
+
+def is_already_downloaded(catalog: list[dict], source_url: str) -> bool:
+    """Check if a GPX source URL already exists in the catalog."""
+    return any(entry["source_url"] == source_url for entry in catalog)
 
 
 if __name__ == "__main__":
