@@ -1,7 +1,7 @@
 # scripts/test_scrape_gpx.py
 """Tests for GoAndRace GPX scraper parsing logic."""
 
-from scrape_gpx import parse_index_page
+from scrape_gpx import parse_index_page, parse_detail_page
 
 INDEX_HTML = """
 <html><body>
@@ -51,3 +51,37 @@ def test_parse_index_page():
     assert races[0]["city"] == "Buenos Aires"
     assert races[1]["name"] == "Maratón de Mendoza 2026"
     assert races[1]["country"] == "Argentina"
+
+
+DETAIL_HTML = """
+<html><body>
+<div id="DettagliPercorsi">
+  <div class="race-course-item">
+    <h5>Race 1 - 42.195 km</h5>
+    <div class="race-course-actions">
+      <a href="../../en/map/2026/buenos-aires-marathon-2026-course-map-1.php">2D Map</a>
+    </div>
+  </div>
+  <div class="race-course-item">
+    <h5>Race 2 - 21.1 km</h5>
+    <p>No course map available.</p>
+  </div>
+  <div class="race-course-item">
+    <h5>Race 3 - 10.0 km</h5>
+    <div class="race-course-actions">
+      <a href="../../en/map/2026/buenos-aires-marathon-2026-course-map-3.php">2D Map</a>
+    </div>
+  </div>
+</div>
+</body></html>
+"""
+
+
+def test_parse_detail_page():
+    maps = parse_detail_page(DETAIL_HTML)
+    assert len(maps) == 2
+    assert maps[0]["distance"] == "42.195 km"
+    assert maps[0]["race_num"] == 1
+    assert "course-map-1.php" in maps[0]["map_url"]
+    assert maps[1]["distance"] == "10.0 km"
+    assert maps[1]["race_num"] == 3

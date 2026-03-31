@@ -81,5 +81,31 @@ def parse_index_page(html: str) -> list[dict]:
     return races
 
 
+def parse_detail_page(html: str) -> list[dict]:
+    """Parse race detail HTML, return list of map links with distance info."""
+    soup = BeautifulSoup(html, "lxml")
+    maps = []
+    for item in soup.select(".race-course-item"):
+        map_link = item.select_one("a[href*='course-map']")
+        if not map_link:
+            continue
+        h5 = item.select_one("h5")
+        distance = ""
+        race_num = 0
+        if h5:
+            text = h5.get_text(strip=True)
+            # "Race 1 - 42.195 km" -> distance="42.195 km", race_num=1
+            m = re.match(r"Race\s+(\d+)\s*-\s*(.+)", text)
+            if m:
+                race_num = int(m.group(1))
+                distance = m.group(2).strip()
+        maps.append({
+            "distance": distance,
+            "race_num": race_num,
+            "map_url": map_link["href"],
+        })
+    return maps
+
+
 if __name__ == "__main__":
     print("scrape_gpx.py — skeleton OK")
