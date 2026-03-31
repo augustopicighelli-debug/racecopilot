@@ -26,14 +26,14 @@ SESSION.headers.update({"User-Agent": USER_AGENT})
 
 DELAY_RANGE = (1.0, 2.0)
 
-# Countries with major running events on GoAndRace
+# Countries with major running events on GoAndRace (ISO 2-letter codes)
 COUNTRIES = [
-    "Argentina", "Brazil", "Chile", "Colombia", "Mexico", "Peru", "Uruguay",
-    "United-States", "Canada",
-    "Spain", "France", "Italy", "Germany", "United-Kingdom", "Netherlands",
-    "Portugal", "Switzerland", "Belgium", "Austria",
-    "Japan", "China", "South-Korea", "Australia", "New-Zealand",
-    "South-Africa", "Kenya", "Ethiopia",
+    "AR", "BR", "CL", "CO", "MX", "PE", "UY",  # South America
+    "US", "CA",                                    # North America
+    "ES", "FR", "IT", "DE", "GB", "NL",           # Europe
+    "PT", "CH", "BE", "AT",
+    "JP", "CN", "KR", "AU", "NZ",                 # Asia-Pacific
+    "ZA", "KE", "ET",                              # Africa
 ]
 
 # Race type filters
@@ -146,13 +146,17 @@ def parse_detail_page(html: str) -> list[dict]:
 def parse_map_page(html: str) -> str | None:
     """Parse map page HTML, return GPX download URL or None."""
     soup = BeautifulSoup(html, "lxml")
+    # Try div#gpx first (older pages), then fall back to any .gpx link on page
     gpx_div = soup.select_one("div#gpx")
-    if not gpx_div:
-        return None
-    link = gpx_div.select_one("a[href$='.gpx'], a[href*='.gpx?']")
-    if not link:
-        return None
-    return link["href"]
+    if gpx_div:
+        link = gpx_div.select_one("a[href$='.gpx'], a[href*='.gpx?']")
+        if link:
+            return link["href"]
+    # Fallback: find any .gpx download link on the page
+    link = soup.select_one("a[href$='.gpx'], a[href*='.gpx?']")
+    if link:
+        return link["href"]
+    return None
 
 
 def _strip_accents(text: str) -> str:
@@ -171,7 +175,10 @@ def make_gpx_slug(name: str, year: int, distance: str, race_num: int = 0) -> str
 
     slug = _strip_accents(name).lower()
     slug = re.sub(r"[^a-z0-9]+", "-", slug).strip("-")
-    parts = [slug, str(year)]
+    # Avoid duplicating year if already in the name
+    parts = [slug]
+    if str(year) not in slug:
+        parts.append(str(year))
     if dist_short:
         parts.append(dist_short)
     if race_num > 1:

@@ -119,6 +119,8 @@ def test_make_gpx_slug():
     # accent stripping
     assert make_gpx_slug("Maratón de Mendoza", 2026, "21.1 km") == "maraton-de-mendoza-2026-21k"
     assert make_gpx_slug("Berlin Marathon", 2025, "42.195 km") == "berlin-marathon-2025-42k"
+    # year already in name — don't duplicate
+    assert make_gpx_slug("Buenos Aires Marathon 2025", 2025, "42.195 km") == "buenos-aires-marathon-2025-42k"
 
 
 def test_is_already_downloaded():
