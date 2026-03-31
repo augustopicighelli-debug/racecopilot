@@ -111,7 +111,12 @@ def test_parse_map_page_no_gpx():
 
 
 def test_make_gpx_slug():
+    # race_num=1 (default first race) does not add suffix
     assert make_gpx_slug("Buenos Aires Marathon", 2026, "42.195 km") == "buenos-aires-marathon-2026-42k"
+    assert make_gpx_slug("Buenos Aires Marathon", 2026, "42.195 km", 1) == "buenos-aires-marathon-2026-42k"
+    # race_num > 1 adds -rN suffix to avoid collisions
+    assert make_gpx_slug("Buenos Aires Marathon", 2026, "10.0 km", 3) == "buenos-aires-marathon-2026-10k-r3"
+    # accent stripping
     assert make_gpx_slug("Maratón de Mendoza", 2026, "21.1 km") == "maraton-de-mendoza-2026-21k"
     assert make_gpx_slug("Berlin Marathon", 2025, "42.195 km") == "berlin-marathon-2025-42k"
 

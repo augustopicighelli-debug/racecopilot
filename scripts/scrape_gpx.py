@@ -45,6 +45,7 @@ RACE_TYPES = [
 
 def fetch_index(country: str, race_type_params: dict) -> str:
     """Fetch race index page for a country and race type."""
+    delay()
     params = {"Country": country, **race_type_params}
     resp = SESSION.get(INDEX_URL, params=params, timeout=30)
     resp.raise_for_status()
@@ -73,10 +74,12 @@ def load_catalog() -> list[dict]:
 
 
 def save_catalog(catalog: list[dict]):
-    """Save catalog to JSON."""
+    """Save catalog to JSON atomically."""
     GPX_DIR.mkdir(parents=True, exist_ok=True)
-    with open(CATALOG_PATH, "w", encoding="utf-8") as f:
+    tmp = CATALOG_PATH.with_suffix(".tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
         json.dump(catalog, f, indent=2, ensure_ascii=False)
+    tmp.replace(CATALOG_PATH)
 
 
 def parse_index_page(html: str) -> list[dict]:
@@ -158,7 +161,7 @@ def _strip_accents(text: str) -> str:
     return "".join(c for c in nfkd if not unicodedata.combining(c))
 
 
-def make_gpx_slug(name: str, year: int, distance: str) -> str:
+def make_gpx_slug(name: str, year: int, distance: str, race_num: int = 0) -> str:
     """Generate a clean slug for a GPX filename."""
     # Normalize distance: "42.195 km" -> "42k", "21.1 km" -> "21k"
     dist_short = ""
@@ -168,7 +171,12 @@ def make_gpx_slug(name: str, year: int, distance: str) -> str:
 
     slug = _strip_accents(name).lower()
     slug = re.sub(r"[^a-z0-9]+", "-", slug).strip("-")
-    return f"{slug}-{year}-{dist_short}" if dist_short else f"{slug}-{year}"
+    parts = [slug, str(year)]
+    if dist_short:
+        parts.append(dist_short)
+    if race_num > 1:
+        parts.append(f"r{race_num}")
+    return "-".join(parts)
 
 
 def is_already_downloaded(catalog: list[dict], source_url: str) -> bool:
@@ -231,7 +239,7 @@ def scrape_race(race: dict, catalog: list[dict], dry_run: bool) -> list[dict]:
         year_match = re.search(r"(\d{4})", race["slug"])
         year = int(year_match.group(1)) if year_match else 0
 
-        slug = make_gpx_slug(race["name"], year, map_info["distance"])
+        slug = make_gpx_slug(race["name"], year, map_info["distance"], map_info["race_num"])
 
         if dry_run:
             print(f"    [DRY RUN] Would download: {gpx_url} -> {slug}.gpx")
@@ -275,7 +283,6 @@ def main():
             print(f"\n[{country} / {type_name}]")
             try:
                 index_html = fetch_index(country, race_type)
-                delay()
             except requests.RequestException as e:
                 print(f"  SKIP (index error): {e}")
                 continue
