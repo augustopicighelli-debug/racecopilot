@@ -37,10 +37,6 @@ INDEX_HTML = """
 """
 
 
-def test_placeholder():
-    assert True
-
-
 def test_parse_index_page():
     races = parse_index_page(INDEX_HTML)
     assert len(races) == 2
