@@ -176,5 +176,120 @@ def is_already_downloaded(catalog: list[dict], source_url: str) -> bool:
     return any(entry["source_url"] == source_url for entry in catalog)
 
 
+def download_gpx(gpx_url: str, slug: str) -> str:
+    """Download a GPX file, return the local filename."""
+    filename = f"{slug}.gpx"
+    filepath = GPX_DIR / filename
+    delay()
+    resp = SESSION.get(gpx_url, timeout=60)
+    resp.raise_for_status()
+    GPX_DIR.mkdir(parents=True, exist_ok=True)
+    with open(filepath, "wb") as f:
+        f.write(resp.content)
+    return filename
+
+
+def scrape_race(race: dict, catalog: list[dict], dry_run: bool) -> list[dict]:
+    """Scrape a single race: fetch detail page, find maps, download GPX files.
+    Returns list of new catalog entries."""
+    detail_url = urljoin(INDEX_URL, race["detail_url"])
+    print(f"  Checking: {race['name']} ({detail_url})")
+
+    try:
+        detail_html = fetch_page(detail_url)
+    except requests.RequestException as e:
+        print(f"    SKIP (detail page error): {e}")
+        return []
+
+    maps = parse_detail_page(detail_html)
+    if not maps:
+        print(f"    No maps found")
+        return []
+
+    new_entries = []
+    for map_info in maps:
+        map_url = urljoin(detail_url, map_info["map_url"])
+        try:
+            map_html = fetch_page(map_url)
+        except requests.RequestException as e:
+            print(f"    SKIP map {map_info['race_num']} (error): {e}")
+            continue
+
+        gpx_relative = parse_map_page(map_html)
+        if not gpx_relative:
+            print(f"    No GPX on map page for race {map_info['race_num']}")
+            continue
+
+        # Build absolute GPX URL (strip query params for catalog matching)
+        gpx_url = urljoin(map_url, gpx_relative).split("?")[0]
+
+        if is_already_downloaded(catalog, gpx_url):
+            print(f"    Already have: {gpx_url}")
+            continue
+
+        # Extract year from slug or URL
+        year_match = re.search(r"(\d{4})", race["slug"])
+        year = int(year_match.group(1)) if year_match else 0
+
+        slug = make_gpx_slug(race["name"], year, map_info["distance"])
+
+        if dry_run:
+            print(f"    [DRY RUN] Would download: {gpx_url} -> {slug}.gpx")
+        else:
+            try:
+                filename = download_gpx(gpx_url, slug)
+                entry = {
+                    "slug": slug,
+                    "name": race["name"],
+                    "year": year,
+                    "country": race["country"],
+                    "city": race.get("city", ""),
+                    "distance": map_info["distance"],
+                    "source_url": gpx_url,
+                    "gpx_file": filename,
+                }
+                new_entries.append(entry)
+                catalog.append(entry)
+                save_catalog(catalog)
+                print(f"    Downloaded: {filename}")
+            except requests.RequestException as e:
+                print(f"    SKIP download (error): {e}")
+
+    return new_entries
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Scrape GPX files from GoAndRace.com")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would be downloaded without downloading")
+    args = parser.parse_args()
+
+    catalog = load_catalog()
+    total_new = 0
+
+    print(f"Existing catalog: {len(catalog)} entries")
+    print(f"Scanning {len(COUNTRIES)} countries x {len(RACE_TYPES)} race types...\n")
+
+    for country in COUNTRIES:
+        for race_type in RACE_TYPES:
+            type_name = list(race_type.keys())[0].replace("ok_", "")
+            print(f"\n[{country} / {type_name}]")
+            try:
+                index_html = fetch_index(country, race_type)
+                delay()
+            except requests.RequestException as e:
+                print(f"  SKIP (index error): {e}")
+                continue
+
+            races = parse_index_page(index_html)
+            print(f"  Found {len(races)} races")
+
+            for race in races:
+                new_entries = scrape_race(race, catalog, args.dry_run)
+                total_new += len(new_entries)
+
+    action = "would download" if args.dry_run else "downloaded"
+    print(f"\nDone! {action} {total_new} new GPX files. Catalog total: {len(catalog)}")
+
+
 if __name__ == "__main__":
-    print("scrape_gpx.py — skeleton OK")
+    main()
