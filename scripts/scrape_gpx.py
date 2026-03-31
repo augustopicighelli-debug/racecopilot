@@ -107,5 +107,17 @@ def parse_detail_page(html: str) -> list[dict]:
     return maps
 
 
+def parse_map_page(html: str) -> str | None:
+    """Parse map page HTML, return GPX download URL or None."""
+    soup = BeautifulSoup(html, "lxml")
+    gpx_div = soup.select_one("div#gpx")
+    if not gpx_div:
+        return None
+    link = gpx_div.select_one("a[href$='.gpx'], a[href*='.gpx?']")
+    if not link:
+        return None
+    return link["href"]
+
+
 if __name__ == "__main__":
     print("scrape_gpx.py — skeleton OK")

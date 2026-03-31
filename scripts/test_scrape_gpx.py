@@ -1,7 +1,7 @@
 # scripts/test_scrape_gpx.py
 """Tests for GoAndRace GPX scraper parsing logic."""
 
-from scrape_gpx import parse_index_page, parse_detail_page
+from scrape_gpx import parse_index_page, parse_detail_page, parse_map_page
 
 INDEX_HTML = """
 <html><body>
@@ -85,3 +85,30 @@ def test_parse_detail_page():
     assert "course-map-1.php" in maps[0]["map_url"]
     assert maps[1]["distance"] == "10.0 km"
     assert maps[1]["race_num"] == 3
+
+
+MAP_HTML = """
+<html><body>
+<div id="gpx">
+  <a href="../../../gpx/2026/03/29/gpx_20260329_id10802_race1_20260317223947.gpx?t=1711700000" download>.gpx file</a>
+</div>
+</body></html>
+"""
+
+MAP_HTML_NO_GPX = """
+<html><body>
+<div id="gpx"></div>
+</body></html>
+"""
+
+
+def test_parse_map_page():
+    url = parse_map_page(MAP_HTML)
+    assert url is not None
+    assert url.endswith(".gpx?t=1711700000")
+    assert "gpx_20260329_id10802_race1" in url
+
+
+def test_parse_map_page_no_gpx():
+    url = parse_map_page(MAP_HTML_NO_GPX)
+    assert url is None
