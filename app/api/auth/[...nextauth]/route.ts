@@ -1,3 +1,5 @@
 import auth from "@/auth"
 
-export const { GET, POST } = auth
+const handler = auth
+
+export { handler as GET, handler as POST }
