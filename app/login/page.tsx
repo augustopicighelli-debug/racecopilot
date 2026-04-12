@@ -5,27 +5,26 @@ import { supabase } from '@/lib/supabase-client';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
+  const [mode, setMode]         = useState<'login' | 'signup'>('login');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      // Login con email/password en Supabase
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) throw signInError;
-
-      if (data.user) {
-        router.push('/dashboard');
+      if (mode === 'login') {
+        const { data, error: err } = await supabase.auth.signInWithPassword({ email, password });
+        if (err) throw err;
+        if (data.user) router.push('/dashboard');
+      } else {
+        const { data, error: err } = await supabase.auth.signUp({ email, password });
+        if (err) throw err;
+        if (data.user) setError('¡Cuenta creada! Revisá tu email para confirmar.');
       }
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión');
@@ -34,49 +33,63 @@ export default function LoginPage() {
     }
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (signUpError) throw signUpError;
-
-      if (data.user) {
-        setError('Cuenta creada! Revisa tu email para confirmar.');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Error al crear cuenta');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-3xl font-bold text-center mb-2">RaceCopilot</h1>
-          <p className="text-center text-gray-600 mb-8">Tu plan de carrera inteligente</p>
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--background)' }}>
+      <div className="w-full max-w-sm">
 
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>
+            Race<span style={{ color: 'var(--primary)' }}>Copilot</span>
+          </h1>
+          <p className="mt-2 text-sm" style={{ color: 'var(--muted-foreground)' }}>
+            Tu plan de carrera inteligente
+          </p>
+        </div>
+
+        {/* Card */}
+        <div className="rounded-xl p-6 border" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+
+          {/* Tabs login/signup */}
+          <div className="flex rounded-lg p-1 mb-6" style={{ background: 'var(--muted)' }}>
+            {(['login', 'signup'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => { setMode(m); setError(''); }}
+                className="flex-1 py-1.5 text-sm font-medium rounded-md transition-colors"
+                style={{
+                  background: mode === m ? 'var(--card)' : 'transparent',
+                  color: mode === m ? 'var(--foreground)' : 'var(--muted-foreground)',
+                }}
+              >
+                {m === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
+              </button>
+            ))}
+          </div>
+
+          {/* Error / info */}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+            <div
+              className="mb-4 p-3 rounded-lg text-sm"
+              style={{
+                background: error.includes('¡') ? '#14532d33' : '#7f1d1d33',
+                color: error.includes('¡') ? '#4ade80' : '#fca5a5',
+                border: `1px solid ${error.includes('¡') ? '#166534' : '#991b1b'}`,
+              }}
+            >
               {error}
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="tu@email.com"
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none transition-colors"
+              style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
               required
             />
             <input
@@ -84,27 +97,19 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Contraseña"
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none"
+              style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
               required
             />
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+              className="w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity disabled:opacity-50"
+              style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}
             >
-              {loading ? 'Cargando...' : 'Iniciar sesión'}
+              {loading ? 'Cargando...' : mode === 'login' ? 'Entrar' : 'Crear cuenta'}
             </button>
           </form>
-
-          <div className="mt-4 pt-4 border-t">
-            <button
-              onClick={handleSignup}
-              disabled={loading}
-              className="w-full px-4 py-3 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 disabled:opacity-50"
-            >
-              {loading ? 'Cargando...' : 'Crear cuenta'}
-            </button>
-          </div>
         </div>
       </div>
     </div>

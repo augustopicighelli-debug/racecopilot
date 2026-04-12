@@ -3,19 +3,35 @@
 @tailwind utilities;
 
 :root {
-  --background: #0f0f0f;
-  --foreground: #fafafa;
-  --card: #1a1a1a;
-  --card-foreground: #fafafa;
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+  --card: #141414;
+  --card-foreground: #f5f5f5;
+  --card-hover: #1c1c1c;
   --primary: #3b82f6;
-  --muted: #374151;
-  --muted-foreground: #9ca3af;
-  --border: #374151;
-  --radius: 0.625rem;
+  --primary-foreground: #ffffff;
+  --muted: #262626;
+  --muted-foreground: #737373;
+  --border: #262626;
+  --input: #1a1a1a;
+  --ring: #3b82f6;
+  --radius: 0.75rem;
+  --destructive: #ef4444;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Inputs con dark theme globalmente */
+input, select, textarea {
+  background: var(--input);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--muted-foreground);
 }
