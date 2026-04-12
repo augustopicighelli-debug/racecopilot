@@ -9,29 +9,27 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@auth/supabase-adapter": "latest",
-    "@supabase/supabase-js": "latest",
-    "@tmcw/togeojson": "latest",
-    "class-variance-authority": "latest",
-    "clsx": "latest",
-    "fast-xml-parser": "latest",
-    "lucide-react": "latest",
-    "next": "latest",
-    "next-auth": "latest",
-    "react": "latest",
-    "react-dom": "latest",
-    "recharts": "latest",
-    "stripe": "latest",
-    "tailwind-merge": "latest"
+    "@supabase/supabase-js": "2.48.1",
+    "@tmcw/togeojson": "5.8.1",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "fast-xml-parser": "4.5.1",
+    "lucide-react": "0.468.0",
+    "next": "15.1.6",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "recharts": "2.15.0",
+    "stripe": "17.5.0",
+    "tailwind-merge": "2.6.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "latest",
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "postcss": "latest",
-    "tailwindcss": "latest",
-    "typescript": "latest",
-    "vitest": "latest"
+    "@tailwindcss/postcss": "4.0.0",
+    "@types/node": "22.10.7",
+    "@types/react": "19.0.7",
+    "@types/react-dom": "19.0.3",
+    "postcss": "8.5.1",
+    "tailwindcss": "4.0.0",
+    "typescript": "5.7.3",
+    "vitest": "2.1.8"
   }
 }

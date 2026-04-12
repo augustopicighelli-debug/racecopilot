@@ -3,3 +3,6 @@ dist/
 .superpowers/
 .next/
 next-env.d.ts
+.env.local
+vercel.env.txt
+*.env
