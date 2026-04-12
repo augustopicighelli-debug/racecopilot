@@ -9,6 +9,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@auth/supabase-adapter": "latest",
     "@supabase/supabase-js": "latest",
     "@tmcw/togeojson": "latest",
     "class-variance-authority": "latest",
