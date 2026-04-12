@@ -60,7 +60,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-xl font-bold">
-              Race<span style={{ color: 'var(--primary)' }}>Copilot</span>
+              Race<span style={{ color: '#f97316' }}>Copilot</span>
             </h1>
             <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{email}</p>
           </div>

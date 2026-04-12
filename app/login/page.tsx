@@ -40,7 +40,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>
-            Race<span style={{ color: 'var(--primary)' }}>Copilot</span>
+            Race<span style={{ color: '#f97316' }}>Copilot</span>
           </h1>
           <p className="mt-2 text-sm" style={{ color: 'var(--muted-foreground)' }}>
             Tu plan de carrera inteligente
