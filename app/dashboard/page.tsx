@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 
@@ -7,7 +7,8 @@ import { supabase } from '@/lib/supabase-client';
 interface Runner { id: string; weight_kg: number; sweat_level: string; is_premium: boolean | null; }
 interface Race { id: string; name: string; distance_km: number; race_date: string; city: string | null; }
 
-export default function DashboardPage() {
+// Componente separado para usar useSearchParams (requiere Suspense en Next.js 15)
+function DashboardContent() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const checkoutOk   = searchParams.get('checkout') === 'success';
@@ -167,5 +168,18 @@ export default function DashboardPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Suspense requerido por Next.js 15 cuando se usa useSearchParams en un Client Component
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen" style={{ background: 'var(--background)', color: 'var(--muted-foreground)' }}>
+        Cargando...
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }

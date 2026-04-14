@@ -13,11 +13,6 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Next.js App Router: deshabilitar el body parser para poder verificar la firma de Stripe
-export const config = {
-  api: { bodyParser: false },
-};
-
 export async function POST(req: NextRequest) {
   // Leer el body como buffer raw (necesario para la verificación de firma)
   const rawBody = await req.text();
