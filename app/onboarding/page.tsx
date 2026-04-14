@@ -30,6 +30,7 @@ export default function OnboardingPage() {
   const [heightCm, setHeightCm] = useState('');
   const [sweat, setSweat]       = useState<'low'|'medium'|'high'>('medium');
   const [maxHr, setMaxHr]       = useState('');
+  const [restingHr, setRestingHr] = useState('');
   const [weeklyKm, setWeeklyKm] = useState('');
 
   useEffect(() => {
@@ -55,8 +56,9 @@ export default function OnboardingPage() {
         weight_kg:  parseFloat(weightKg),
         height_cm:  parseFloat(heightCm),
         sweat_level: sweat,
-        max_hr:     maxHr    ? parseInt(maxHr)       : null,
-        weekly_km:  weeklyKm ? parseFloat(weeklyKm)  : null,
+        max_hr:     maxHr     ? parseInt(maxHr)      : null,
+        resting_hr: restingHr ? parseInt(restingHr)  : null,
+        weekly_km:  weeklyKm  ? parseFloat(weeklyKm) : null,
       });
       if (err) throw err;
 
@@ -82,13 +84,17 @@ export default function OnboardingPage() {
     <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: 'var(--background)' }}>
       <div className="w-full max-w-md">
 
-        {/* Logo */}
+        {/* Logo + intro */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>
             Race<span style={{ color: '#f97316' }}>Copilot</span>
           </h1>
+          <p className="mt-2 text-base font-semibold" style={{ color: 'var(--foreground)' }}>
+            Configurá tu perfil
+          </p>
           <p className="mt-1 text-sm" style={{ color: 'var(--muted-foreground)' }}>
-            Contanos un poco sobre vos para calibrar tu plan
+            Estos datos calibran tu plan de hidratación, nutrición y ritmo.
+            Solo tomará 1 minuto.
           </p>
         </div>
 
@@ -102,6 +108,11 @@ export default function OnboardingPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
 
+            {/* Separador sección obligatoria */}
+            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>
+              Datos esenciales
+            </p>
+
             {/* Peso y altura */}
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -112,7 +123,7 @@ export default function OnboardingPage() {
                     className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-10" style={inputStyle} required />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>kg</span>
                 </div>
-                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Afecta la hidratación</p>
+                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Calcula tu pérdida de líquido por hora</p>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>Altura</label>
@@ -122,7 +133,7 @@ export default function OnboardingPage() {
                     className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-10" style={inputStyle} required />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>cm</span>
                 </div>
-                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Usado en el predictor</p>
+                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Usada junto al peso para la tasa de sudor</p>
               </div>
             </div>
 
@@ -148,12 +159,14 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            {/* FC máx y km/semana — opcionales */}
+            {/* Opcionales — FC y volumen */}
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--muted-foreground)' }}>
                 Opcionales — mejoran la precisión del plan
               </p>
-              <div className="grid grid-cols-2 gap-3">
+
+              {/* FC máx y FC reposo */}
+              <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
                   <label className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>FC máxima</label>
                   <div className="relative">
@@ -162,18 +175,30 @@ export default function OnboardingPage() {
                       className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-12" style={inputStyle} />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>bpm</span>
                   </div>
-                  <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Para zonas de FC</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Mejor estimación: test de 1km al máximo</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>Km / semana</label>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>FC en reposo</label>
                   <div className="relative">
-                    <input type="number" step="0.1" min="0" max="300" value={weeklyKm}
-                      onChange={(e) => setWeeklyKm(e.target.value)} placeholder="50"
-                      className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-10" style={inputStyle} />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>km</span>
+                    <input type="number" min="30" max="100" value={restingHr}
+                      onChange={(e) => setRestingHr(e.target.value)} placeholder="55"
+                      className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-12" style={inputStyle} />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>bpm</span>
                   </div>
-                  <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Volumen de entrenamiento</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Medila al despertar antes de levantarte</p>
                 </div>
+              </div>
+
+              {/* Km/semana */}
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>Km / semana</label>
+                <div className="relative">
+                  <input type="number" step="0.1" min="0" max="300" value={weeklyKm}
+                    onChange={(e) => setWeeklyKm(e.target.value)} placeholder="50"
+                    className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-10" style={inputStyle} />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>km</span>
+                </div>
+                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Volumen semanal promedio en las últimas 8 semanas</p>
               </div>
             </div>
 
