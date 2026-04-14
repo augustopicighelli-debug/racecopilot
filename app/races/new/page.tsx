@@ -14,6 +14,7 @@ export default function NewRacePage() {
   const [city, setCity]               = useState('');
   const [targetTime, setTargetTime]   = useState('');
   const [elevGain, setElevGain]       = useState('');
+  const [goalType, setGoalType]       = useState<'finish' | 'pr' | 'target'>('pr');
 
   useEffect(() => {
     const init = async () => {
@@ -47,13 +48,14 @@ export default function NewRacePage() {
       }
       // Retornar el id para redirigir directo a la carrera creada
       const { data: newRace, error: err } = await supabase.from('races').insert({
-        runner_id: runnerId,
-        name: name.trim(),
-        distance_km: parseFloat(distanceKm),
-        race_date: raceDate,
-        city: city.trim() || null,
-        target_time_s: targetTimeSec,
+        runner_id:      runnerId,
+        name:           name.trim(),
+        distance_km:    parseFloat(distanceKm),
+        race_date:      raceDate,
+        city:           city.trim() || null,
+        target_time_s:  targetTimeSec,
         elevation_gain: elevGain ? parseFloat(elevGain) : null,
+        goal_type:      goalType,
       }).select('id').single();
       if (err) throw err;
       router.push(`/races/${newRace.id}`);
@@ -121,10 +123,39 @@ export default function NewRacePage() {
                 className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} />
             </div>
 
+            {/* Objetivo de la carrera */}
+            <div>
+              <label className="block text-sm font-medium mb-2" style={labelStyle}>¿Cuál es tu objetivo?</label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: 'finish' as const, icon: '🏁', title: 'Terminar',       desc: 'Cruzar la meta sin importar el tiempo' },
+                  { value: 'pr'     as const, icon: '⚡', title: 'Mejorar marca',   desc: 'Correr más rápido que mi mejor tiempo' },
+                  { value: 'target' as const, icon: '🎯', title: 'Tiempo exacto',   desc: 'Tengo una meta específica en mente' },
+                ].map(({ value, icon, title, desc }) => (
+                  <button
+                    key={value} type="button" onClick={() => setGoalType(value)}
+                    className="py-3 px-2 rounded-xl text-left border transition-colors"
+                    style={{
+                      background:  goalType === value ? 'rgba(249,115,22,0.12)' : 'var(--muted)',
+                      borderColor: goalType === value ? 'rgba(249,115,22,0.5)'  : 'var(--border)',
+                    }}
+                  >
+                    <p className="text-base text-center mb-1">{icon}</p>
+                    <p className="text-xs font-semibold text-center" style={{ color: goalType === value ? '#f97316' : 'var(--foreground)' }}>
+                      {title}
+                    </p>
+                    <p className="text-xs text-center mt-0.5 leading-tight opacity-60" style={{ color: 'var(--muted-foreground)' }}>
+                      {desc}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                  Tiempo objetivo <span style={{ color: 'var(--border)' }}>(opcional)</span>
+                  Tiempo objetivo <span style={{ color: 'var(--border)' }}>{goalType === 'target' ? '(requerido)' : '(opcional)'}</span>
                 </label>
                 <input type="text" value={targetTime} onChange={(e) => setTargetTime(e.target.value)}
                   placeholder="3:45:00"

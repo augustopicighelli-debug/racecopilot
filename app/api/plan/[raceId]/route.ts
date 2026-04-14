@@ -9,7 +9,24 @@ const supabaseAdmin = createClient(
 );
 import { buildFlatProfile } from '@/lib/engine/elevation';
 import { fetchWeather } from '@/lib/weather/open-meteo';
-import type { RunnerProfile, AggregatedWeather } from '@/lib/engine/types';
+import type { RunnerProfile, AggregatedWeather, PacingStrategyConfig } from '@/lib/engine/types';
+
+/**
+ * Convierte el objetivo del corredor en una PacingStrategyConfig.
+ * - finish: arranca muy conservador (negative split 20s/km), evita explotar en los km finales
+ * - pr:     split negativo leve (8s/km), estrategia óptima para rendimiento
+ * - target: split parejo al tiempo objetivo (sin modificar — el engine lo maneja)
+ */
+function goalToPacingStrategy(goalType: string): PacingStrategyConfig | undefined {
+  if (goalType === 'finish') {
+    return { type: 'negative', segments: 2, deltaSecondsPerKm: 20 };
+  }
+  if (goalType === 'pr') {
+    return { type: 'negative', segments: 2, deltaSecondsPerKm: 8 };
+  }
+  // 'target' → even split implícito, sin override
+  return undefined;
+}
 
 export async function GET(
   request: NextRequest,
@@ -36,7 +53,7 @@ export async function GET(
   // 1. Cargar la carrera
   const { data: race, error: raceErr } = await supabase
     .from('races')
-    .select('id,distance_km,race_date,target_time_s,elevation_gain,runner_id,city')
+    .select('id,distance_km,race_date,target_time_s,elevation_gain,runner_id,city,goal_type')
     .eq('id', raceId)
     .maybeSingle();
 
@@ -129,13 +146,17 @@ export async function GET(
     ? race.target_time_s / race.distance_km
     : undefined;
 
-  // 8. Generar plan
+  // 8. Estrategia de pacing según objetivo del corredor
+  const pacingStrategy = goalToPacingStrategy(race.goal_type ?? 'pr');
+
+  // 9. Generar plan
   try {
     const plan = generateRacePlan({
       runner:          runnerProfile,
       course,
       weather,
       targetPacePerKm,
+      pacingStrategy,
       breakfastHoursAgo: 3,
     });
 

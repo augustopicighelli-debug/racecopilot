@@ -18,6 +18,7 @@ interface Race {
   target_time_s: number | null;
   elevation_gain: number | null;
   actual_time_s: number | null;
+  goal_type: 'finish' | 'pr' | 'target' | null;
 }
 
 interface ReferenceRace {
@@ -156,7 +157,7 @@ function RacePage() {
       // Cargar carrera
       const { data, error: err } = await supabase
         .from('races')
-        .select('id,name,distance_km,race_date,city,target_time_s,elevation_gain,actual_time_s')
+        .select('id,name,distance_km,race_date,city,target_time_s,elevation_gain,actual_time_s,goal_type')
         .eq('id', id)
         .maybeSingle();
 
@@ -345,6 +346,15 @@ function RacePage() {
             <p className="text-sm mt-1 capitalize" style={{ color: 'var(--muted-foreground)' }}>
               {race ? fmtDate(race.race_date) : ''}{race?.city ? ` · ${race.city}` : ''}
             </p>
+            {/* Badge de objetivo — muestra la estrategia seleccionada */}
+            {race?.goal_type && (
+              <span
+                className="inline-block mt-2 text-xs px-2.5 py-1 rounded-full font-medium"
+                style={{ background: 'rgba(249,115,22,0.12)', color: '#f97316', border: '1px solid rgba(249,115,22,0.3)' }}
+              >
+                {race.goal_type === 'finish' ? '🏁 Terminar' : race.goal_type === 'pr' ? '⚡ Mejorar marca' : '🎯 Tiempo exacto'}
+              </span>
+            )}
           </div>
           <button
             onClick={() => router.push(`/races/${id}/edit`)}
