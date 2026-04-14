@@ -6,3 +6,10 @@ next-env.d.ts
 .env.local
 vercel.env.txt
 *.env
+*.jpeg
+*.jpg
+!public/*.jpg
+!public/*.jpeg
+scripts/__pycache__/
+tsconfig.tsbuildinfo
+.claude/
