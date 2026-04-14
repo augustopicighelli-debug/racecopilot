@@ -46,6 +46,7 @@ export default function ProfilePage() {
   const [hasSub, setHasSub]               = useState(false);
   const [cancelling, setCancelling]       = useState(false);
   const [cancelMsg, setCancelMsg]         = useState('');
+  const [portalLoading, setPortalLoading] = useState(false);
 
   // --- Sección A: perfil ---
   const [weightKg, setWeightKg]   = useState('');
@@ -191,6 +192,28 @@ export default function ProfilePage() {
 
     // Actualizar lista local
     setProducts((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  // ---------------------------------------------------------------------------
+  // Abrir portal de Stripe (cambiar tarjeta, ver facturas, cancelar)
+  // ---------------------------------------------------------------------------
+  const handleOpenPortal = async () => {
+    setPortalLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch('/api/stripe/portal', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (!res.ok) { const b = await res.json(); throw new Error(b.error); }
+      const { url } = await res.json();
+      window.open(url, '_blank');
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error al abrir el portal');
+    } finally {
+      setPortalLoading(false);
+    }
   };
 
   // ---------------------------------------------------------------------------
@@ -364,24 +387,42 @@ export default function ProfilePage() {
         <h2 className="font-semibold mb-3">Suscripción</h2>
         <div className="rounded-xl border p-5 mb-8" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
           {isPremium ? (
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold" style={{ color: '#4ade80' }}>Activa</p>
-                {premiumUntil && (
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
-                    Acceso hasta: {new Date(premiumUntil).toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' })}
-                  </p>
-                )}
+            <div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: '#4ade80' }}>Activa</p>
+                  {premiumUntil && (
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
+                      Acceso hasta: {new Date(premiumUntil).toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    </p>
+                  )}
+                </div>
+                {/* Portal de Stripe: cambiar tarjeta, ver facturas, cancelar */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleOpenPortal}
+                    disabled={portalLoading}
+                    className="text-xs px-3 py-1.5 rounded-lg font-semibold disabled:opacity-50"
+                    style={{ background: 'var(--primary)', color: '#fff' }}
+                  >
+                    {portalLoading ? 'Abriendo...' : 'Gestionar suscripción'}
+                  </button>
+                  {hasSub && (
+                    <button
+                      onClick={handleCancel}
+                      disabled={cancelling}
+                      className="text-xs px-3 py-1.5 rounded-lg border disabled:opacity-50"
+                      style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
+                    >
+                      {cancelling ? 'Cancelando...' : 'Cancelar'}
+                    </button>
+                  )}
+                </div>
               </div>
-              {hasSub && (
-                <button
-                  onClick={handleCancel}
-                  disabled={cancelling}
-                  className="text-xs px-3 py-1.5 rounded-lg border disabled:opacity-50"
-                  style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
-                >
-                  {cancelling ? 'Cancelando...' : 'Cancelar suscripción'}
-                </button>
+              {cancelMsg && (
+                <p className="text-xs mt-3" style={{ color: cancelMsg.includes('Error') ? '#ef4444' : '#4ade80' }}>
+                  {cancelMsg}
+                </p>
               )}
             </div>
           ) : (
@@ -395,11 +436,6 @@ export default function ProfilePage() {
                 Activar prueba gratis
               </button>
             </div>
-          )}
-          {cancelMsg && (
-            <p className="text-xs mt-3" style={{ color: cancelMsg.includes('Error') ? '#ef4444' : '#4ade80' }}>
-              {cancelMsg}
-            </p>
           )}
         </div>
 

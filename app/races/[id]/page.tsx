@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import { RacePlanClient } from '@/components/race-plan-client';
 import type { TripleObjectivePlan } from '@/lib/engine/types';
@@ -48,10 +48,12 @@ function parseTimeInput(val: string): number | null {
   return null;
 }
 
-export default function RacePage() {
-  const router   = useRouter();
-  const params   = useParams();
-  const id       = params?.id as string;
+function RacePage() {
+  const router       = useRouter();
+  const params       = useParams();
+  const searchParams = useSearchParams();
+  const id           = params?.id as string;
+  const justEdited   = searchParams?.get('updated') === '1';
 
   // --- estado de la carrera principal ---
   const [race, setRace]       = useState<Race | null>(null);
@@ -151,8 +153,13 @@ export default function RacePage() {
       if (runner) {
         setRunnerId(runner.id);
         const loaded = await loadRefRaces(runner.id);
-        // Si ya hay tiempos de referencia, generar el plan automáticamente
+        // Generar plan si hay tiempos de referencia, o forzar si viene de editar
         if (loaded.length > 0) fetchPlan();
+      }
+
+      // Limpiar el param ?updated=1 de la URL sin recargar la página
+      if (justEdited) {
+        window.history.replaceState(null, '', `/races/${id}`);
       }
 
       setLoading(false);
@@ -517,5 +524,18 @@ export default function RacePage() {
 
       </div>
     </div>
+  );
+}
+
+// Suspense requerido por Next.js 15 al usar useSearchParams en un Client Component
+export default function RacePageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen" style={{ background: 'var(--background)', color: 'var(--muted-foreground)' }}>
+        Cargando...
+      </div>
+    }>
+      <RacePage />
+    </Suspense>
   );
 }

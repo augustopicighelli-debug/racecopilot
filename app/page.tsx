@@ -355,6 +355,8 @@ export default function LandingPage() {
         <span>Race<span style={{ color: '#f97316' }}>Copilot</span> © {new Date().getFullYear()}</span>
         <div className="flex gap-4">
           <Link href="/pricing" className="hover:opacity-80">Precios</Link>
+          <Link href="/terms"   className="hover:opacity-80">Términos</Link>
+          <Link href="/privacy" className="hover:opacity-80">Privacidad</Link>
           <Link href="/login"   className="hover:opacity-80">Entrar</Link>
         </div>
       </footer>

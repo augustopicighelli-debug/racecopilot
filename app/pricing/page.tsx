@@ -197,7 +197,11 @@ export default function PricingPage() {
           </div>
 
           <p className="text-xs mt-8 text-center" style={{ color: 'var(--muted-foreground)' }}>
-            Al continuar aceptás nuestros términos. Cancelá antes del día 7 para no ser cobrado.
+            Al continuar aceptás nuestros{' '}
+            <a href="/terms" target="_blank" className="underline">términos</a>
+            {' '}y{' '}
+            <a href="/privacy" target="_blank" className="underline">política de privacidad</a>.
+            {' '}Cancelá antes del día 7 para no ser cobrado.
           </p>
         </>
       )}

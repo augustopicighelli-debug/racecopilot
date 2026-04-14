@@ -85,7 +85,8 @@ export default function EditRacePage() {
       }).eq('id', id);
 
       if (err) throw err;
-      router.push(`/races/${id}`);
+      // Pasar ?updated=1 para que la página de carrera regenere el plan
+      router.push(`/races/${id}?updated=1`);
     } catch (err: any) {
       setError(err.message);
       setSaving(false);
