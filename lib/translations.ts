@@ -122,6 +122,7 @@ export const T = {
       // Aviso sin ciudad
       noCityWarning:'Sin ciudad configurada el clima se estimará como neutro.',
       noCityEdit:   'Editar carrera',
+      planRefreshed:'Plan actualizado con los cambios de la carrera',
     },
     // ── Componentes del plan ──────────────────────────────
     plan: {
@@ -325,6 +326,7 @@ export const T = {
       paywallCta:   'Start free trial — 7 days',
       noCityWarning:'No city set — weather will be estimated as neutral.',
       noCityEdit:   'Edit race',
+      planRefreshed:'Plan updated with your race changes',
     },
     // ── Plan components ───────────────────────────────────
     plan: {

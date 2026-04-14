@@ -88,6 +88,18 @@ function RacePage() {
   const [shareLoading,  setShareLoading]  = useState(false);
   const [shareCopied,   setShareCopied]   = useState(false);
 
+  // --- banner "plan actualizado" tras guardar edición ---
+  const [planUpdated, setPlanUpdated] = useState(false);
+
+  // Cuando llega un plan nuevo y el usuario venía de editar, mostrar banner 3s
+  useEffect(() => {
+    if (justEdited && plan) {
+      setPlanUpdated(true);
+      const timer = setTimeout(() => setPlanUpdated(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [justEdited, plan]);
+
   // Carga el plan desde la API
   const fetchPlan = useCallback(async () => {
     setPlanLoading(true);
@@ -576,6 +588,16 @@ function RacePage() {
             >
               {t.common.retry}
             </button>
+          </div>
+        )}
+
+        {/* Banner: plan regenerado tras editar la carrera */}
+        {planUpdated && (
+          <div
+            className="mb-4 rounded-lg px-4 py-2.5 text-sm flex items-center gap-2 no-print"
+            style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.4)', color: '#4ade80' }}
+          >
+            ✓ {t.race.planRefreshed}
           </div>
         )}
 
