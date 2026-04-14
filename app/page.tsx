@@ -127,12 +127,6 @@ export default function LandingPage() {
       {/* ── Separador visual: línea de largada aérea ─────── */}
       <div className="relative w-full h-56 overflow-hidden mb-0">
         <Image src="/start-aerial.jpg" alt="Marathon start line" fill className="object-cover object-center" />
-        {/* Blur localizado sobre el banner "New York City Marathon" */}
-        <div className="absolute" style={{
-          top: '54%', left: '20%', width: '60%', height: '14%',
-          backdropFilter: 'blur(6px)',
-          WebkitBackdropFilter: 'blur(6px)',
-        }} />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, var(--background) 0%, transparent 25%, transparent 75%, var(--background) 100%)' }} />
       </div>
 
