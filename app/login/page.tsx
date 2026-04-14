@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 
@@ -10,6 +10,13 @@ export default function LoginPage() {
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
   const [mode, setMode]         = useState<'login' | 'signup'>('login');
+
+  // Si ya hay sesión activa, redirigir al dashboard directamente
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.replace('/dashboard');
+    });
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +31,12 @@ export default function LoginPage() {
       } else {
         const { data, error: err } = await supabase.auth.signUp({ email, password });
         if (err) throw err;
-        if (data.user) setError('¡Cuenta creada! Revisá tu email para confirmar.');
+        // Si hay sesión inmediata (email confirm desactivado), ir directo al onboarding
+        if (data.session) {
+          router.push('/onboarding');
+        } else {
+          setError('¡Cuenta creada! Revisá tu email para confirmar y luego iniciá sesión.');
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión');
