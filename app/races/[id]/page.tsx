@@ -6,6 +6,7 @@ import { RacePlanClient } from '@/components/race-plan-client';
 import type { TripleObjectivePlan } from '@/lib/engine/types';
 import { useUnits } from '@/lib/units';
 import { UnitsToggle } from '@/components/units-toggle';
+import { useLang } from '@/lib/lang';
 
 interface Race {
   id: string;
@@ -57,6 +58,7 @@ function RacePage() {
   const id           = params?.id as string;
   const justEdited   = searchParams?.get('updated') === '1';
   const { fmtDist, fmtPace, fmtTemp } = useUnits();
+  const { t } = useLang();
 
   // --- estado de la carrera principal ---
   const [race, setRace]       = useState<Race | null>(null);
@@ -82,6 +84,11 @@ function RacePage() {
   const [planLoading, setPlanLoading] = useState(false);
   const [planError, setPlanError]     = useState('');
   const [notPremium, setNotPremium]   = useState(false); // true cuando la API devuelve 403
+
+  // --- estado del link compartido ---
+  const [shareUrl,      setShareUrl]      = useState<string | null>(null);
+  const [shareLoading,  setShareLoading]  = useState(false);
+  const [shareCopied,   setShareCopied]   = useState(false);
 
   // Carga el plan desde la API
   const fetchPlan = useCallback(async () => {
@@ -212,15 +219,48 @@ function RacePage() {
     else { setPlan(null); setPlanError(''); }
   };
 
+  // Genera (o reutiliza) el link compartido y lo copia al portapapeles
+  const handleShare = async () => {
+    if (shareLoading) return;
+
+    // Si ya tenemos la URL, solo copiar
+    if (shareUrl) {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+      return;
+    }
+
+    setShareLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const res = await fetch(`/api/races/${id}/share`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (!res.ok) return;
+
+      const { url } = await res.json();
+      setShareUrl(url);
+      await navigator.clipboard.writeText(url);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
   const daysUntil = (d: string) => {
     const diff = Math.ceil((new Date(d + 'T12:00:00').getTime() - Date.now()) / 86400000);
-    if (diff > 0) return `Faltan ${diff} días`;
-    if (diff === 0) return '¡Es hoy!';
-    return `Hace ${Math.abs(diff)} días`;
+    if (diff > 0)  return t.race.daysUntil(diff);
+    if (diff === 0) return t.race.today;
+    return t.race.daysAgo(Math.abs(diff));
   };
 
   const fmtDate = (d: string) =>
-    new Date(d + 'T12:00:00').toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+    new Date(d + 'T12:00:00').toLocaleDateString(t.race.dateLocale, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 
   const estimatedPace = race?.target_time_s
     ? race.target_time_s / race.distance_km
@@ -228,7 +268,7 @@ function RacePage() {
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: 'var(--background)', color: 'var(--muted-foreground)' }}>
-      Cargando...
+      {t.common.loading}
     </div>
   );
 
@@ -236,7 +276,7 @@ function RacePage() {
     <div className="flex flex-col items-center justify-center min-h-screen gap-4" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
       <p style={{ color: 'var(--muted-foreground)' }}>{error}</p>
       <button onClick={() => router.push('/dashboard')} className="text-sm" style={{ color: 'var(--primary)' }}>
-        ← Volver al dashboard
+        {t.common.backDash}
       </button>
     </div>
   );
@@ -245,25 +285,46 @@ function RacePage() {
     <div className="min-h-screen px-4 py-10" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
       <div className="max-w-2xl mx-auto">
 
-        {/* Header: volver + toggle unidades + eliminar carrera */}
-        <div className="flex items-center justify-between mb-6">
+        {/* Header: volver + acciones — todo oculto en impresión */}
+        <div className="flex items-center justify-between mb-6 no-print">
           <button onClick={() => router.push('/dashboard')} className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
-            ← Dashboard
+            {t.common.backDash}
           </button>
           <div className="flex items-center gap-2">
             <UnitsToggle />
-          <button
-            onClick={async () => {
-              // Pedir confirmación antes de borrar
-              if (!confirm(`¿Eliminar "${race?.name}"? Esta acción no se puede deshacer.`)) return;
-              await supabase.from('races').delete().eq('id', id);
-              router.push('/dashboard');
-            }}
-            className="text-xs px-3 py-1.5 rounded-lg border"
-            style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
-          >
-            Eliminar carrera
-          </button>
+            {/* Botón compartir plan (solo visible si ya hay plan generado) */}
+            {plan && !planLoading && (
+              <button
+                onClick={handleShare}
+                disabled={shareLoading}
+                className="text-xs px-3 py-1.5 rounded-lg border font-semibold disabled:opacity-50"
+                style={{ borderColor: 'var(--border)', color: shareCopied ? '#22c55e' : 'var(--foreground)' }}
+              >
+                {shareLoading ? t.race.shareGenerating : shareCopied ? t.race.shareCopied : t.race.shareBtn}
+              </button>
+            )}
+            {/* Botón exportar PDF (solo visible si hay plan) */}
+            {plan && !planLoading && (
+              <button
+                onClick={() => window.print()}
+                className="text-xs px-3 py-1.5 rounded-lg border"
+                style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
+              >
+                {t.race.exportPdf}
+              </button>
+            )}
+            <button
+              onClick={async () => {
+                // Pedir confirmación antes de borrar
+                if (!confirm(t.race.deleteConfirm(race?.name ?? ''))) return;
+                await supabase.from('races').delete().eq('id', id);
+                router.push('/dashboard');
+              }}
+              className="text-xs px-3 py-1.5 rounded-lg border"
+              style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
+            >
+              {t.race.deleteRace}
+            </button>
           </div>
         </div>
 
@@ -276,20 +337,20 @@ function RacePage() {
           </div>
           <button
             onClick={() => router.push(`/races/${id}/edit`)}
-            className="text-xs px-3 py-1.5 rounded-lg border shrink-0"
+            className="text-xs px-3 py-1.5 rounded-lg border shrink-0 no-print"
             style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
           >
-            Editar
+            {t.common.edit}
           </button>
         </div>
 
         {/* Stats de la carrera */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
-            { label: 'Distancia',        value: race ? fmtDist(race.distance_km) : '—' },
-            { label: 'Cuenta regresiva', value: race ? daysUntil(race.race_date) : '' },
-            { label: 'Tiempo objetivo',  value: race?.target_time_s ? fmtTime(race.target_time_s) : '—' },
-            { label: 'Ritmo objetivo',   value: estimatedPace ? fmtPace(estimatedPace) : '—' },
+            { label: t.race.distance,   value: race ? fmtDist(race.distance_km) : '—' },
+            { label: t.race.countdown,  value: race ? daysUntil(race.race_date) : '' },
+            { label: t.race.targetTime, value: race?.target_time_s ? fmtTime(race.target_time_s) : '—' },
+            { label: t.race.targetPace, value: estimatedPace ? fmtPace(estimatedPace) : '—' },
           ].map(({ label, value }) => (
             <div key={label} className="rounded-xl border p-4" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
               <p className="text-xs mb-1" style={{ color: 'var(--muted-foreground)' }}>{label}</p>
@@ -303,22 +364,22 @@ function RacePage() {
           <div className="rounded-xl border p-4 mb-6 flex items-center gap-3" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <span className="text-lg">⛰</span>
             <div>
-              <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Desnivel positivo</p>
+              <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{t.race.elevation}</p>
               <p className="font-semibold text-sm">{race.elevation_gain} m</p>
             </div>
           </div>
         )}
 
         {/* ------------------------------------------------------------------ */}
-        {/* Sección: Mis tiempos de referencia                                  */}
+        {/* Sección: Mis tiempos de referencia — oculta en impresión           */}
         {/* ------------------------------------------------------------------ */}
-        <div className="rounded-xl border mb-6" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+        <div className="rounded-xl border mb-6 no-print" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
             <div>
-              <p className="font-semibold text-sm">Mis tiempos de referencia</p>
+              <p className="font-semibold text-sm">{t.race.refTitle}</p>
               <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
-                Usados para calibrar el predictor
+                {t.race.refSubtitle}
               </p>
             </div>
             <button
@@ -326,7 +387,7 @@ function RacePage() {
               className="text-xs px-3 py-1.5 rounded-lg font-semibold"
               style={{ background: 'var(--primary)', color: '#fff' }}
             >
-              {showRefForm ? 'Cancelar' : '+ Agregar'}
+              {showRefForm ? t.common.cancel : t.race.refAdd}
             </button>
           </div>
 
@@ -336,7 +397,7 @@ function RacePage() {
               <div className="grid grid-cols-2 gap-3 mb-3">
 
                 <div>
-                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>Distancia (km)</label>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refDistLabel}</label>
                   <input
                     type="number" min="0.1" step="0.001"
                     value={refDist} onChange={e => setRefDist(e.target.value)}
@@ -347,7 +408,7 @@ function RacePage() {
                 </div>
 
                 <div>
-                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>Tiempo (H:MM:SS)</label>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refTimeLabel}</label>
                   <input
                     type="text"
                     value={refTime} onChange={e => setRefTime(e.target.value)}
@@ -358,7 +419,7 @@ function RacePage() {
                 </div>
 
                 <div>
-                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>Fecha</label>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refDateLabel}</label>
                   <input
                     type="date"
                     value={refDate} onChange={e => setRefDate(e.target.value)}
@@ -368,19 +429,19 @@ function RacePage() {
                 </div>
 
                 <div>
-                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>Tipo</label>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refTypeLabel}</label>
                   <select
                     value={refType} onChange={e => setRefType(e.target.value as 'race' | 'training')}
                     className="w-full rounded-lg border px-3 py-2 text-sm"
                     style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                   >
-                    <option value="race">Carrera</option>
-                    <option value="training">Entrenamiento</option>
+                    <option value="race">{t.race.refTypeRace}</option>
+                    <option value="training">{t.race.refTypeTrain}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>FC promedio (bpm) — opcional</label>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refHrLabel} — {t.common.optional}</label>
                   <input
                     type="number" min="60" max="220"
                     value={refHR} onChange={e => setRefHR(e.target.value)}
@@ -401,7 +462,7 @@ function RacePage() {
                 className="w-full py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
                 style={{ background: 'var(--primary)', color: '#fff' }}
               >
-                {refSaving ? 'Guardando...' : 'Guardar tiempo'}
+                {refSaving ? t.common.saving : t.race.refSave}
               </button>
             </div>
           )}
@@ -409,7 +470,7 @@ function RacePage() {
           {/* Lista de tiempos */}
           {refRaces.length === 0 ? (
             <p className="px-5 py-4 text-sm" style={{ color: 'var(--muted-foreground)' }}>
-              Todavía no cargaste tiempos de referencia.
+              {t.race.refEmpty}
             </p>
           ) : (
             <ul>
@@ -427,8 +488,8 @@ function RacePage() {
                       </span>
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
-                      {new Date(r.race_date + 'T12:00:00').toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                      {' · '}{r.race_type === 'race' ? 'Carrera' : 'Entrenamiento'}
+                      {new Date(r.race_date + 'T12:00:00').toLocaleDateString(t.race.dateLocale, { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {' · '}{r.race_type === 'race' ? t.race.refTypeRace : t.race.refTypeTrain}
                       {r.avg_heart_rate ? ` · ${r.avg_heart_rate} bpm` : ''}
                     </p>
                   </div>
@@ -436,7 +497,7 @@ function RacePage() {
                     onClick={() => handleDeleteRefRace(r.id)}
                     className="text-xs px-2 py-1 rounded"
                     style={{ color: 'var(--muted-foreground)' }}
-                    title="Eliminar"
+                    title={t.common.delete}
                   >
                     ✕
                   </button>
@@ -450,39 +511,39 @@ function RacePage() {
         {/* Sección: Plan de carrera                                            */}
         {/* ------------------------------------------------------------------ */}
 
-        {/* Aviso: sin ciudad → clima no disponible */}
+        {/* Aviso: sin ciudad → clima no disponible — oculto en impresión */}
         {!race?.city && refRaces.length > 0 && !notPremium && (
           <div
-            className="rounded-xl px-4 py-3 mb-4 text-sm flex items-start gap-2"
+            className="rounded-xl px-4 py-3 mb-4 text-sm flex items-start gap-2 no-print"
             style={{ background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.4)', color: '#facc15' }}
           >
             <span>⚠</span>
             <span>
-              Sin ciudad configurada el clima se estimará como neutro.{' '}
+              {t.race.noCityWarning}{' '}
               <button
                 onClick={() => router.push(`/races/${id}/edit`)}
                 className="underline"
               >
-                Editar carrera
+                {t.race.noCityEdit}
               </button>
             </span>
           </div>
         )}
 
-        {/* Paywall: usuario sin suscripción activa */}
+        {/* Paywall: usuario sin suscripción activa — oculto en impresión */}
         {notPremium && (
-          <div className="rounded-xl border p-8 text-center" style={{ background: 'var(--card)', borderColor: 'rgba(249,115,22,0.4)' }}>
+          <div className="rounded-xl border p-8 text-center no-print" style={{ background: 'var(--card)', borderColor: 'rgba(249,115,22,0.4)' }}>
             <div className="text-3xl mb-3">🔒</div>
-            <p className="font-semibold mb-2">Plan de carrera</p>
+            <p className="font-semibold mb-2">{t.race.paywallTitle}</p>
             <p className="text-sm mb-6" style={{ color: 'var(--muted-foreground)' }}>
-              Activá tu prueba gratuita de 7 días para generar tu plan personalizado.
+              {t.race.paywallDesc}
             </p>
             <button
               onClick={() => router.push('/pricing')}
               className="px-5 py-2.5 rounded-lg text-sm font-semibold"
               style={{ background: 'var(--primary)', color: '#fff' }}
             >
-              Activar prueba gratis — 7 días
+              {t.race.paywallCta}
             </button>
           </div>
         )}
@@ -491,9 +552,9 @@ function RacePage() {
         {!notPremium && refRaces.length === 0 && (
           <div className="rounded-xl border p-8 text-center" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <div className="text-3xl mb-3">🏃</div>
-            <p className="font-semibold mb-2">Plan de carrera</p>
+            <p className="font-semibold mb-2">{t.race.planTitle}</p>
             <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
-              Cargá al menos un tiempo de referencia para generar tu plan.
+              {t.race.noPlanNoRef}
             </p>
           </div>
         )}
@@ -501,7 +562,7 @@ function RacePage() {
         {/* Cargando el plan */}
         {!notPremium && refRaces.length > 0 && planLoading && (
           <div className="rounded-xl border p-8 text-center" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
-            <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Generando plan...</p>
+            <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{t.race.generating}</p>
           </div>
         )}
 
@@ -514,7 +575,7 @@ function RacePage() {
               className="text-xs px-3 py-1.5 rounded-lg font-semibold"
               style={{ background: 'var(--primary)', color: '#fff' }}
             >
-              Reintentar
+              {t.common.retry}
             </button>
           </div>
         )}

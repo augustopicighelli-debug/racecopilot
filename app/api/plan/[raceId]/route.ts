@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateRacePlan } from '@/lib/engine/plan';
+
+// Cliente admin para guardar el clima sin depender del JWT del usuario
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 import { buildFlatProfile } from '@/lib/engine/elevation';
 import { fetchWeather } from '@/lib/weather/open-meteo';
 import type { RunnerProfile, AggregatedWeather } from '@/lib/engine/types';
@@ -129,8 +135,16 @@ export async function GET(
       course,
       weather,
       targetPacePerKm,
-      breakfastHoursAgo: 3, // valor por defecto razonable
+      breakfastHoursAgo: 3,
     });
+
+    // Guardar el clima usado en la carrera (para detectar cambios 24hs antes)
+    // No-await: no bloqueamos la respuesta si falla
+    supabaseAdmin.from('races').update({
+      last_plan_weather: weather,
+      last_plan_at:      new Date().toISOString(),
+    }).eq('id', raceId).then(() => {});
+
     return NextResponse.json(plan);
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Error generando plan';

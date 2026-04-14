@@ -35,3 +35,38 @@ input, select, textarea {
 input::placeholder, textarea::placeholder {
   color: var(--muted-foreground);
 }
+
+/* ── Print / PDF ──────────────────────────────────────────────────────────── */
+@media print {
+  /* Tema claro para impresión */
+  :root {
+    --background:       #ffffff;
+    --foreground:       #111111;
+    --card:             #f9f9f9;
+    --card-foreground:  #111111;
+    --muted:            #f0f0f0;
+    --muted-foreground: #555555;
+    --border:           #dddddd;
+    --primary:          #ea580c;
+  }
+
+  body { background: white; color: #111; }
+
+  /* Ocultar elementos de navegación y acción */
+  .no-print { display: none !important; }
+
+  /* Quitar sombras y fondos de página */
+  .print-clean {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Saltos de página entre secciones del plan */
+  .print-break-before { page-break-before: always; }
+
+  /* Asegurar que tablas no se corten */
+  table { page-break-inside: avoid; }
+
+  /* Ajustar márgenes */
+  @page { margin: 1.5cm 2cm; }
+}
