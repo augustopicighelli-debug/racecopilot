@@ -7,7 +7,7 @@ import { UnitsToggle } from './units-toggle';
 export function TopControls() {
   return (
     <div
-      className="fixed top-0 right-0 z-50 flex items-center gap-1.5 px-3 py-1.5"
+      className="fixed top-0 right-0 z-50 flex items-center gap-1.5 px-3 py-1.5 no-print"
       style={{
         background: 'rgba(0,0,0,0.6)',
         backdropFilter: 'blur(8px)',
