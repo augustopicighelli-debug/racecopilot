@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 
-interface Runner { id: string; weight_kg: number; sweat_level: string; }
+// Incluye is_premium para mostrar/ocultar el banner de trial
+interface Runner { id: string; weight_kg: number; sweat_level: string; is_premium: boolean | null; }
 interface Race { id: string; name: string; distance_km: number; race_date: string; city: string | null; }
 
 export default function DashboardPage() {
@@ -19,7 +20,8 @@ export default function DashboardPage() {
       if (!session) { router.push('/login'); return; }
       setEmail(session.user.email ?? '');
 
-      const { data: r } = await supabase.from('runners').select('id,weight_kg,sweat_level')
+      // Traer también is_premium para el banner de trial
+      const { data: r } = await supabase.from('runners').select('id,weight_kg,sweat_level,is_premium')
         .eq('user_id', session.user.id).maybeSingle();
       if (!r) { router.push('/onboarding'); return; }
       setRunner(r);
@@ -56,6 +58,18 @@ export default function DashboardPage() {
     <div className="min-h-screen px-4 py-10" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
       <div className="max-w-2xl mx-auto">
 
+        {/* Banner de trial: solo visible si el usuario NO es premium */}
+        {runner && !runner.is_premium && (
+          <a
+            href="/pricing"
+            className="flex items-center justify-between rounded-xl px-4 py-3 mb-6 text-sm font-medium transition-opacity hover:opacity-80"
+            style={{ background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.4)', color: '#f97316' }}
+          >
+            <span>Activá tu prueba gratuita de 7 días</span>
+            <span>→</span>
+          </a>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -64,9 +78,19 @@ export default function DashboardPage() {
             </h1>
             <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{email}</p>
           </div>
-          <button onClick={handleLogout} className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
-            Salir
-          </button>
+          {/* Acciones del header: perfil y salir */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push('/profile')}
+              className="text-xs"
+              style={{ color: 'var(--muted-foreground)' }}
+            >
+              Mi perfil
+            </button>
+            <button onClick={handleLogout} className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
+              Salir
+            </button>
+          </div>
         </div>
 
         {/* Stats del runner */}

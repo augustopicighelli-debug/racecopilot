@@ -39,6 +39,18 @@ export default function OnboardingPage() {
         weekly_km: weeklyKm ? parseFloat(weeklyKm) : null,
       });
       if (err) throw err;
+
+      // Enviar email de bienvenida — usamos el JWT del access token para autenticar la llamada
+      // Si falla, lo ignoramos silenciosamente para no bloquear el onboarding
+      try {
+        await fetch('/api/email/welcome', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+      } catch {
+        // silencioso: el email de bienvenida no es crítico
+      }
+
       router.push('/dashboard');
     } catch (err: any) {
       setError(err.message);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateRacePlan } from '@/lib/engine/plan';
 import { buildFlatProfile } from '@/lib/engine/elevation';
+import { fetchWeather } from '@/lib/weather/open-meteo';
 import type { RunnerProfile, AggregatedWeather } from '@/lib/engine/types';
 
 export async function GET(
@@ -29,7 +30,7 @@ export async function GET(
   // 1. Cargar la carrera
   const { data: race, error: raceErr } = await supabase
     .from('races')
-    .select('id,distance_km,race_date,target_time_s,elevation_gain,runner_id')
+    .select('id,distance_km,race_date,target_time_s,elevation_gain,runner_id,city')
     .eq('id', raceId)
     .maybeSingle();
 
@@ -58,6 +59,12 @@ export async function GET(
     return NextResponse.json({ error: 'Sin carreras de referencia' }, { status: 400 });
   }
 
+  // 3.5. Cargar productos de nutrición del corredor
+  const { data: nutritionProds } = await supabase
+    .from('nutrition_products')
+    .select('name,type,carbs_grams,sodium_mg,caffeine_mg')
+    .eq('runner_id', runner.id);
+
   // 4. Armar RunnerProfile para el engine
   const runnerProfile: RunnerProfile = {
     weightKg:        runner.weight_kg,
@@ -65,7 +72,14 @@ export async function GET(
     sweatLevel:      runner.sweat_level,
     maxHeartRate:    runner.max_hr    ?? undefined,
     weeklyKm:        runner.weekly_km ?? undefined,
-    nutritionProducts: [], // sin productos configurados todavía
+    // Mapear columnas snake_case de DB a camelCase del engine
+    nutritionProducts: (nutritionProds ?? []).map(p => ({
+      name:        p.name,
+      type:        p.type as 'gel' | 'salt_pill',
+      carbsGrams:  p.carbs_grams,
+      sodiumMg:    p.sodium_mg,
+      caffeineMg:  p.caffeine_mg,
+    })),
     referenceRaces: refRaces.map(r => ({
       distanceKm:    r.distance_km,
       timeSeconds:   r.time_seconds,
@@ -81,19 +95,22 @@ export async function GET(
     race.elevation_gain ?? undefined
   );
 
-  // 6. Clima neutral (integración Open-Meteo pendiente)
+  // 6. Clima real vía Open-Meteo (o neutral si no hay ciudad o falla la API)
   const daysUntilRace = Math.ceil(
     (new Date(race.race_date + 'T12:00:00').getTime() - Date.now()) / 86400000
   );
-  const weather: AggregatedWeather = {
-    temperature:      12,
-    humidity:         50,
-    windSpeedKmh:     0,
-    windDirectionDeg: 0,
-    sourcesCount:     0,
-    sourceAgreement:  'low',
-    daysUntilRace,
-  };
+  const weather: AggregatedWeather = race.city
+    ? await fetchWeather(race.city, race.race_date, daysUntilRace)
+    : {
+        // Sin ciudad configurada → clima neutral
+        temperature:      12,
+        humidity:         50,
+        windSpeedKmh:     0,
+        windDirectionDeg: 0,
+        sourcesCount:     0,
+        sourceAgreement:  'low',
+        daysUntilRace,
+      };
 
   // 7. Ritmo objetivo (si el usuario lo cargó en la carrera)
   const targetPacePerKm = race.target_time_s
