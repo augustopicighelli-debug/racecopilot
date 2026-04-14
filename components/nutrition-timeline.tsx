@@ -1,5 +1,8 @@
+'use client';
+
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useLang } from '@/lib/lang';
 import type { NutritionPlan } from '@/lib/engine/types';
 
 interface NutritionTimelineProps {
@@ -7,10 +10,13 @@ interface NutritionTimelineProps {
 }
 
 export function NutritionTimeline({ nutrition }: NutritionTimelineProps) {
+  const { t } = useLang();
+  const p = t.plan;
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Nutricion</CardTitle>
+        <CardTitle>{p.nutritionTitle}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -23,7 +29,7 @@ export function NutritionTimeline({ nutrition }: NutritionTimelineProps) {
               <div className="flex-1 text-sm">
                 <span className="font-medium">{nutrition.preRaceGel.product.name}</span>
                 <span className="text-[var(--muted-foreground)] ml-2">
-                  {nutrition.preRaceGel.carbsGrams}g carbos
+                  {nutrition.preRaceGel.carbsGrams}g {p.carbs}
                 </span>
               </div>
             </div>
@@ -33,20 +39,12 @@ export function NutritionTimeline({ nutrition }: NutritionTimelineProps) {
               <div className="flex-shrink-0 w-14 text-right">
                 <span className="font-mono text-sm">Km {e.km}</span>
               </div>
-              <div
-                className={`flex-shrink-0 w-2 h-2 rounded-full ${
-                  e.product.type === 'gel' ? 'bg-amber-400' : 'bg-pink-400'
-                }`}
-              />
+              <div className={`flex-shrink-0 w-2 h-2 rounded-full ${e.product.type === 'gel' ? 'bg-amber-400' : 'bg-pink-400'}`} />
               <div className="flex-1 text-sm">
                 <span className="font-medium">{e.product.name}</span>
                 <div className="flex gap-2 mt-0.5">
-                  {e.carbsGrams > 0 && (
-                    <Badge variant="outline">{e.carbsGrams}g carbos</Badge>
-                  )}
-                  {e.sodiumMg > 0 && (
-                    <Badge variant="outline">{e.sodiumMg}mg sodio</Badge>
-                  )}
+                  {e.carbsGrams > 0 && <Badge variant="outline">{e.carbsGrams}g {p.carbs}</Badge>}
+                  {e.sodiumMg   > 0 && <Badge variant="outline">{e.sodiumMg}mg {p.sodium}</Badge>}
                 </div>
               </div>
               <div className="text-xs text-[var(--muted-foreground)]">~{e.minutesSinceStart}min</div>

@@ -3,31 +3,27 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useUnits } from '@/lib/units';
+import { useLang } from '@/lib/lang';
 import type { AggregatedWeather } from '@/lib/engine/types';
 
 interface WeatherCardProps {
   weather: AggregatedWeather;
 }
 
-function windDirectionLabel(deg: number): string {
-  const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
-  const index = Math.round(deg / 45) % 8;
-  return dirs[index];
-}
-
 export function WeatherCard({ weather }: WeatherCardProps) {
   const { fmtTemp, fmtWind } = useUnits();
+  const { t } = useLang();
+  const p = t.plan;
 
-  const tempEnd   = weather.temperatureEnd;
-  const windDir   = windDirectionLabel(weather.windDirectionDeg);
+  const windDir = p.windDirs[Math.round(weather.windDirectionDeg / 45) % 8];
 
   const confidenceVariant =
     weather.sourceAgreement === 'high'   ? 'success' :
     weather.sourceAgreement === 'medium' ? 'warning' : 'destructive';
 
   const confidenceLabel =
-    weather.sourceAgreement === 'high'   ? 'Alta' :
-    weather.sourceAgreement === 'medium' ? 'Media' : 'Baja';
+    weather.sourceAgreement === 'high'   ? p.confHigh :
+    weather.sourceAgreement === 'medium' ? p.confMedium : p.confLow;
 
   return (
     <Card>
@@ -40,18 +36,17 @@ export function WeatherCard({ weather }: WeatherCardProps) {
                weather.temperature <= 22 ? '☀️' : '🔥'}
             </span>
             <div>
-              {/* Temperaturas convertidas */}
               <p className="text-2xl font-bold tabular-nums">
-                {fmtTemp(weather.temperature)} → {tempEnd != null ? fmtTemp(tempEnd) : '?'}
+                {fmtTemp(weather.temperature)} → {weather.temperatureEnd != null ? fmtTemp(weather.temperatureEnd) : '?'}
               </p>
-              <p className="text-sm text-[var(--muted-foreground)]">Largada → Meta</p>
+              <p className="text-sm text-[var(--muted-foreground)]">{p.startToFinish}</p>
             </div>
           </div>
           <div className="text-right">
-            <Badge variant={confidenceVariant}>Confianza {confidenceLabel}</Badge>
+            <Badge variant={confidenceVariant}>{p.confidence} {confidenceLabel}</Badge>
             {weather.daysUntilRace > 7 && (
               <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                Faltan {weather.daysUntilRace} dias
+                {p.daysLeft(weather.daysUntilRace)}
               </p>
             )}
           </div>
@@ -59,16 +54,15 @@ export function WeatherCard({ weather }: WeatherCardProps) {
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <p className="text-lg font-semibold tabular-nums">{weather.humidity}%</p>
-            <p className="text-xs text-[var(--muted-foreground)]">Humedad</p>
+            <p className="text-xs text-[var(--muted-foreground)]">{p.humidity}</p>
           </div>
-          {/* Viento convertido */}
           <div>
             <p className="text-lg font-semibold tabular-nums">{fmtWind(weather.windSpeedKmh)}</p>
-            <p className="text-xs text-[var(--muted-foreground)]">Viento</p>
+            <p className="text-xs text-[var(--muted-foreground)]">{p.wind}</p>
           </div>
           <div>
             <p className="text-lg font-semibold tabular-nums">{windDir}</p>
-            <p className="text-xs text-[var(--muted-foreground)]">Direccion</p>
+            <p className="text-xs text-[var(--muted-foreground)]">{p.direction}</p>
           </div>
         </div>
       </CardContent>

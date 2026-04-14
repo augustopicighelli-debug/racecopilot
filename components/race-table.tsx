@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { formatTime } from '@/lib/format';
 import { useUnits } from '@/lib/units';
+import { useLang } from '@/lib/lang';
 import type { SplitKm, HydrationPlan, NutritionPlan } from '@/lib/engine/types';
 
 interface RaceTableProps {
@@ -20,58 +21,6 @@ function paceColor(pace: number, avgPace: number): string {
   return '';
 }
 
-/** Build rich explanatory notes from the split breakdown + events */
-function buildNotes(
-  s: SplitKm,
-  hasHydration: boolean,
-  hasNutrition: boolean,
-  totalKm: number,
-): string[] {
-  const notes: string[] = [];
-  const bd = s.breakdown;
-
-  // Km 1: largada
-  if (s.km === 1) {
-    notes.push('largada');
-  }
-
-  // Elevation
-  if (bd.elevationDelta > 2) {
-    notes.push('subida');
-  } else if (bd.elevationDelta < -2) {
-    notes.push('bajada');
-  }
-
-  // Wind
-  if (bd.windDelta > 1) {
-    notes.push('viento en contra');
-  } else if (bd.windDelta < -1) {
-    notes.push('viento a favor');
-  }
-
-  // Fatigue (glycogen depletion, typically after km 30)
-  if (bd.fatigueFactor > 1.01) {
-    notes.push('fatiga');
-  }
-
-  // Hydration stop — costs a few seconds
-  if (hasHydration) {
-    notes.push('hidratacion');
-  }
-
-  // Nutrition stop — costs a few seconds
-  if (hasNutrition) {
-    notes.push('alimentacion');
-  }
-
-  // Climate if significant
-  if (bd.climateFactor > 1.02) {
-    notes.push('calor');
-  }
-
-  return notes;
-}
-
 interface Chunk {
   index: number;
   label: string;
@@ -84,18 +33,32 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
   const [expandAll, setExpandAll] = useState(false);
   const [expandedChunks, setExpandedChunks] = useState<Set<number>>(new Set());
   const { fmtVol, fmtPace } = useUnits();
+  const { t } = useLang();
+  const p = t.plan;
 
-  // Formatea ritmo sin unidades para la tabla compacta (M:SS) usando la conversión del contexto
   const fmtPaceShort = (secPerKm: number) => {
-    const full = fmtPace(secPerKm); // "5:00 /km" | "8:03 /mi"
+    const full = fmtPace(secPerKm);
     return full.replace(' /km', '').replace(' /mi', '');
   };
 
-  // Build lookup maps
-  const hydrationByKm = new Map<number, number>();
-  for (const e of hydration.events) {
-    hydrationByKm.set(e.km, e.mlToDrink);
+  /** Notas explicativas por km usando el diccionario de idioma */
+  function buildNotes(s: SplitKm, hasHydration: boolean, hasNutrition: boolean): string[] {
+    const notes: string[] = [];
+    const bd = s.breakdown;
+    if (s.km === 1)               notes.push(p.noteStart);
+    if (bd.elevationDelta > 2)    notes.push(p.noteClimb);
+    else if (bd.elevationDelta < -2) notes.push(p.noteDescent);
+    if (bd.windDelta > 1)         notes.push(p.noteHeadwind);
+    else if (bd.windDelta < -1)   notes.push(p.noteTailwind);
+    if (bd.fatigueFactor > 1.01)  notes.push(p.noteFatigue);
+    if (hasHydration)             notes.push(p.noteHydration);
+    if (hasNutrition)             notes.push(p.noteNutrition);
+    if (bd.climateFactor > 1.02)  notes.push(p.noteHeat);
+    return notes;
   }
+
+  const hydrationByKm = new Map<number, number>();
+  for (const e of hydration.events) hydrationByKm.set(e.km, e.mlToDrink);
 
   const nutritionByKm = new Map<number, { label: string; type: string }[]>();
   for (const e of nutrition.events) {
@@ -107,50 +70,38 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
     nutritionByKm.set(e.km, items);
   }
 
-  // Group into 5km chunks
   const chunkSize = 5;
   const chunks: Chunk[] = [];
   for (let i = 0; i < splits.length; i += chunkSize) {
     const chunk = splits.slice(i, i + chunkSize);
-    const startKm = chunk[0].km;
-    const endKm = chunk[chunk.length - 1].km;
     const avgPaceChunk = chunk.reduce((sum, s) => sum + s.paceSecondsPerKm, 0) / chunk.length;
     const endTime = chunk[chunk.length - 1].cumulativeTimeSeconds;
-    chunks.push({ index: Math.floor(i / chunkSize), label: `Km ${startKm}-${endKm}`, avgPaceChunk, endTime, splits: chunk });
+    chunks.push({
+      index: Math.floor(i / chunkSize),
+      label: `Km ${chunk[0].km}-${chunk[chunk.length - 1].km}`,
+      avgPaceChunk,
+      endTime,
+      splits: chunk,
+    });
   }
 
   function toggleChunk(index: number) {
     setExpandedChunks(prev => {
       const next = new Set(prev);
-      if (next.has(index)) next.delete(index);
-      else next.add(index);
+      if (next.has(index)) next.delete(index); else next.add(index);
       return next;
     });
   }
 
   function handleExpandAll() {
-    if (expandAll) {
-      setExpandAll(false);
-      setExpandedChunks(new Set());
-    } else {
-      setExpandAll(true);
-      setExpandedChunks(new Set(chunks.map(c => c.index)));
-    }
+    if (expandAll) { setExpandAll(false); setExpandedChunks(new Set()); }
+    else { setExpandAll(true); setExpandedChunks(new Set(chunks.map(c => c.index))); }
   }
-
-  function isChunkExpanded(index: number) {
-    return expandAll || expandedChunks.has(index);
-  }
-
-  const totalKm = splits.length;
 
   function renderDetailRow(s: SplitKm) {
     const ml = hydrationByKm.get(s.km);
     const nutItems = nutritionByKm.get(s.km);
-    const hasHyd = hydrationByKm.has(s.km);
-    const hasNut = nutritionByKm.has(s.km);
-    const notes = buildNotes(s, hasHyd, hasNut, totalKm);
-
+    const notes = buildNotes(s, hydrationByKm.has(s.km), nutritionByKm.has(s.km));
     return (
       <tr key={`detail-${s.km}`} className="border-b border-[var(--border)]/30 bg-[var(--background)]/50">
         <td className="py-1 pl-6 pr-2 font-mono text-[var(--muted-foreground)]">{s.km}</td>
@@ -179,43 +130,40 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Plan de carrera</CardTitle>
+          <CardTitle>{p.tableTitle}</CardTitle>
           <p className="text-sm text-[var(--muted-foreground)] mt-1">
-            Sudoracion: {fmtVol(hydration.sweatRateMlPerHour)}/h
+            {p.sweatRate}: {fmtVol(hydration.sweatRateMlPerHour)}/h
             {nutrition.preRaceGel && (
-              <> — Pre-carrera: {nutrition.preRaceGel.product.name} ({nutrition.preRaceGel.carbsGrams}g)</>
+              <> — {p.preRace}: {nutrition.preRaceGel.product.name} ({nutrition.preRaceGel.carbsGrams}g)</>
             )}
           </p>
         </div>
-        <button
-          onClick={handleExpandAll}
-          className="text-xs text-[var(--primary)] hover:underline flex-shrink-0"
-        >
-          {expandAll ? 'Colapsar todo' : 'Ver km a km'}
+        <button onClick={handleExpandAll} className="text-xs text-[var(--primary)] hover:underline flex-shrink-0">
+          {expandAll ? p.collapseAll : p.expandAll}
         </button>
       </CardHeader>
       <CardContent className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--border)] text-[var(--muted-foreground)]">
-              <th className="text-left py-2 pr-2">Km</th>
-              <th className="text-right py-2 px-2">Ritmo</th>
-              <th className="text-right py-2 px-2">Tiempo</th>
-              <th className="text-left py-2 px-2">Hidrat.</th>
-              <th className="text-left py-2 px-2">Nutricion</th>
-              <th className="text-left py-2 pl-2">Notas</th>
+              <th className="text-left py-2 pr-2">{p.colKm}</th>
+              <th className="text-right py-2 px-2">{p.colPace}</th>
+              <th className="text-right py-2 px-2">{p.colTime}</th>
+              <th className="text-left py-2 px-2">{p.colHydration}</th>
+              <th className="text-left py-2 px-2">{p.colNutrition}</th>
+              <th className="text-left py-2 pl-2">{p.colNotes}</th>
             </tr>
           </thead>
           <tbody>
             {chunks.map((chunk) => {
-              const open = isChunkExpanded(chunk.index);
+              const open = expandAll || expandedChunks.has(chunk.index);
               const chunkMl = chunk.splits.reduce((sum, s) => sum + (hydrationByKm.get(s.km) ?? 0), 0);
               const chunkNutItems = chunk.splits.flatMap(s => nutritionByKm.get(s.km) ?? []);
-              const gelCount = chunkNutItems.filter(n => n.type === 'gel').length;
+              const gelCount  = chunkNutItems.filter(n => n.type === 'gel').length;
               const saltCount = chunkNutItems.filter(n => n.type === 'salt_pill').length;
               const nutSummary: string[] = [];
-              if (gelCount > 0) nutSummary.push(`${gelCount} gel${gelCount > 1 ? 'es' : ''}`);
-              if (saltCount > 0) nutSummary.push(`${saltCount} sal${saltCount > 1 ? 'es' : ''}`);
+              if (gelCount  > 0) nutSummary.push(p.gel(gelCount));
+              if (saltCount > 0) nutSummary.push(p.salt(saltCount));
 
               return [
                 <tr
@@ -239,9 +187,7 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
                     {chunkMl > 0 && <span className="text-blue-400 text-xs">{fmtVol(chunkMl)}</span>}
                   </td>
                   <td className="py-2 px-2 text-xs">
-                    {nutSummary.length > 0 && (
-                      <span className="text-amber-400">{nutSummary.join(', ')}</span>
-                    )}
+                    {nutSummary.length > 0 && <span className="text-amber-400">{nutSummary.join(', ')}</span>}
                   </td>
                   <td />
                 </tr>,
