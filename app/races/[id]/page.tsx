@@ -35,13 +35,6 @@ function fmtTime(s: number) {
   return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 }
 
-// Formatea segundos/km → M:SS /km (usado internamente para tiempos de referencia)
-function fmtPaceRaw(s: number) {
-  const m = Math.floor(s / 60);
-  const sec = Math.round(s % 60);
-  return `${m}:${String(sec).padStart(2,'0')} /km`;
-}
-
 // Convierte string "H:MM:SS" o "M:SS" a segundos totales
 function parseTimeInput(val: string): number | null {
   const parts = val.split(':').map(Number);
@@ -484,7 +477,7 @@ function RacePage() {
                     <p className="text-sm font-medium">
                       {fmtDist(r.distance_km)} &mdash; {fmtTime(r.time_seconds)}
                       <span className="ml-2 text-xs" style={{ color: 'var(--muted-foreground)' }}>
-                        ({fmtPaceRaw(r.time_seconds / r.distance_km)})
+                        ({fmtPace(r.time_seconds / r.distance_km)})
                       </span>
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
