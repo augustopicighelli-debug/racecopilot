@@ -1,4 +1,7 @@
+'use client';
+
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { useUnits } from '@/lib/units';
 import type { HydrationPlan } from '@/lib/engine/types';
 
 interface HydrationTimelineProps {
@@ -6,12 +9,16 @@ interface HydrationTimelineProps {
 }
 
 export function HydrationTimeline({ hydration }: HydrationTimelineProps) {
+  const { fmtVol } = useUnits();
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Hidratacion</CardTitle>
         <p className="text-sm text-[var(--muted-foreground)]">
-          Tasa sudoracion: {hydration.sweatRateMlPerHour} ml/h — Perdida total: {hydration.totalFluidLosseMl} ml
+          Tasa sudoracion: {fmtVol(hydration.sweatRateMlPerHour)}/h
+          {' — '}
+          Perdida total: {fmtVol(hydration.totalFluidLosseMl)}
         </p>
       </CardHeader>
       <CardContent>
@@ -23,9 +30,9 @@ export function HydrationTimeline({ hydration }: HydrationTimelineProps) {
               </div>
               <div className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-400" />
               <div className="flex-1 text-sm">
-                <span className="font-medium">{e.mlToDrink} ml</span>
+                <span className="font-medium">{fmtVol(e.mlToDrink)}</span>
                 <span className="text-[var(--muted-foreground)] ml-2">
-                  (acum: {e.cumulativeMl} ml)
+                  (acum: {fmtVol(e.cumulativeMl)})
                 </span>
               </div>
             </div>

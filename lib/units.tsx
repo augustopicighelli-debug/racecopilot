@@ -8,11 +8,13 @@ export type UnitSystem = 'metric' | 'imperial';
 interface UnitsCtx {
   units:     UnitSystem;
   toggle:    () => void;
-  fmtDist:   (km: number, decimals?: number) => string;  // "42.2 km" | "26.2 mi"
-  fmtPace:   (secPerKm: number) => string;               // "5:00 /km" | "8:03 /mi"
-  fmtWeight: (kg: number) => string;                     // "70 kg"    | "154 lb"
-  fmtTemp:   (celsius: number) => string;                // "17 °C"    | "63 °F"
-  fmtVol:    (ml: number) => string;                     // "200 ml"   | "6.8 fl oz"
+  fmtDist:   (km: number, decimals?: number) => string;  // "42.2 km"   | "26.2 mi"
+  fmtPace:   (secPerKm: number) => string;               // "5:00 /km"  | "8:03 /mi"
+  fmtWeight: (kg: number) => string;                     // "70 kg"     | "154 lb"
+  fmtTemp:   (celsius: number) => string;                // "17 °C"     | "63 °F"
+  fmtVol:    (ml: number) => string;                     // "200 ml"    | "6.8 fl oz"
+  fmtElev:   (meters: number) => string;                 // "250 m"     | "820 ft"
+  fmtWind:   (kmh: number) => string;                    // "12 km/h"   | "7 mph"
   distUnit:  string;  // "km" | "mi"  — para labels
   paceUnit:  string;  // "/km" | "/mi"
 }
@@ -84,6 +86,16 @@ export function UnitsProvider({ children }: { children: ReactNode }) {
       imp
         ? `${toFlOz(ml).toFixed(1)} fl oz`
         : `${ml} ml`,
+
+    fmtElev: (m) =>
+      imp
+        ? `${Math.round(m * 3.28084)} ft`
+        : `${Math.round(m)} m`,
+
+    fmtWind: (kmh) =>
+      imp
+        ? `${(kmh * 0.621371).toFixed(0)} mph`
+        : `${kmh} km/h`,
   };
 
   return <UnitsContext.Provider value={ctx}>{children}</UnitsContext.Provider>;

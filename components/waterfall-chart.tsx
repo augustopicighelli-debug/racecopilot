@@ -1,5 +1,8 @@
+'use client';
+
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { formatTime, formatDelta } from '@/lib/format';
+import { useUnits } from '@/lib/units';
 import type { RaceWaterfall, AggregatedWeather, CourseProfile } from '@/lib/engine/types';
 
 interface WaterfallChartProps {
@@ -9,6 +12,8 @@ interface WaterfallChartProps {
 }
 
 export function WaterfallChart({ waterfall, weather, course }: WaterfallChartProps) {
+  const { fmtTemp, fmtWind, fmtElev } = useUnits();
+
   const rows: { label: string; value: string; isDelta?: boolean; isTotal?: boolean }[] = [];
 
   if (waterfall.riegelTimeSeconds) {
@@ -19,17 +24,17 @@ export function WaterfallChart({ waterfall, weather, course }: WaterfallChartPro
   }
   rows.push({ label: 'Blend base', value: formatTime(waterfall.baseTimeSeconds) });
   rows.push({
-    label: `Clima (${weather.temperature}°→${weather.temperatureEnd ?? '?'}°C)`,
+    label: `Clima (${fmtTemp(weather.temperature)}→${weather.temperatureEnd != null ? fmtTemp(weather.temperatureEnd) : '?'})`,
     value: formatDelta(waterfall.climateAdjustment),
     isDelta: true,
   });
   rows.push({
-    label: `Elevacion (${Math.round(course.totalElevationGain)}↑ ${Math.round(course.totalElevationLoss)}↓)`,
+    label: `Elevacion (${fmtElev(course.totalElevationGain)}↑ ${fmtElev(course.totalElevationLoss)}↓)`,
     value: formatDelta(waterfall.elevationAdjustment),
     isDelta: true,
   });
   rows.push({
-    label: `Viento (${weather.windSpeedKmh}km/h)`,
+    label: `Viento (${fmtWind(weather.windSpeedKmh)})`,
     value: formatDelta(waterfall.windAdjustment),
     isDelta: true,
   });
@@ -48,7 +53,8 @@ export function WaterfallChart({ waterfall, weather, course }: WaterfallChartPro
         <div className="space-y-1">
           {rows.map((row, i) => {
             const deltaColor = row.isDelta
-              ? row.value.startsWith('+') ? 'text-red-400' : row.value.startsWith('-') ? 'text-emerald-400' : ''
+              ? row.value.startsWith('+') ? 'text-red-400'
+              : row.value.startsWith('-') ? 'text-emerald-400' : ''
               : '';
 
             return (

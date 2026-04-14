@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { formatPaceShort, formatTime } from '@/lib/format';
+import { formatTime } from '@/lib/format';
+import { useUnits } from '@/lib/units';
 import type { SplitKm, HydrationPlan, NutritionPlan } from '@/lib/engine/types';
 
 interface RaceTableProps {
@@ -82,6 +83,13 @@ interface Chunk {
 export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTableProps) {
   const [expandAll, setExpandAll] = useState(false);
   const [expandedChunks, setExpandedChunks] = useState<Set<number>>(new Set());
+  const { fmtVol, fmtPace } = useUnits();
+
+  // Formatea ritmo sin unidades para la tabla compacta (M:SS) usando la conversión del contexto
+  const fmtPaceShort = (secPerKm: number) => {
+    const full = fmtPace(secPerKm); // "5:00 /km" | "8:03 /mi"
+    return full.replace(' /km', '').replace(' /mi', '');
+  };
 
   // Build lookup maps
   const hydrationByKm = new Map<number, number>();
@@ -147,13 +155,13 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
       <tr key={`detail-${s.km}`} className="border-b border-[var(--border)]/30 bg-[var(--background)]/50">
         <td className="py-1 pl-6 pr-2 font-mono text-[var(--muted-foreground)]">{s.km}</td>
         <td className={`py-1 px-2 text-right font-mono ${paceColor(s.paceSecondsPerKm, avgPace)}`}>
-          {formatPaceShort(s.paceSecondsPerKm)}
+          {fmtPaceShort(s.paceSecondsPerKm)}
         </td>
         <td className="py-1 px-2 text-right font-mono text-[var(--muted-foreground)]">
           {formatTime(s.cumulativeTimeSeconds)}
         </td>
         <td className="py-1 px-2">
-          {ml ? <span className="text-blue-400 text-xs">{ml}ml</span> : null}
+          {ml ? <span className="text-blue-400 text-xs">{fmtVol(ml)}</span> : null}
         </td>
         <td className="py-1 px-2 text-xs">
           {nutItems && nutItems.map((n, i) => (
@@ -173,7 +181,7 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
         <div>
           <CardTitle>Plan de carrera</CardTitle>
           <p className="text-sm text-[var(--muted-foreground)] mt-1">
-            Sudoracion: {hydration.sweatRateMlPerHour} ml/h
+            Sudoracion: {fmtVol(hydration.sweatRateMlPerHour)}/h
             {nutrition.preRaceGel && (
               <> — Pre-carrera: {nutrition.preRaceGel.product.name} ({nutrition.preRaceGel.carbsGrams}g)</>
             )}
@@ -222,13 +230,13 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
                     {chunk.label}
                   </td>
                   <td className={`py-2 px-2 text-right font-mono ${paceColor(chunk.avgPaceChunk, avgPace)}`}>
-                    {formatPaceShort(chunk.avgPaceChunk)}
+                    {fmtPaceShort(chunk.avgPaceChunk)}
                   </td>
                   <td className="py-2 px-2 text-right font-mono text-[var(--muted-foreground)]">
                     {formatTime(chunk.endTime)}
                   </td>
                   <td className="py-2 px-2">
-                    {chunkMl > 0 && <span className="text-blue-400 text-xs">{chunkMl}ml</span>}
+                    {chunkMl > 0 && <span className="text-blue-400 text-xs">{fmtVol(chunkMl)}</span>}
                   </td>
                   <td className="py-2 px-2 text-xs">
                     {nutSummary.length > 0 && (

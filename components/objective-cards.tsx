@@ -2,7 +2,8 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { formatTime, formatPace } from '@/lib/format';
+import { formatTime } from '@/lib/format';
+import { useUnits } from '@/lib/units';
 import type { TripleObjectivePlan } from '@/lib/engine/types';
 
 type Objective = 'forecast' | 'target' | 'consensus';
@@ -14,6 +15,8 @@ interface ObjectiveCardsProps {
 }
 
 export function ObjectiveCards({ plan, selected, onSelect }: ObjectiveCardsProps) {
+  const { fmtPace } = useUnits();
+
   const objectives: { key: Objective; label: string; sublabel?: string; data?: typeof plan.forecast }[] = [
     { key: 'forecast', label: 'Pronostico', data: plan.forecast },
     ...(plan.target ? [{ key: 'target' as const, label: 'Target', data: plan.target }] : []),
@@ -50,8 +53,9 @@ export function ObjectiveCards({ plan, selected, onSelect }: ObjectiveCardsProps
                 <p className="text-2xl font-bold tabular-nums">
                   {formatTime(obj.data.prediction.timeSeconds)}
                 </p>
+                {/* Ritmo con unidades del contexto (km o mi) */}
                 <p className="text-lg font-semibold text-[var(--primary)] tabular-nums">
-                  {formatPace(obj.data.prediction.paceSecondsPerKm)}
+                  {fmtPace(obj.data.prediction.paceSecondsPerKm)}
                 </p>
                 {obj.sublabel && (
                   <Badge variant="warning" className="mt-2">{obj.sublabel}</Badge>
