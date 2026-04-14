@@ -73,24 +73,31 @@ export default function RacePage() {
   const [refHR, setRefHR]     = useState(''); // FC promedio (opcional)
 
   // --- estado del plan ---
-  const [plan, setPlan]             = useState<TripleObjectivePlan | null>(null);
+  const [plan, setPlan]               = useState<TripleObjectivePlan | null>(null);
   const [planLoading, setPlanLoading] = useState(false);
-  const [planError, setPlanError]   = useState('');
+  const [planError, setPlanError]     = useState('');
+  const [notPremium, setNotPremium]   = useState(false); // true cuando la API devuelve 403
 
   // Carga el plan desde la API
   const fetchPlan = useCallback(async () => {
     setPlanLoading(true);
     setPlanError('');
     setPlan(null);
+    setNotPremium(false);
 
     try {
-      // Obtener JWT del usuario actual
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
       const res = await fetch(`/api/plan/${id}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
+
+      // Paywall: el usuario no tiene suscripción activa
+      if (res.status === 403) {
+        setNotPremium(true);
+        return;
+      }
 
       if (!res.ok) {
         const body = await res.json();
@@ -407,8 +414,26 @@ export default function RacePage() {
         {/* Sección: Plan de carrera                                            */}
         {/* ------------------------------------------------------------------ */}
 
+        {/* Paywall: usuario sin suscripción activa */}
+        {notPremium && (
+          <div className="rounded-xl border p-8 text-center" style={{ background: 'var(--card)', borderColor: 'rgba(249,115,22,0.4)' }}>
+            <div className="text-3xl mb-3">🔒</div>
+            <p className="font-semibold mb-2">Plan de carrera</p>
+            <p className="text-sm mb-6" style={{ color: 'var(--muted-foreground)' }}>
+              Activá tu prueba gratuita de 7 días para generar tu plan personalizado.
+            </p>
+            <button
+              onClick={() => router.push('/pricing')}
+              className="px-5 py-2.5 rounded-lg text-sm font-semibold"
+              style={{ background: 'var(--primary)', color: '#fff' }}
+            >
+              Activar prueba gratis — 7 días
+            </button>
+          </div>
+        )}
+
         {/* Sin tiempos de referencia → placeholder */}
-        {refRaces.length === 0 && (
+        {!notPremium && refRaces.length === 0 && (
           <div className="rounded-xl border p-8 text-center" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <div className="text-3xl mb-3">🏃</div>
             <p className="font-semibold mb-2">Plan de carrera</p>
@@ -419,14 +444,14 @@ export default function RacePage() {
         )}
 
         {/* Cargando el plan */}
-        {refRaces.length > 0 && planLoading && (
+        {!notPremium && refRaces.length > 0 && planLoading && (
           <div className="rounded-xl border p-8 text-center" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Generando plan...</p>
           </div>
         )}
 
         {/* Error generando el plan */}
-        {refRaces.length > 0 && !planLoading && planError && (
+        {!notPremium && refRaces.length > 0 && !planLoading && planError && (
           <div className="rounded-xl border p-6" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <p className="text-sm mb-3" style={{ color: '#ef4444' }}>{planError}</p>
             <button

@@ -51,7 +51,8 @@ export default function OnboardingPage() {
         // silencioso: el email de bienvenida no es crítico
       }
 
-      router.push('/dashboard');
+      // Nuevo usuario → va a pricing para activar el trial
+      router.push('/pricing');
     } catch (err: any) {
       setError(err.message);
     } finally {

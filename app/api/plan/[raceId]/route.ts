@@ -41,12 +41,17 @@ export async function GET(
   // 2. Cargar perfil del corredor
   const { data: runner } = await supabase
     .from('runners')
-    .select('id,weight_kg,height_cm,sweat_level,max_hr,weekly_km')
+    .select('id,weight_kg,height_cm,sweat_level,max_hr,weekly_km,is_premium')
     .eq('id', race.runner_id)
     .maybeSingle();
 
   if (!runner) {
     return NextResponse.json({ error: 'Perfil de corredor no encontrado' }, { status: 404 });
+  }
+
+  // Paywall: solo usuarios premium (o en trial activo) pueden generar planes
+  if (!runner.is_premium) {
+    return NextResponse.json({ error: 'premium_required' }, { status: 403 });
   }
 
   // 3. Cargar carreras de referencia

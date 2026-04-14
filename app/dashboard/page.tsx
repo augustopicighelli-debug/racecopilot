@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 
 // Incluye is_premium para mostrar/ocultar el banner de trial
@@ -8,7 +8,10 @@ interface Runner { id: string; weight_kg: number; sweat_level: string; is_premiu
 interface Race { id: string; name: string; distance_km: number; race_date: string; city: string | null; }
 
 export default function DashboardPage() {
-  const router = useRouter();
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+  const checkoutOk   = searchParams.get('checkout') === 'success';
+
   const [email, setEmail]     = useState('');
   const [runner, setRunner]   = useState<Runner | null>(null);
   const [races, setRaces]     = useState<Race[]>([]);
@@ -58,8 +61,18 @@ export default function DashboardPage() {
     <div className="min-h-screen px-4 py-10" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
       <div className="max-w-2xl mx-auto">
 
-        {/* Banner de trial: solo visible si el usuario NO es premium */}
-        {runner && !runner.is_premium && (
+        {/* Banner post-checkout: suscripción en proceso (webhook puede tardar unos segundos) */}
+        {checkoutOk && (
+          <div
+            className="rounded-xl px-4 py-3 mb-6 text-sm font-medium"
+            style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.4)', color: '#4ade80' }}
+          >
+            ¡Listo! Tu suscripción está siendo procesada. En unos segundos tenés acceso completo.
+          </div>
+        )}
+
+        {/* Banner de trial: solo visible si el usuario NO es premium y no acaba de hacer checkout */}
+        {runner && !runner.is_premium && !checkoutOk && (
           <a
             href="/pricing"
             className="flex items-center justify-between rounded-xl px-4 py-3 mb-6 text-sm font-medium transition-opacity hover:opacity-80"
