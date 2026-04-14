@@ -48,11 +48,11 @@ export const T = {
     },
     // ── Landing ───────────────────────────────────────────
     landing: {
-      badge:         '7 días gratis · sin tarjeta requerida',
+      badge:         '7 días de prueba gratis',
       title:         'Tu plan de carrera',
       titleHighlight:'personalizado',
       subtitle:      'Hidratación, nutrición y ritmo km a km — calibrado con tus tiempos reales y el clima del día.',
-      ctaPrimary:    'Empezar gratis — 7 días sin cargo',
+      ctaPrimary:    'Empezar — 7 días de prueba gratis',
       ctaSecondary:  'Ver precios →',
       exampleLabel:  'Ejemplo de plan generado',
       mockupCta:     'Crear mi plan gratis →',
@@ -64,7 +64,7 @@ export const T = {
         { icon: '🌤', title: 'Clima del día',            desc: 'Pronóstico de Open-Meteo para la ciudad y la fecha exacta de tu carrera.' },
       ],
       ctaSectionTitle:    '¿Listo para tu próxima carrera?',
-      ctaSectionSubtitle: '7 días gratis, sin tarjeta requerida. Cancelá cuando quieras.',
+      ctaSectionSubtitle: '7 días de prueba gratis. Cancelá cuando quieras.',
       copyright: 'RaceCopilot',
     },
     // ── Dashboard ─────────────────────────────────────────
@@ -125,7 +125,7 @@ export const T = {
     },
     // ── Pricing ───────────────────────────────────────────
     pricing: {
-      subtitle:    'Empezá gratis — 7 días sin cargo, cancelá cuando quieras.',
+      subtitle:    'Probá 7 días gratis. Cancelá cuando quieras.',
       alreadySub:  'Ya tenés una suscripción activa',
       alreadyDesc: 'Podés gestionar tu suscripción desde tu perfil.',
       toDash:      'Ir al dashboard',
@@ -191,11 +191,11 @@ export const T = {
       verifying:   'Verifying link...',
     },
     landing: {
-      badge:         '7-day free trial · no card required',
+      badge:         '7-day free trial',
       title:         'Your race plan,',
       titleHighlight:'personalized',
       subtitle:      'Hydration, nutrition and pace per km — calibrated with your real times and race-day weather.',
-      ctaPrimary:    'Start free — 7 days, no charge',
+      ctaPrimary:    'Start — 7-day free trial',
       ctaSecondary:  'See pricing →',
       exampleLabel:  'Generated plan example',
       mockupCta:     'Create my plan free →',
@@ -207,7 +207,7 @@ export const T = {
         { icon: '🌤', title: 'Race-day weather',      desc: 'Open-Meteo forecast for your city on the exact date of your race.' },
       ],
       ctaSectionTitle:    'Ready for your next race?',
-      ctaSectionSubtitle: '7 days free, no card required. Cancel anytime.',
+      ctaSectionSubtitle: '7-day free trial. Cancel anytime.',
       copyright: 'RaceCopilot',
     },
     dashboard: {
@@ -264,7 +264,7 @@ export const T = {
       noCityEdit:   'Edit race',
     },
     pricing: {
-      subtitle:    'Start free — 7 days, no charge, cancel anytime.',
+      subtitle:    'Try free for 7 days. Cancel anytime.',
       alreadySub:  'You already have an active subscription',
       alreadyDesc: 'You can manage your subscription from your profile.',
       toDash:      'Go to dashboard',
