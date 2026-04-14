@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import { RacePlanClient } from '@/components/race-plan-client';
+import { RaceResult } from '@/components/race-result';
 import type { TripleObjectivePlan } from '@/lib/engine/types';
 import { useUnits } from '@/lib/units';
 import { UnitsToggle } from '@/components/units-toggle';
@@ -16,6 +17,7 @@ interface Race {
   city: string | null;
   target_time_s: number | null;
   elevation_gain: number | null;
+  actual_time_s: number | null;
 }
 
 interface ReferenceRace {
@@ -78,6 +80,9 @@ function RacePage() {
   const [planError, setPlanError]     = useState('');
   const [notPremium, setNotPremium]   = useState(false); // true cuando la API devuelve 403
 
+  // --- resultado real de la carrera ---
+  const [actualTimeS, setActualTimeS] = useState<number | null>(null);
+
   // --- estado del link compartido ---
   const [shareUrl,      setShareUrl]      = useState<string | null>(null);
   const [shareLoading,  setShareLoading]  = useState(false);
@@ -139,12 +144,13 @@ function RacePage() {
       // Cargar carrera
       const { data, error: err } = await supabase
         .from('races')
-        .select('id,name,distance_km,race_date,city,target_time_s,elevation_gain')
+        .select('id,name,distance_km,race_date,city,target_time_s,elevation_gain,actual_time_s')
         .eq('id', id)
         .maybeSingle();
 
       if (err || !data) { setError('Carrera no encontrada'); setLoading(false); return; }
       setRace(data);
+      setActualTimeS(data.actual_time_s ?? null);
 
       // Cargar runner
       const { data: runner } = await supabase
@@ -580,6 +586,20 @@ function RacePage() {
             mapPoints={[]}
             distanceKm={race?.distance_km ?? 0}
           />
+        )}
+
+        {/* Comparador post-carrera — visible solo si la carrera ya pasó y hay plan */}
+        {plan && !planLoading && race && new Date(race.race_date + 'T23:59:59') < new Date() && (
+          <div className="mt-4 no-print">
+            <RaceResult
+              raceId={id}
+              planTimeS={plan.forecast.prediction.timeSeconds}
+              planPaceS={plan.forecast.prediction.paceSecondsPerKm}
+              distanceKm={race.distance_km}
+              actualTimeS={actualTimeS}
+              onSave={setActualTimeS}
+            />
+          </div>
         )}
 
       </div>
