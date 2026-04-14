@@ -2,6 +2,8 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
+import { useUnits } from '@/lib/units';
+import { UnitsToggle } from '@/components/units-toggle';
 
 // Incluye is_premium para mostrar/ocultar el banner de trial
 interface Runner { id: string; weight_kg: number; sweat_level: string; is_premium: boolean | null; }
@@ -12,6 +14,7 @@ function DashboardContent() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const checkoutOk   = searchParams.get('checkout') === 'success';
+  const { fmtDist, fmtWeight } = useUnits();
 
   const [email, setEmail]     = useState('');
   const [runner, setRunner]   = useState<Runner | null>(null);
@@ -121,8 +124,9 @@ function DashboardContent() {
             </h1>
             <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{email}</p>
           </div>
-          {/* Acciones del header: perfil y salir */}
+          {/* Acciones del header: unidades, perfil y salir */}
           <div className="flex items-center gap-3">
+            <UnitsToggle />
             <button
               onClick={() => router.push('/profile')}
               className="text-xs"
@@ -139,7 +143,7 @@ function DashboardContent() {
         {/* Stats del runner */}
         <div className="rounded-xl p-4 border mb-6 flex gap-6 text-sm" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
           <span style={{ color: 'var(--muted-foreground)' }}>
-            Peso: <strong style={{ color: 'var(--foreground)' }}>{runner?.weight_kg} kg</strong>
+            Peso: <strong style={{ color: 'var(--foreground)' }}>{runner ? fmtWeight(runner.weight_kg) : '—'}</strong>
           </span>
           <span style={{ color: 'var(--muted-foreground)' }}>
             Sudoración: <strong style={{ color: 'var(--foreground)' }}>
@@ -182,7 +186,7 @@ function DashboardContent() {
                   <div>
                     <p className="font-semibold text-sm">{race.name}</p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
-                      {race.distance_km} km{race.city ? ` · ${race.city}` : ''} · {fmtDate(race.race_date)}
+                      {fmtDist(race.distance_km)}{race.city ? ` · ${race.city}` : ''} · {fmtDate(race.race_date)}
                     </p>
                   </div>
                   <div className="text-right">

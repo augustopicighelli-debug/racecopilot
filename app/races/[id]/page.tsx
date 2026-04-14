@@ -4,6 +4,8 @@ import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import { RacePlanClient } from '@/components/race-plan-client';
 import type { TripleObjectivePlan } from '@/lib/engine/types';
+import { useUnits } from '@/lib/units';
+import { UnitsToggle } from '@/components/units-toggle';
 
 interface Race {
   id: string;
@@ -32,8 +34,8 @@ function fmtTime(s: number) {
   return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 }
 
-// Formatea segundos/km → M:SS /km
-function fmtPace(s: number) {
+// Formatea segundos/km → M:SS /km (usado internamente para tiempos de referencia)
+function fmtPaceRaw(s: number) {
   const m = Math.floor(s / 60);
   const sec = Math.round(s % 60);
   return `${m}:${String(sec).padStart(2,'0')} /km`;
@@ -54,6 +56,7 @@ function RacePage() {
   const searchParams = useSearchParams();
   const id           = params?.id as string;
   const justEdited   = searchParams?.get('updated') === '1';
+  const { fmtDist, fmtPace, fmtTemp } = useUnits();
 
   // --- estado de la carrera principal ---
   const [race, setRace]       = useState<Race | null>(null);
@@ -242,11 +245,13 @@ function RacePage() {
     <div className="min-h-screen px-4 py-10" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
       <div className="max-w-2xl mx-auto">
 
-        {/* Header: volver + eliminar carrera */}
+        {/* Header: volver + toggle unidades + eliminar carrera */}
         <div className="flex items-center justify-between mb-6">
           <button onClick={() => router.push('/dashboard')} className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
             ← Dashboard
           </button>
+          <div className="flex items-center gap-2">
+            <UnitsToggle />
           <button
             onClick={async () => {
               // Pedir confirmación antes de borrar
@@ -259,6 +264,7 @@ function RacePage() {
           >
             Eliminar carrera
           </button>
+          </div>
         </div>
 
         <div className="mb-6 flex items-start justify-between">
@@ -280,7 +286,7 @@ function RacePage() {
         {/* Stats de la carrera */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
-            { label: 'Distancia',        value: `${race?.distance_km} km` },
+            { label: 'Distancia',        value: race ? fmtDist(race.distance_km) : '—' },
             { label: 'Cuenta regresiva', value: race ? daysUntil(race.race_date) : '' },
             { label: 'Tiempo objetivo',  value: race?.target_time_s ? fmtTime(race.target_time_s) : '—' },
             { label: 'Ritmo objetivo',   value: estimatedPace ? fmtPace(estimatedPace) : '—' },
@@ -415,9 +421,9 @@ function RacePage() {
                 >
                   <div>
                     <p className="text-sm font-medium">
-                      {r.distance_km} km &mdash; {fmtTime(r.time_seconds)}
+                      {fmtDist(r.distance_km)} &mdash; {fmtTime(r.time_seconds)}
                       <span className="ml-2 text-xs" style={{ color: 'var(--muted-foreground)' }}>
-                        ({fmtPace(r.time_seconds / r.distance_km)})
+                        ({fmtPaceRaw(r.time_seconds / r.distance_km)})
                       </span>
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
