@@ -353,7 +353,7 @@ function RacePage() {
                 className="inline-block mt-2 text-xs px-2.5 py-1 rounded-full font-medium"
                 style={{ background: 'rgba(249,115,22,0.12)', color: '#f97316', border: '1px solid rgba(249,115,22,0.3)' }}
               >
-                {race.goal_type === 'finish' ? '🏁 Terminar' : race.goal_type === 'pr' ? '⚡ Mejorar marca' : '🎯 Tiempo exacto'}
+                {race.goal_type === 'finish' ? t.goal.badgeFinish : race.goal_type === 'pr' ? t.goal.badgePr : t.goal.badgeTarget}
               </span>
             )}
           </div>

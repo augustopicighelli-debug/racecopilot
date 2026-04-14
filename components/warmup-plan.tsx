@@ -11,11 +11,25 @@ interface WarmupPlanProps {
 }
 
 interface WarmupStep {
-  minutesBefore: number;  // minutos antes de la largada
+  minutesBefore: number;
   icon:          string;
   action:        string;
   detail?:       string;
 }
+
+// Traducciones locales del warmup (las recibe como argumento para no usar hook en función pura)
+type WarmupT = {
+  snackAction: string; snackDetail: string;
+  bagAction: string; bagDetail: string;
+  hydrHotAction: string; hydrHotDetail: string;
+  hydrAction: string; hydrDetail: string;
+  trotAction: (min: number) => string; trotDetail: string; trotMidDetail: string;
+  walkAction: (min: number) => string; walkDetail: string;
+  dynamicAction: string; dynamicDetail: string;
+  stridesAction: (n: number) => string; stridesDetail: string;
+  corralAction: string; corralCold: string; corralHot: string; corralNormal: string;
+  lastDrinkAction: string; lastDrinkDetail: string;
+};
 
 /**
  * Genera los pasos del calentamiento según distancia y clima.
@@ -25,127 +39,84 @@ interface WarmupStep {
  * - Frío (< 10°C): pasos más largos, conservar calor hasta último momento
  * - Calor (> 22°C): pasos más cortos para no elevar temperatura corporal
  */
-function buildWarmupSteps(distanceKm: number, weather: AggregatedWeather): WarmupStep[] {
+function buildWarmupSteps(
+  distanceKm: number,
+  weather: AggregatedWeather,
+  w: WarmupT
+): WarmupStep[] {
   const isCold = weather.temperature < 10;
   const isHot  = weather.temperature > 22;
 
-  // Clasificar la carrera por distancia
-  const isShort  = distanceKm <= 10;
-  const isMid    = distanceKm > 10 && distanceKm <= 21.5;
-  const isLong   = distanceKm > 21.5;
+  const isShort = distanceKm <= 10;
+  const isMid   = distanceKm > 10 && distanceKm <= 21.5;
+  const isLong  = distanceKm > 21.5;
 
   const steps: WarmupStep[] = [];
 
-  // ── 90 minutos antes ─────────────────────────────────────────────────────
-  steps.push({
-    minutesBefore: 90,
-    icon:  '🍌',
-    action: 'Último snack ligero',
-    detail: 'Banana o tostadas con mermelada. Nada pesado ni nuevo.',
-  });
-
-  // ── 60 minutos antes ─────────────────────────────────────────────────────
-  steps.push({
-    minutesBefore: 60,
-    icon:  '📦',
-    action: 'Llegada y entrega de bolso',
-    detail: 'Dejá el bolso, confirmá el corral, orientate en el recorrido de salida.',
-  });
-
-  // ── 45 minutos antes ─────────────────────────────────────────────────────
+  steps.push({ minutesBefore: 90, icon: '🍌', action: w.snackAction, detail: w.snackDetail });
+  steps.push({ minutesBefore: 60, icon: '📦', action: w.bagAction,   detail: w.bagDetail });
   steps.push({
     minutesBefore: 45,
-    icon:  '💧',
-    action: isHot ? 'Hidratación extra (400ml)' : 'Hidratación (250ml)',
-    detail: isHot
-      ? 'Con calor perdés líquido solo esperando. Bebé antes de sudar.'
-      : 'Agua o bebida isotónica. No más de 500ml para evitar molestias.',
+    icon:   '💧',
+    action: isHot ? w.hydrHotAction : w.hydrAction,
+    detail: isHot ? w.hydrHotDetail : w.hydrDetail,
   });
 
-  // ── Trote de activación ───────────────────────────────────────────────────
   if (isShort) {
-    const trotMin = isCold ? 15 : isHot ? 8 : 12;
-    steps.push({
-      minutesBefore: 35,
-      icon:  '🏃',
-      action: `Trote suave ${trotMin} min`,
-      detail: 'Ritmo muy cómodo (~70-75% FC máx). Activar circulación sin gastar energía.',
-    });
+    const min = isCold ? 15 : isHot ? 8 : 12;
+    steps.push({ minutesBefore: 35, icon: '🏃', action: w.trotAction(min), detail: w.trotDetail });
   } else if (isMid) {
-    const trotMin = isCold ? 10 : isHot ? 5 : 8;
-    steps.push({
-      minutesBefore: 30,
-      icon:  '🏃',
-      action: `Trote suave ${trotMin} min`,
-      detail: 'Ligero. Con frío, empezá más tarde del corral.',
-    });
+    const min = isCold ? 10 : isHot ? 5 : 8;
+    steps.push({ minutesBefore: 30, icon: '🏃', action: w.trotAction(min), detail: w.trotMidDetail });
   } else {
-    // Maratón/ultra: caminata o trote muy suave
-    const trotMin = isCold ? 8 : 5;
-    steps.push({
-      minutesBefore: 20,
-      icon:  '🚶',
-      action: `Caminata rápida ${trotMin} min (maratón)`,
-      detail: 'Para maratón el calentamiento es mínimo. Los primeros 5km de la carrera son el warmup.',
-    });
+    const min = isCold ? 8 : 5;
+    steps.push({ minutesBefore: 20, icon: '🚶', action: w.walkAction(min), detail: w.walkDetail });
   }
 
-  // ── Ejercicios dinámicos ──────────────────────────────────────────────────
   steps.push({
     minutesBefore: isShort ? 22 : isMid ? 20 : 12,
-    icon:  '🦵',
-    action: 'Ejercicios dinámicos (5-7 min)',
-    detail: 'Rodillas al pecho · Talones a glúteos · Leg swings · Círculos de cadera · Lateral shuffle',
+    icon:   '🦵',
+    action: w.dynamicAction,
+    detail: w.dynamicDetail,
   });
 
-  // ── Strides (solo para cortas y medias) ───────────────────────────────────
   if (!isLong) {
-    const strideCount = isShort ? (isHot ? 4 : 6) : 3;
+    const n = isShort ? (isHot ? 4 : 6) : 3;
     steps.push({
       minutesBefore: isShort ? 14 : 12,
-      icon:  '⚡',
-      action: `${strideCount} strides × 80m`,
-      detail: 'Arrancá suave y llegá al 90% de tu ritmo máximo. Recuperación completa entre cada uno.',
+      icon:   '⚡',
+      action: w.stridesAction(n),
+      detail: w.stridesDetail,
     });
   }
 
-  // ── 10 minutos antes ─────────────────────────────────────────────────────
   steps.push({
     minutesBefore: 10,
-    icon:  '👟',
-    action: 'Posición en el corral',
-    detail: isCold
-      ? 'Conservá el calor con ropa desechable. Sacátela en los últimos 2 min.'
-      : isHot
-      ? 'Buscá sombra en el corral. No te sobre-calientes antes de la largada.'
-      : 'Entrá al corral y hacé pequeños movimientos para mantenerte activo.',
+    icon:   '👟',
+    action: w.corralAction,
+    detail: isCold ? w.corralCold : isHot ? w.corralHot : w.corralNormal,
   });
 
-  // ── 5 minutos antes ──────────────────────────────────────────────────────
-  steps.push({
-    minutesBefore: 5,
-    icon:  '💧',
-    action: 'Último sorbo (100-150ml)',
-    detail: 'Solo si tenés sed. No fuerces líquido si no querés.',
-  });
+  steps.push({ minutesBefore: 5, icon: '💧', action: w.lastDrinkAction, detail: w.lastDrinkDetail });
 
   return steps;
 }
 
-// Formatea "X min antes" → "−Xmin"
+// Formatea minutos antes de la largada → "-Xmin" o "-Xh"
 function fmtBefore(min: number): string {
   if (min >= 60) return `−${min / 60}h`;
   return `−${min}min`;
 }
 
 export function WarmupPlan({ distanceKm, weather }: WarmupPlanProps) {
-  const steps = buildWarmupSteps(distanceKm, weather);
   const { t } = useLang();
+  const w = t.warmup;
 
-  // Alerta de clima extremo
+  const steps = buildWarmupSteps(distanceKm, weather, w);
+
   const weatherAlert =
-    weather.temperature > 27 ? '🔥 Mucho calor — calentamiento muy corto y buscá sombra.'
-    : weather.temperature < 5 ? '🥶 Mucho frío — calentamiento más largo, no te desvistas hasta el último momento.'
+    weather.temperature > 27 ? w.alertHot
+    : weather.temperature < 5 ? w.alertCold
     : null;
 
   return (
@@ -153,12 +124,11 @@ export function WarmupPlan({ distanceKm, weather }: WarmupPlanProps) {
       className="rounded-xl border p-5 mt-4"
       style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
     >
-      <p className="font-semibold text-sm mb-1">Plan de calentamiento</p>
+      <p className="font-semibold text-sm mb-1">{w.title}</p>
       <p className="text-xs mb-4" style={{ color: 'var(--muted-foreground)' }}>
-        Basado en {distanceKm}km · {weather.temperature}°C
+        {w.subtitle(distanceKm, weather.temperature)}
       </p>
 
-      {/* Alerta de clima extremo */}
       {weatherAlert && (
         <div
           className="rounded-lg px-3 py-2 text-xs mb-4"
@@ -168,7 +138,6 @@ export function WarmupPlan({ distanceKm, weather }: WarmupPlanProps) {
         </div>
       )}
 
-      {/* Línea de tiempo */}
       <div className="relative">
         {/* Línea vertical conectora */}
         <div
@@ -179,7 +148,6 @@ export function WarmupPlan({ distanceKm, weather }: WarmupPlanProps) {
         <div className="space-y-4">
           {steps.map((step, i) => (
             <div key={i} className="flex items-start gap-3">
-              {/* Tiempo antes + icono */}
               <div className="flex flex-col items-center shrink-0 w-[60px]">
                 <span className="text-xs font-mono tabular-nums" style={{ color: 'var(--muted-foreground)' }}>
                   {fmtBefore(step.minutesBefore)}
@@ -191,8 +159,6 @@ export function WarmupPlan({ distanceKm, weather }: WarmupPlanProps) {
                   {step.icon}
                 </div>
               </div>
-
-              {/* Contenido */}
               <div className="flex-1 pt-0.5 pb-2">
                 <p className="text-sm font-semibold">{step.action}</p>
                 {step.detail && (
@@ -204,7 +170,7 @@ export function WarmupPlan({ distanceKm, weather }: WarmupPlanProps) {
             </div>
           ))}
 
-          {/* Largada */}
+          {/* Largada / Start */}
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-center shrink-0 w-[60px]">
               <span className="text-xs font-mono font-bold" style={{ color: '#f97316' }}>0min</span>
@@ -215,7 +181,7 @@ export function WarmupPlan({ distanceKm, weather }: WarmupPlanProps) {
                 🏁
               </div>
             </div>
-            <p className="text-sm font-bold" style={{ color: '#f97316' }}>Largada</p>
+            <p className="text-sm font-bold" style={{ color: '#f97316' }}>{w.startLabel}</p>
           </div>
         </div>
       </div>

@@ -2,9 +2,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
+import { useLang } from '@/lib/lang';
 
 export default function NewRacePage() {
   const router = useRouter();
+  const { t } = useLang();
   const [runnerId, setRunnerId] = useState<string | null>(null);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
@@ -125,12 +127,12 @@ export default function NewRacePage() {
 
             {/* Objetivo de la carrera */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={labelStyle}>¿Cuál es tu objetivo?</label>
+              <label className="block text-sm font-medium mb-2" style={labelStyle}>{t.goal.label}</label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { value: 'finish' as const, icon: '🏁', title: 'Terminar',       desc: 'Cruzar la meta sin importar el tiempo' },
-                  { value: 'pr'     as const, icon: '⚡', title: 'Mejorar marca',   desc: 'Correr más rápido que mi mejor tiempo' },
-                  { value: 'target' as const, icon: '🎯', title: 'Tiempo exacto',   desc: 'Tengo una meta específica en mente' },
+                  { value: 'finish' as const, icon: '🏁', title: t.goal.finishTitle, desc: t.goal.finishDesc },
+                  { value: 'pr'     as const, icon: '⚡', title: t.goal.prTitle,     desc: t.goal.prDesc },
+                  { value: 'target' as const, icon: '🎯', title: t.goal.targetTitle, desc: t.goal.targetDesc },
                 ].map(({ value, icon, title, desc }) => (
                   <button
                     key={value} type="button" onClick={() => setGoalType(value)}
@@ -155,7 +157,7 @@ export default function NewRacePage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                  Tiempo objetivo <span style={{ color: 'var(--border)' }}>{goalType === 'target' ? '(requerido)' : '(opcional)'}</span>
+                  Tiempo objetivo <span style={{ color: 'var(--border)' }}>{goalType === 'target' ? t.goal.timeRequired : `(${t.common.optional})`}</span>
                 </label>
                 <input type="text" value={targetTime} onChange={(e) => setTargetTime(e.target.value)}
                   placeholder="3:45:00"
