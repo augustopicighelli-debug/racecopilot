@@ -4,6 +4,7 @@ import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import { RacePlanClient } from '@/components/race-plan-client';
 import { RaceResult } from '@/components/race-result';
+import { WarmupPlan } from '@/components/warmup-plan';
 import type { TripleObjectivePlan } from '@/lib/engine/types';
 import { useUnits } from '@/lib/units';
 import { UnitsToggle } from '@/components/units-toggle';
@@ -617,6 +618,14 @@ function RacePage() {
             plan={plan}
             mapPoints={[]}
             distanceKm={race?.distance_km ?? 0}
+          />
+        )}
+
+        {/* Plan de calentamiento — visible solo si la carrera es futura y hay plan */}
+        {plan && !planLoading && race && new Date(race.race_date + 'T23:59:59') >= new Date() && (
+          <WarmupPlan
+            distanceKm={race.distance_km}
+            weather={plan.forecast.weather}
           />
         )}
 
