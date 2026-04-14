@@ -7,7 +7,7 @@ describe('calculateConfidence', () => {
     const result = calculateConfidence({
       referenceRaceCount: 10, mostRecentRaceMonthsAgo: 1,
       allRacesWithin6Months: true, weatherSourceAgreement: 'high',
-      daysUntilRace: 1, hasGpx: true,
+      daysUntilRace: 1, hasGpx: true, hasIntervals: true,
     });
     expect(result).toBeGreaterThan(90);
   });
@@ -16,7 +16,7 @@ describe('calculateConfidence', () => {
     const result = calculateConfidence({
       referenceRaceCount: 1, mostRecentRaceMonthsAgo: 10,
       allRacesWithin6Months: false, weatherSourceAgreement: 'low',
-      daysUntilRace: 60, hasGpx: false,
+      daysUntilRace: 60, hasGpx: false, hasIntervals: false,
     });
     expect(result).toBeLessThan(50);
   });
@@ -25,7 +25,7 @@ describe('calculateConfidence', () => {
     const base: ConfidenceInputs = {
       referenceRaceCount: 1, mostRecentRaceMonthsAgo: 1,
       allRacesWithin6Months: true, weatherSourceAgreement: 'high',
-      daysUntilRace: 1, hasGpx: true,
+      daysUntilRace: 1, hasGpx: true, hasIntervals: false,
     };
     const few = calculateConfidence(base);
     const many = calculateConfidence({ ...base, referenceRaceCount: 10 });
@@ -36,7 +36,7 @@ describe('calculateConfidence', () => {
     const base: ConfidenceInputs = {
       referenceRaceCount: 5, mostRecentRaceMonthsAgo: 1,
       allRacesWithin6Months: true, weatherSourceAgreement: 'high',
-      daysUntilRace: 30, hasGpx: true,
+      daysUntilRace: 30, hasGpx: true, hasIntervals: false,
     };
     const far = calculateConfidence(base);
     const close = calculateConfidence({ ...base, daysUntilRace: 2 });
@@ -47,7 +47,7 @@ describe('calculateConfidence', () => {
     const result = calculateConfidence({
       referenceRaceCount: 5, mostRecentRaceMonthsAgo: 3,
       allRacesWithin6Months: true, weatherSourceAgreement: 'medium',
-      daysUntilRace: 7, hasGpx: true,
+      daysUntilRace: 7, hasGpx: true, hasIntervals: false,
     });
     expect(result).toBeGreaterThanOrEqual(0);
     expect(result).toBeLessThanOrEqual(100);
@@ -57,7 +57,7 @@ describe('calculateConfidence', () => {
     const base: ConfidenceInputs = {
       referenceRaceCount: 5, mostRecentRaceMonthsAgo: 1,
       allRacesWithin6Months: true, weatherSourceAgreement: 'high',
-      daysUntilRace: 3, hasGpx: false,
+      daysUntilRace: 3, hasGpx: false, hasIntervals: false,
     };
     const noGpx = calculateConfidence(base);
     const withGpx = calculateConfidence({ ...base, hasGpx: true });

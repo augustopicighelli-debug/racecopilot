@@ -1,7 +1,9 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
+import { RacePlanClient } from '@/components/race-plan-client';
+import type { TripleObjectivePlan } from '@/lib/engine/types';
 
 interface Race {
   id: string;
@@ -11,6 +13,15 @@ interface Race {
   city: string | null;
   target_time_s: number | null;
   elevation_gain: number | null;
+}
+
+interface ReferenceRace {
+  id: string;
+  distance_km: number;
+  time_seconds: number;
+  race_date: string;
+  race_type: 'race' | 'training';
+  avg_heart_rate: number | null;
 }
 
 // Formatea segundos → H:MM:SS
@@ -28,19 +39,92 @@ function fmtPace(s: number) {
   return `${m}:${String(sec).padStart(2,'0')} /km`;
 }
 
+// Convierte string "H:MM:SS" o "M:SS" a segundos totales
+function parseTimeInput(val: string): number | null {
+  const parts = val.split(':').map(Number);
+  if (parts.some(isNaN)) return null;
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return null;
+}
+
 export default function RacePage() {
   const router   = useRouter();
   const params   = useParams();
   const id       = params?.id as string;
+
+  // --- estado de la carrera principal ---
   const [race, setRace]       = useState<Race | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
 
+  // --- estado de carreras de referencia ---
+  const [runnerId, setRunnerId]       = useState<string | null>(null);
+  const [refRaces, setRefRaces]       = useState<ReferenceRace[]>([]);
+  const [showRefForm, setShowRefForm] = useState(false);
+  const [refSaving, setRefSaving]     = useState(false);
+  const [refError, setRefError]       = useState('');
+
+  // Campos del form de referencia
+  const [refDist, setRefDist] = useState('');
+  const [refTime, setRefTime] = useState(''); // formato H:MM:SS
+  const [refDate, setRefDate] = useState('');
+  const [refType, setRefType] = useState<'race' | 'training'>('race');
+  const [refHR, setRefHR]     = useState(''); // FC promedio (opcional)
+
+  // --- estado del plan ---
+  const [plan, setPlan]             = useState<TripleObjectivePlan | null>(null);
+  const [planLoading, setPlanLoading] = useState(false);
+  const [planError, setPlanError]   = useState('');
+
+  // Carga el plan desde la API
+  const fetchPlan = useCallback(async () => {
+    setPlanLoading(true);
+    setPlanError('');
+    setPlan(null);
+
+    try {
+      // Obtener JWT del usuario actual
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const res = await fetch(`/api/plan/${id}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (!res.ok) {
+        const body = await res.json();
+        setPlanError(body.error ?? 'Error generando plan');
+        return;
+      }
+
+      const data = await res.json();
+      setPlan(data);
+    } catch {
+      setPlanError('Error de conexión');
+    } finally {
+      setPlanLoading(false);
+    }
+  }, [id]);
+
+  // Carga (o recarga) las carreras de referencia del runner
+  const loadRefRaces = useCallback(async (rid: string) => {
+    const { data } = await supabase
+      .from('reference_races')
+      .select('id,distance_km,time_seconds,race_date,race_type,avg_heart_rate')
+      .eq('runner_id', rid)
+      .order('race_date', { ascending: false });
+    setRefRaces(data ?? []);
+    return data ?? [];
+  }, []);
+
+  // Carga la carrera principal + runner_id + reference_races + plan inicial
   useEffect(() => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push('/login'); return; }
 
+      // Cargar carrera
       const { data, error: err } = await supabase
         .from('races')
         .select('id,name,distance_km,race_date,city,target_time_s,elevation_gain')
@@ -49,10 +133,67 @@ export default function RacePage() {
 
       if (err || !data) { setError('Carrera no encontrada'); setLoading(false); return; }
       setRace(data);
+
+      // Cargar runner
+      const { data: runner } = await supabase
+        .from('runners')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (runner) {
+        setRunnerId(runner.id);
+        const loaded = await loadRefRaces(runner.id);
+        // Si ya hay tiempos de referencia, generar el plan automáticamente
+        if (loaded.length > 0) fetchPlan();
+      }
+
       setLoading(false);
     };
     init();
-  }, [id, router]);
+  }, [id, router, loadRefRaces, fetchPlan]);
+
+  // Guarda una nueva carrera de referencia
+  const handleAddRefRace = async () => {
+    if (!runnerId) return;
+    setRefError('');
+
+    const dist = parseFloat(refDist);
+    const secs = parseTimeInput(refTime);
+    const hr   = refHR ? parseInt(refHR) : null;
+
+    if (!dist || dist <= 0)   { setRefError('Distancia inválida'); return; }
+    if (!secs || secs <= 0)   { setRefError('Tiempo inválido — usá H:MM:SS o M:SS'); return; }
+    if (!refDate)             { setRefError('Fecha requerida'); return; }
+
+    setRefSaving(true);
+    const { error: err } = await supabase.from('reference_races').insert({
+      runner_id:      runnerId,
+      distance_km:    dist,
+      time_seconds:   secs,
+      race_date:      refDate,
+      race_type:      refType,
+      avg_heart_rate: hr,
+    });
+    setRefSaving(false);
+
+    if (err) { setRefError(err.message); return; }
+
+    // Limpiar form, recargar lista y regenerar plan
+    setRefDist(''); setRefTime(''); setRefDate(''); setRefType('race'); setRefHR('');
+    setShowRefForm(false);
+    await loadRefRaces(runnerId);
+    fetchPlan();
+  };
+
+  // Borra una carrera de referencia y regenera el plan
+  const handleDeleteRefRace = async (refId: string) => {
+    if (!runnerId) return;
+    await supabase.from('reference_races').delete().eq('id', refId);
+    const remaining = await loadRefRaces(runnerId);
+    if (remaining.length > 0) fetchPlan();
+    else { setPlan(null); setPlanError(''); }
+  };
 
   const daysUntil = (d: string) => {
     const diff = Math.ceil((new Date(d + 'T12:00:00').getTime() - Date.now()) / 86400000);
@@ -64,7 +205,6 @@ export default function RacePage() {
   const fmtDate = (d: string) =>
     new Date(d + 'T12:00:00').toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 
-  // Pace estimado a partir del tiempo objetivo
   const estimatedPace = race?.target_time_s
     ? race.target_time_s / race.distance_km
     : null;
@@ -103,10 +243,10 @@ export default function RacePage() {
         {/* Stats de la carrera */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
-            { label: 'Distancia', value: `${race?.distance_km} km` },
+            { label: 'Distancia',        value: `${race?.distance_km} km` },
             { label: 'Cuenta regresiva', value: race ? daysUntil(race.race_date) : '' },
-            { label: 'Tiempo objetivo', value: race?.target_time_s ? fmtTime(race.target_time_s) : '—' },
-            { label: 'Ritmo objetivo', value: estimatedPace ? fmtPace(estimatedPace) : '—' },
+            { label: 'Tiempo objetivo',  value: race?.target_time_s ? fmtTime(race.target_time_s) : '—' },
+            { label: 'Ritmo objetivo',   value: estimatedPace ? fmtPace(estimatedPace) : '—' },
           ].map(({ label, value }) => (
             <div key={label} className="rounded-xl border p-4" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
               <p className="text-xs mb-1" style={{ color: 'var(--muted-foreground)' }}>{label}</p>
@@ -126,22 +266,187 @@ export default function RacePage() {
           </div>
         )}
 
-        {/* Plan — próximamente */}
-        <div className="rounded-xl border p-8 text-center" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
-          <div className="text-3xl mb-3">🏃</div>
-          <p className="font-semibold mb-2">Plan de carrera</p>
-          <p className="text-sm mb-6" style={{ color: 'var(--muted-foreground)' }}>
-            Para generar tu plan completo necesitamos tus carreras de referencia
-            (tiempos pasados) para calibrar el predictor.
-          </p>
-          <button
-            className="px-4 py-2 rounded-lg text-sm font-semibold opacity-50 cursor-not-allowed"
-            style={{ background: 'var(--primary)', color: '#fff' }}
-            disabled
-          >
-            Generar plan — próximamente
-          </button>
+        {/* ------------------------------------------------------------------ */}
+        {/* Sección: Mis tiempos de referencia                                  */}
+        {/* ------------------------------------------------------------------ */}
+        <div className="rounded-xl border mb-6" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
+            <div>
+              <p className="font-semibold text-sm">Mis tiempos de referencia</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
+                Usados para calibrar el predictor
+              </p>
+            </div>
+            <button
+              onClick={() => { setShowRefForm(v => !v); setRefError(''); }}
+              className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+              style={{ background: 'var(--primary)', color: '#fff' }}
+            >
+              {showRefForm ? 'Cancelar' : '+ Agregar'}
+            </button>
+          </div>
+
+          {/* Form de nuevo tiempo */}
+          {showRefForm && (
+            <div className="px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>Distancia (km)</label>
+                  <input
+                    type="number" min="0.1" step="0.001"
+                    value={refDist} onChange={e => setRefDist(e.target.value)}
+                    placeholder="42.195"
+                    className="w-full rounded-lg border px-3 py-2 text-sm"
+                    style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>Tiempo (H:MM:SS)</label>
+                  <input
+                    type="text"
+                    value={refTime} onChange={e => setRefTime(e.target.value)}
+                    placeholder="3:45:00"
+                    className="w-full rounded-lg border px-3 py-2 text-sm"
+                    style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>Fecha</label>
+                  <input
+                    type="date"
+                    value={refDate} onChange={e => setRefDate(e.target.value)}
+                    className="w-full rounded-lg border px-3 py-2 text-sm"
+                    style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>Tipo</label>
+                  <select
+                    value={refType} onChange={e => setRefType(e.target.value as 'race' | 'training')}
+                    className="w-full rounded-lg border px-3 py-2 text-sm"
+                    style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  >
+                    <option value="race">Carrera</option>
+                    <option value="training">Entrenamiento</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>FC promedio (bpm) — opcional</label>
+                  <input
+                    type="number" min="60" max="220"
+                    value={refHR} onChange={e => setRefHR(e.target.value)}
+                    placeholder="158"
+                    className="w-full rounded-lg border px-3 py-2 text-sm"
+                    style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  />
+                </div>
+
+              </div>
+
+              {refError && (
+                <p className="text-xs mb-2" style={{ color: '#ef4444' }}>{refError}</p>
+              )}
+              <button
+                onClick={handleAddRefRace}
+                disabled={refSaving}
+                className="w-full py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
+                style={{ background: 'var(--primary)', color: '#fff' }}
+              >
+                {refSaving ? 'Guardando...' : 'Guardar tiempo'}
+              </button>
+            </div>
+          )}
+
+          {/* Lista de tiempos */}
+          {refRaces.length === 0 ? (
+            <p className="px-5 py-4 text-sm" style={{ color: 'var(--muted-foreground)' }}>
+              Todavía no cargaste tiempos de referencia.
+            </p>
+          ) : (
+            <ul>
+              {refRaces.map((r, i) => (
+                <li
+                  key={r.id}
+                  className={`flex items-center justify-between px-5 py-3 ${i < refRaces.length - 1 ? 'border-b' : ''}`}
+                  style={{ borderColor: 'var(--border)' }}
+                >
+                  <div>
+                    <p className="text-sm font-medium">
+                      {r.distance_km} km &mdash; {fmtTime(r.time_seconds)}
+                      <span className="ml-2 text-xs" style={{ color: 'var(--muted-foreground)' }}>
+                        ({fmtPace(r.time_seconds / r.distance_km)})
+                      </span>
+                    </p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
+                      {new Date(r.race_date + 'T12:00:00').toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {' · '}{r.race_type === 'race' ? 'Carrera' : 'Entrenamiento'}
+                      {r.avg_heart_rate ? ` · ${r.avg_heart_rate} bpm` : ''}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteRefRace(r.id)}
+                    className="text-xs px-2 py-1 rounded"
+                    style={{ color: 'var(--muted-foreground)' }}
+                    title="Eliminar"
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
+
+        {/* ------------------------------------------------------------------ */}
+        {/* Sección: Plan de carrera                                            */}
+        {/* ------------------------------------------------------------------ */}
+
+        {/* Sin tiempos de referencia → placeholder */}
+        {refRaces.length === 0 && (
+          <div className="rounded-xl border p-8 text-center" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+            <div className="text-3xl mb-3">🏃</div>
+            <p className="font-semibold mb-2">Plan de carrera</p>
+            <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+              Cargá al menos un tiempo de referencia para generar tu plan.
+            </p>
+          </div>
+        )}
+
+        {/* Cargando el plan */}
+        {refRaces.length > 0 && planLoading && (
+          <div className="rounded-xl border p-8 text-center" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+            <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Generando plan...</p>
+          </div>
+        )}
+
+        {/* Error generando el plan */}
+        {refRaces.length > 0 && !planLoading && planError && (
+          <div className="rounded-xl border p-6" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+            <p className="text-sm mb-3" style={{ color: '#ef4444' }}>{planError}</p>
+            <button
+              onClick={fetchPlan}
+              className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+              style={{ background: 'var(--primary)', color: '#fff' }}
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
+
+        {/* Plan listo → mostrar componentes del plan */}
+        {plan && !planLoading && (
+          <RacePlanClient
+            plan={plan}
+            mapPoints={[]}
+            distanceKm={race?.distance_km ?? 0}
+          />
+        )}
 
       </div>
     </div>
