@@ -13,6 +13,9 @@ interface Runner {
   sweat_level: 'low' | 'medium' | 'high';
   max_hr: number | null;
   weekly_km: number | null;
+  is_premium: boolean | null;
+  premium_until: string | null;
+  stripe_subscription_id: string | null;
 }
 
 interface NutritionProduct {
@@ -34,10 +37,15 @@ export default function ProfilePage() {
   const router = useRouter();
 
   // --- Estado global ---
-  const [runnerId, setRunnerId]   = useState<string | null>(null);
-  const [loading, setLoading]     = useState(true);
-  const [saveMsg, setSaveMsg]     = useState('');
-  const [saveErr, setSaveErr]     = useState('');
+  const [runnerId, setRunnerId]           = useState<string | null>(null);
+  const [loading, setLoading]             = useState(true);
+  const [saveMsg, setSaveMsg]             = useState('');
+  const [saveErr, setSaveErr]             = useState('');
+  const [isPremium, setIsPremium]         = useState(false);
+  const [premiumUntil, setPremiumUntil]   = useState<string | null>(null);
+  const [hasSub, setHasSub]               = useState(false);
+  const [cancelling, setCancelling]       = useState(false);
+  const [cancelMsg, setCancelMsg]         = useState('');
 
   // --- Sección A: perfil ---
   const [weightKg, setWeightKg]   = useState('');
@@ -68,7 +76,7 @@ export default function ProfilePage() {
       // Cargar perfil del corredor
       const { data: r } = await supabase
         .from('runners')
-        .select('id,weight_kg,height_cm,sweat_level,max_hr,weekly_km')
+        .select('id,weight_kg,height_cm,sweat_level,max_hr,weekly_km,is_premium,premium_until,stripe_subscription_id')
         .eq('user_id', session.user.id)
         .maybeSingle();
 
@@ -81,6 +89,9 @@ export default function ProfilePage() {
       setSweat(r.sweat_level);
       setMaxHr(r.max_hr ? String(r.max_hr) : '');
       setWeeklyKm(r.weekly_km ? String(r.weekly_km) : '');
+      setIsPremium(!!r.is_premium);
+      setPremiumUntil(r.premium_until ?? null);
+      setHasSub(!!r.stripe_subscription_id);
 
       // Cargar productos de nutrición del runner
       const { data: prods } = await supabase
@@ -180,6 +191,30 @@ export default function ProfilePage() {
 
     // Actualizar lista local
     setProducts((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  // ---------------------------------------------------------------------------
+  // Cancelar suscripción (cancel_at_period_end = true)
+  // ---------------------------------------------------------------------------
+  const handleCancel = async () => {
+    if (!confirm('¿Cancelar tu suscripción? Mantenés el acceso hasta que venza el período actual.')) return;
+    setCancelling(true);
+    setCancelMsg('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch('/api/stripe/cancel', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (!res.ok) { const b = await res.json(); throw new Error(b.error); }
+      setCancelMsg('Suscripción cancelada. Tenés acceso hasta que venza el período actual.');
+      setHasSub(false);
+    } catch (err: unknown) {
+      setCancelMsg(err instanceof Error ? err.message : 'Error al cancelar');
+    } finally {
+      setCancelling(false);
+    }
   };
 
   // ---------------------------------------------------------------------------
@@ -324,7 +359,52 @@ export default function ProfilePage() {
         </div>
 
         {/* ================================================================
-            SECCIÓN B — Mis productos de nutrición
+            SECCIÓN B — Suscripción
+        ================================================================ */}
+        <h2 className="font-semibold mb-3">Suscripción</h2>
+        <div className="rounded-xl border p-5 mb-8" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+          {isPremium ? (
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold" style={{ color: '#4ade80' }}>Activa</p>
+                {premiumUntil && (
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
+                    Acceso hasta: {new Date(premiumUntil).toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                  </p>
+                )}
+              </div>
+              {hasSub && (
+                <button
+                  onClick={handleCancel}
+                  disabled={cancelling}
+                  className="text-xs px-3 py-1.5 rounded-lg border disabled:opacity-50"
+                  style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
+                >
+                  {cancelling ? 'Cancelando...' : 'Cancelar suscripción'}
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Sin suscripción activa</p>
+              <button
+                onClick={() => router.push('/pricing')}
+                className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+                style={{ background: 'var(--primary)', color: '#fff' }}
+              >
+                Activar prueba gratis
+              </button>
+            </div>
+          )}
+          {cancelMsg && (
+            <p className="text-xs mt-3" style={{ color: cancelMsg.includes('Error') ? '#ef4444' : '#4ade80' }}>
+              {cancelMsg}
+            </p>
+          )}
+        </div>
+
+        {/* ================================================================
+            SECCIÓN C — Mis productos de nutrición
         ================================================================ */}
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold">Mis productos de nutrición</h2>
