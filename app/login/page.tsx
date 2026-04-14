@@ -122,6 +122,18 @@ export default function LoginPage() {
               {loading ? 'Cargando...' : mode === 'login' ? 'Entrar' : 'Crear cuenta'}
             </button>
           </form>
+
+          {/* Link olvidé contraseña — solo visible en modo login */}
+          {mode === 'login' && (
+            <button
+              type="button"
+              onClick={() => router.push('/forgot-password')}
+              className="mt-4 w-full text-center text-xs"
+              style={{ color: 'var(--muted-foreground)' }}
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -39,6 +39,35 @@ function DashboardContent() {
     init();
   }, [router]);
 
+  // Polling del estado premium cuando se viene de checkout exitoso.
+  // El webhook de Stripe puede tardar unos segundos en llegar; reintentamos
+  // hasta 10 veces (cada 1.5s ≈ 15s máximo) hasta que is_premium sea true.
+  useEffect(() => {
+    if (!checkoutOk || !runner || runner.is_premium) return;
+
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts++;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { clearInterval(interval); return; }
+
+      const { data: fresh } = await supabase
+        .from('runners')
+        .select('id,weight_kg,sweat_level,is_premium')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (fresh?.is_premium) {
+        setRunner(fresh);
+        clearInterval(interval);
+      } else if (attempts >= 10) {
+        clearInterval(interval); // dejar de reintentar después de 15s
+      }
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, [checkoutOk, runner]);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/login');

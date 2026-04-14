@@ -235,16 +235,39 @@ export default function RacePage() {
     <div className="min-h-screen px-4 py-10" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
       <div className="max-w-2xl mx-auto">
 
-        {/* Header */}
-        <button onClick={() => router.push('/dashboard')} className="text-sm mb-6 block" style={{ color: 'var(--muted-foreground)' }}>
-          ← Dashboard
-        </button>
+        {/* Header: volver + eliminar carrera */}
+        <div className="flex items-center justify-between mb-6">
+          <button onClick={() => router.push('/dashboard')} className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+            ← Dashboard
+          </button>
+          <button
+            onClick={async () => {
+              // Pedir confirmación antes de borrar
+              if (!confirm(`¿Eliminar "${race?.name}"? Esta acción no se puede deshacer.`)) return;
+              await supabase.from('races').delete().eq('id', id);
+              router.push('/dashboard');
+            }}
+            className="text-xs px-3 py-1.5 rounded-lg border"
+            style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
+          >
+            Eliminar carrera
+          </button>
+        </div>
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">{race?.name}</h1>
-          <p className="text-sm mt-1 capitalize" style={{ color: 'var(--muted-foreground)' }}>
-            {race ? fmtDate(race.race_date) : ''}{race?.city ? ` · ${race.city}` : ''}
-          </p>
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">{race?.name}</h1>
+            <p className="text-sm mt-1 capitalize" style={{ color: 'var(--muted-foreground)' }}>
+              {race ? fmtDate(race.race_date) : ''}{race?.city ? ` · ${race.city}` : ''}
+            </p>
+          </div>
+          <button
+            onClick={() => router.push(`/races/${id}/edit`)}
+            className="text-xs px-3 py-1.5 rounded-lg border shrink-0"
+            style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
+          >
+            Editar
+          </button>
         </div>
 
         {/* Stats de la carrera */}
@@ -413,6 +436,25 @@ export default function RacePage() {
         {/* ------------------------------------------------------------------ */}
         {/* Sección: Plan de carrera                                            */}
         {/* ------------------------------------------------------------------ */}
+
+        {/* Aviso: sin ciudad → clima no disponible */}
+        {!race?.city && refRaces.length > 0 && !notPremium && (
+          <div
+            className="rounded-xl px-4 py-3 mb-4 text-sm flex items-start gap-2"
+            style={{ background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.4)', color: '#facc15' }}
+          >
+            <span>⚠</span>
+            <span>
+              Sin ciudad configurada el clima se estimará como neutro.{' '}
+              <button
+                onClick={() => router.push(`/races/${id}/edit`)}
+                className="underline"
+              >
+                Editar carrera
+              </button>
+            </span>
+          </div>
+        )}
 
         {/* Paywall: usuario sin suscripción activa */}
         {notPremium && (

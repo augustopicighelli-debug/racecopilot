@@ -1,85 +1,116 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 
-export default function NewRacePage() {
-  const router = useRouter();
-  const [runnerId, setRunnerId] = useState<string | null>(null);
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState('');
-  const [name, setName]               = useState('');
-  const [distanceKm, setDistanceKm]   = useState('');
-  const [raceDate, setRaceDate]       = useState('');
-  const [city, setCity]               = useState('');
-  const [targetTime, setTargetTime]   = useState('');
-  const [elevGain, setElevGain]       = useState('');
+// Convierte segundos → "H:MM:SS" para mostrar en el input
+function fmtTime(s: number) {
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
 
+// Convierte "H:MM:SS" o "M:SS" → segundos totales
+function parseTime(t: string): number | null {
+  const parts = t.trim().split(':').map(Number);
+  if (parts.some(isNaN)) return null;
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return null;
+}
+
+export default function EditRacePage() {
+  const router = useRouter();
+  const params = useParams();
+  const id     = params?.id as string;
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving]   = useState(false);
+  const [error, setError]     = useState('');
+
+  // Campos del form
+  const [name, setName]             = useState('');
+  const [distanceKm, setDistanceKm] = useState('');
+  const [raceDate, setRaceDate]     = useState('');
+  const [city, setCity]             = useState('');
+  const [targetTime, setTargetTime] = useState('');
+  const [elevGain, setElevGain]     = useState('');
+
+  // Cargar datos actuales de la carrera
   useEffect(() => {
-    const init = async () => {
+    const load = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push('/login'); return; }
-      const { data } = await supabase.from('runners').select('id').eq('user_id', session.user.id).maybeSingle();
-      if (!data) { router.push('/onboarding'); return; }
-      setRunnerId(data.id);
-    };
-    init();
-  }, [router]);
 
-  const parseTime = (t: string): number | null => {
-    const parts = t.trim().split(':').map(Number);
-    if (parts.some(isNaN)) return null;
-    if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-    if (parts.length === 2) return parts[0] * 60 + parts[1];
-    return null;
-  };
+      const { data, error: err } = await supabase
+        .from('races')
+        .select('name,distance_km,race_date,city,target_time_s,elevation_gain')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (err || !data) { setError('Carrera no encontrada'); setLoading(false); return; }
+
+      // Poblar el form con los valores actuales
+      setName(data.name);
+      setDistanceKm(String(data.distance_km));
+      setRaceDate(data.race_date);
+      setCity(data.city ?? '');
+      setTargetTime(data.target_time_s ? fmtTime(data.target_time_s) : '');
+      setElevGain(data.elevation_gain ? String(data.elevation_gain) : '');
+      setLoading(false);
+    };
+    load();
+  }, [id, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!runnerId) return;
-    setLoading(true);
+    setSaving(true);
     setError('');
+
     try {
       let targetTimeSec: number | null = null;
       if (targetTime.trim()) {
         targetTimeSec = parseTime(targetTime);
         if (!targetTimeSec) throw new Error('Tiempo inválido. Usá H:MM:SS');
       }
-      // Retornar el id para redirigir directo a la carrera creada
-      const { data: newRace, error: err } = await supabase.from('races').insert({
-        runner_id: runnerId,
-        name: name.trim(),
-        distance_km: parseFloat(distanceKm),
-        race_date: raceDate,
-        city: city.trim() || null,
-        target_time_s: targetTimeSec,
+
+      const { error: err } = await supabase.from('races').update({
+        name:           name.trim(),
+        distance_km:    parseFloat(distanceKm),
+        race_date:      raceDate,
+        city:           city.trim() || null,
+        target_time_s:  targetTimeSec,
         elevation_gain: elevGain ? parseFloat(elevGain) : null,
-      }).select('id').single();
+      }).eq('id', id);
+
       if (err) throw err;
-      router.push(`/races/${newRace.id}`);
+      router.push(`/races/${id}`);
     } catch (err: any) {
       setError(err.message);
-    } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
   const inputStyle = { background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--foreground)' };
   const labelStyle = { color: 'var(--muted-foreground)' };
 
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen" style={{ background: 'var(--background)', color: 'var(--muted-foreground)' }}>
+      Cargando...
+    </div>
+  );
+
   return (
     <div className="min-h-screen px-4 py-10" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
       <div className="max-w-md mx-auto">
 
-        <button onClick={() => router.push('/dashboard')} className="text-sm mb-6 block" style={{ color: 'var(--muted-foreground)' }}>
+        <button onClick={() => router.push(`/races/${id}`)} className="text-sm mb-6 block" style={{ color: 'var(--muted-foreground)' }}>
           ← Volver
         </button>
 
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">Nueva carrera</h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--muted-foreground)' }}>
-            Ingresá los datos para generar tu plan.
-          </p>
+          <h1 className="text-2xl font-bold">Editar carrera</h1>
         </div>
 
         <div className="rounded-xl border p-6" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
@@ -94,7 +125,6 @@ export default function NewRacePage() {
             <div>
               <label className="block text-sm font-medium mb-1" style={labelStyle}>Nombre</label>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-                placeholder="Maratón de Mendoza 2026"
                 className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} required />
             </div>
 
@@ -102,7 +132,7 @@ export default function NewRacePage() {
               <div>
                 <label className="block text-sm font-medium mb-1" style={labelStyle}>Distancia (km)</label>
                 <input type="number" step="0.001" min="1" value={distanceKm}
-                  onChange={(e) => setDistanceKm(e.target.value)} placeholder="42.195"
+                  onChange={(e) => setDistanceKm(e.target.value)}
                   className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} required />
               </div>
               <div>
@@ -114,7 +144,7 @@ export default function NewRacePage() {
 
             <div>
               <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                Ciudad <span style={{ color: 'var(--border)' }}>(opcional)</span>
+                Ciudad <span style={{ color: 'var(--border)' }}>(opcional — para clima)</span>
               </label>
               <input type="text" value={city} onChange={(e) => setCity(e.target.value)}
                 placeholder="Mendoza"
@@ -140,10 +170,10 @@ export default function NewRacePage() {
               </div>
             </div>
 
-            <button type="submit" disabled={loading || !runnerId}
+            <button type="submit" disabled={saving}
               className="w-full py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
               style={{ background: 'var(--primary)', color: '#fff' }}>
-              {loading ? 'Guardando...' : 'Crear carrera →'}
+              {saving ? 'Guardando...' : 'Guardar cambios'}
             </button>
           </form>
         </div>
