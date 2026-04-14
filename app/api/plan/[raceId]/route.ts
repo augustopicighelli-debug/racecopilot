@@ -47,7 +47,7 @@ export async function GET(
   // 2. Cargar perfil del corredor
   const { data: runner } = await supabase
     .from('runners')
-    .select('id,weight_kg,height_cm,sweat_level,max_hr,weekly_km,is_premium')
+    .select('id,weight_kg,height_cm,sweat_level,max_hr,resting_hr,weekly_km,is_premium')
     .eq('id', race.runner_id)
     .maybeSingle();
 
@@ -78,11 +78,12 @@ export async function GET(
 
   // 4. Armar RunnerProfile para el engine
   const runnerProfile: RunnerProfile = {
-    weightKg:        runner.weight_kg,
-    heightCm:        runner.height_cm,
-    sweatLevel:      runner.sweat_level,
-    maxHeartRate:    runner.max_hr    ?? undefined,
-    weeklyKm:        runner.weekly_km ?? undefined,
+    weightKg:           runner.weight_kg,
+    heightCm:           runner.height_cm,
+    sweatLevel:         runner.sweat_level,
+    maxHeartRate:       runner.max_hr      ?? undefined,
+    restingHeartRate:   runner.resting_hr  ?? undefined,  // para fórmula de Karvonen
+    weeklyKm:           runner.weekly_km   ?? undefined,
     // Mapear columnas snake_case de DB a camelCase del engine
     nutritionProducts: (nutritionProds ?? []).map(p => ({
       name:        p.name,

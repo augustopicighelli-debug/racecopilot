@@ -140,12 +140,12 @@ export function generateRacePlan(input: GenerateRacePlanInput): TripleObjectiveP
   const riegelTimeSeconds = predictTime(
     runner.referenceRaces,
     course.distanceKm,
-    { weeklyKm: runner.weeklyKm, maxHeartRate: runner.maxHeartRate }
+    { weeklyKm: runner.weeklyKm, maxHeartRate: runner.maxHeartRate, restingHeartRate: runner.restingHeartRate }
   );
 
   // Step 1b: Predict from intervals (VDOT-based, independent estimate)
   // Interval paces normalized to neutral conditions and max effort
-  const intervalPace = estimateMarathonPaceFromIntervals(runner.intervals, runner.maxHeartRate);
+  const intervalPace = estimateMarathonPaceFromIntervals(runner.intervals, runner.maxHeartRate, runner.restingHeartRate);
   const intervalTimeSeconds = intervalPace ? intervalPace * course.distanceKm : undefined;
 
   // Step 1c: Blend Riegel + intervals

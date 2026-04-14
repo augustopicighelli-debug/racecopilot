@@ -38,12 +38,13 @@ function recencyWeight(date: string): number {
  * Normalize an interval pace to neutral conditions.
  * Climate: intervals are short (~3-8min reps), so heat impact is small.
  * We apply ~30% of the full marathon climate penalty.
- * Effort: threshold at 85% HRmax (training, not racing).
+ * Effort: threshold at 85% HRmax (or 76% HRR with Karvonen if restingHR known).
  */
 function normalizePace(
   paceSecondsPerKm: number,
   session: IntervalSession,
-  maxHeartRate?: number
+  maxHeartRate?: number,
+  restingHeartRate?: number
 ): number {
   let adjusted = paceSecondsPerKm;
 
@@ -59,11 +60,22 @@ function normalizePace(
     adjusted = adjusted / scaledClimateFactor;
   }
 
-  // Effort: training intervals at 85%+ HRmax = hard effort, no adjustment needed
+  // Effort: training intervals — use Karvonen if restingHR available, else raw %HRmax
   if (session.avgHeartRate && maxHeartRate && maxHeartRate > 0) {
-    const effortRatio = session.avgHeartRate / maxHeartRate;
-    if (effortRatio < 0.85) {
-      const gap = 0.85 - effortRatio;
+    let effortRatio: number;
+    let threshold: number;
+
+    if (restingHeartRate && restingHeartRate > 0 && restingHeartRate < maxHeartRate) {
+      const hrReserve = maxHeartRate - restingHeartRate;
+      effortRatio = (session.avgHeartRate - restingHeartRate) / hrReserve;
+      threshold = 0.76; // ~76% HRR = hard interval effort
+    } else {
+      effortRatio = session.avgHeartRate / maxHeartRate;
+      threshold = 0.85; // fallback: 85% HRmax
+    }
+
+    if (effortRatio < threshold) {
+      const gap = threshold - effortRatio;
       const adjustment = gap * gap * 8;
       adjusted = adjusted * (1 - Math.min(adjustment, 0.10));
     }
@@ -79,7 +91,8 @@ function normalizePace(
  */
 export function estimateMarathonPaceFromIntervals(
   intervals?: IntervalSession[],
-  maxHeartRate?: number
+  maxHeartRate?: number,
+  restingHeartRate?: number
 ): number | undefined {
   if (!intervals || intervals.length === 0) return undefined;
 
@@ -95,7 +108,8 @@ export function estimateMarathonPaceFromIntervals(
     const factor = INTERVAL_TO_MARATHON[closest];
 
     // Normalize pace to neutral conditions before applying factor
-    const neutralPace = normalizePace(session.paceSecondsPerKm, session, maxHeartRate);
+    // Pass restingHeartRate for Karvonen-based effort normalization if available
+    const neutralPace = normalizePace(session.paceSecondsPerKm, session, maxHeartRate, restingHeartRate);
     const marathonPace = neutralPace * factor;
     const weight = recencyWeight(session.date) * session.reps;
 

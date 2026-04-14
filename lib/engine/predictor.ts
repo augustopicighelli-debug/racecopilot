@@ -112,14 +112,17 @@ export function fitExponent(races: ReferenceRace[]): number {
  *    scaling factor: full penalty at 3h+, 50% at 1.5h, ~25% at 45min.
  *
  * 2. Effort (HR): only adjusts for CLEARLY submaximal effort.
- *    For races (type='race'), 88-93% HRmax is normal race effort for non-elite
- *    runners — only adjust below 88%. For training, threshold is 85%.
- *    Uses a quadratic curve (gentle) instead of linear.
+ *    If restingHeartRate is available, uses Karvonen HR Reserve formula
+ *    (effort% relative to HR reserve), which is more accurate than raw %HRmax.
+ *    Karvonen thresholds: race ~80% HRR, training ~76% HRR
+ *    (equivalent to 88% / 85% HRmax for a typical runner with resting HR ~60).
+ *    Without restingHR, falls back to raw %HRmax (88% / 85%).
  */
 function normalizeRaceTime(
   timeSeconds: number,
   race: ReferenceRace,
-  maxHeartRate?: number
+  maxHeartRate?: number,
+  restingHeartRate?: number
 ): number {
   let adjusted = timeSeconds;
 
@@ -143,15 +146,27 @@ function normalizeRaceTime(
 
   // --- Effort normalization: only for clearly submaximal HR ---
   if (race.avgHeartRate && maxHeartRate && maxHeartRate > 0) {
-    const effortRatio = race.avgHeartRate / maxHeartRate;
-    // Race: 88-93% HRmax is normal race effort for competitive runners
-    // Training: 85%+ is expected hard effort
-    const threshold = race.type === 'race' ? 0.88 : 0.85;
+    let effortRatio: number;
+    let threshold: number;
+
+    if (restingHeartRate && restingHeartRate > 0 && restingHeartRate < maxHeartRate) {
+      // Karvonen HR Reserve: more accurate because it accounts for the non-zero floor
+      // effortRatio = (avgHR - restingHR) / (maxHR - restingHR)
+      const hrReserve = maxHeartRate - restingHeartRate;
+      effortRatio = (race.avgHeartRate - restingHeartRate) / hrReserve;
+      // ~80% HRR = "full effort" race (≈88% HRmax at resting=60, max=170)
+      // ~76% HRR = "full effort" training
+      threshold = race.type === 'race' ? 0.80 : 0.76;
+    } else {
+      // Fallback: raw %HRmax
+      effortRatio = race.avgHeartRate / maxHeartRate;
+      threshold = race.type === 'race' ? 0.88 : 0.85;
+    }
 
     if (effortRatio < threshold) {
       // Quadratic curve: gentle near threshold, stronger further below
       const gap = threshold - effortRatio;
-      const adjustment = gap * gap * 8; // at 83% race: gap=0.05, adj=2%
+      const adjustment = gap * gap * 8;
       adjusted = adjusted * (1 - Math.min(adjustment, 0.10)); // cap at 10%
     }
   }
@@ -168,7 +183,7 @@ function volumeAdjustment(weeklyKm?: number): number {
 export function predictTime(
   races: ReferenceRace[],
   targetDistanceKm: number,
-  options?: { weeklyKm?: number; maxHeartRate?: number }
+  options?: { weeklyKm?: number; maxHeartRate?: number; restingHeartRate?: number }
 ): number {
   const exponent = fitExponent(races);
 
@@ -177,7 +192,13 @@ export function predictTime(
 
   for (const race of races) {
     // Normalize to neutral conditions before extrapolating
-    const neutralTime = normalizeRaceTime(race.timeSeconds, race, options?.maxHeartRate);
+    // Pass restingHeartRate for Karvonen-based effort normalization if available
+    const neutralTime = normalizeRaceTime(
+      race.timeSeconds,
+      race,
+      options?.maxHeartRate,
+      options?.restingHeartRate
+    );
     const predicted =
       neutralTime * Math.pow(targetDistanceKm / race.distanceKm, exponent);
     const weight = recencyWeight(race.date);

@@ -35,6 +35,7 @@ export interface RunnerProfile {
   heightCm: number;
   sweatLevel: SweatLevel;
   maxHeartRate?: number;       // max HR (from test or 220-age). Needed to interpret race/interval HR.
+  restingHeartRate?: number;   // resting HR for Karvonen formula (improves effort normalization)
   referenceRaces: ReferenceRace[];
   weeklyKm?: number;
   vam?: number;

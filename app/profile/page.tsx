@@ -12,6 +12,7 @@ interface Runner {
   height_cm: number;
   sweat_level: 'low' | 'medium' | 'high';
   max_hr: number | null;
+  resting_hr: number | null;
   weekly_km: number | null;
   is_premium: boolean | null;
   premium_until: string | null;
@@ -53,6 +54,7 @@ export default function ProfilePage() {
   const [heightCm, setHeightCm]   = useState('');
   const [sweat, setSweat]         = useState<'low' | 'medium' | 'high'>('medium');
   const [maxHr, setMaxHr]         = useState('');
+  const [restingHr, setRestingHr] = useState('');
   const [weeklyKm, setWeeklyKm]   = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -77,7 +79,7 @@ export default function ProfilePage() {
       // Cargar perfil del corredor
       const { data: r } = await supabase
         .from('runners')
-        .select('id,weight_kg,height_cm,sweat_level,max_hr,weekly_km,is_premium,premium_until,stripe_subscription_id')
+        .select('id,weight_kg,height_cm,sweat_level,max_hr,resting_hr,weekly_km,is_premium,premium_until,stripe_subscription_id')
         .eq('user_id', session.user.id)
         .maybeSingle();
 
@@ -89,6 +91,7 @@ export default function ProfilePage() {
       setHeightCm(String(r.height_cm));
       setSweat(r.sweat_level);
       setMaxHr(r.max_hr ? String(r.max_hr) : '');
+      setRestingHr(r.resting_hr ? String(r.resting_hr) : '');
       setWeeklyKm(r.weekly_km ? String(r.weekly_km) : '');
       setIsPremium(!!r.is_premium);
       setPremiumUntil(r.premium_until ?? null);
@@ -124,6 +127,7 @@ export default function ProfilePage() {
           height_cm:   parseFloat(heightCm),
           sweat_level: sweat,
           max_hr:      maxHr ? parseInt(maxHr) : null,
+          resting_hr:  restingHr ? parseInt(restingHr) : null,
           weekly_km:   weeklyKm ? parseFloat(weeklyKm) : null,
           updated_at:  new Date().toISOString(),
         })
@@ -344,11 +348,11 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* FC máx y km/semana */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* FC máx, FC reposo y km/semana */}
+            <div className="grid grid-cols-3 gap-3">
               <div>
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>
-                  FC máx <span style={{ color: 'var(--border)' }}>(opcional)</span>
+                  FC máx <span style={{ color: 'var(--border)' }}>(opc)</span>
                 </label>
                 <input
                   type="number" min="100" max="230"
@@ -359,7 +363,18 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>
-                  Km/semana <span style={{ color: 'var(--border)' }}>(opcional)</span>
+                  FC reposo <span style={{ color: 'var(--border)' }}>(opc)</span>
+                </label>
+                <input
+                  type="number" min="30" max="100"
+                  value={restingHr} onChange={(e) => setRestingHr(e.target.value)}
+                  placeholder="55"
+                  className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>
+                  Km/semana <span style={{ color: 'var(--border)' }}>(opc)</span>
                 </label>
                 <input
                   type="number" step="0.1" min="0" max="300"
