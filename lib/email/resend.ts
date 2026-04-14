@@ -218,3 +218,133 @@ export async function sendRaceReminderEmail(
 
   if (error) throw new Error(`[Resend] sendRaceReminderEmail: ${error.message}`);
 }
+
+// =============================================================================
+// sendWeatherAlertEmail
+// Avisa que el clima cambió significativamente respecto al plan generado
+// =============================================================================
+export async function sendWeatherAlertEmail(
+  to: string,
+  raceName: string,
+  raceDate: string,
+  raceId: string,
+  oldTemp: number,
+  newTemp: number,
+  newHumidity: number,
+  newWindKmh: number,
+): Promise<void> {
+  const formattedDate = new Date(raceDate + 'T12:00:00')
+    .toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const tempDiff = Math.round(newTemp - oldTemp);
+  const tempArrow = tempDiff > 0 ? '↑' : '↓';
+  const diffText = `${Math.abs(tempDiff)}°C ${tempArrow} respecto al plan`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cambio de clima — ${raceName}</title>
+</head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #f97316;padding:40px 32px;">
+
+          <!-- Logo -->
+          <tr>
+            <td style="padding-bottom:24px;">
+              <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">
+                Race<span style="color:#f97316;">Copilot</span>
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Alerta -->
+          <tr>
+            <td style="padding-bottom:8px;">
+              <p style="margin:0;font-size:13px;font-weight:600;color:#f97316;text-transform:uppercase;letter-spacing:0.06em;">
+                ⚠ Alerta de clima
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:8px;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+                El clima cambió para ${raceName}
+              </h2>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:28px;">
+              <p style="margin:0;font-size:14px;color:#a1a1aa;">${formattedDate}</p>
+            </td>
+          </tr>
+
+          <!-- Comparativa -->
+          <tr>
+            <td style="padding-bottom:28px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border-radius:10px;padding:20px;">
+                <tr>
+                  <td style="padding-bottom:12px;">
+                    <p style="margin:0;font-size:13px;color:#a1a1aa;">Temperatura al generar el plan</p>
+                    <p style="margin:4px 0 0;font-size:24px;font-weight:700;color:#ffffff;">${Math.round(oldTemp)}°C</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <p style="margin:0;font-size:13px;color:#a1a1aa;">Temperatura actualizada</p>
+                    <p style="margin:4px 0 0;font-size:24px;font-weight:700;color:#f97316;">${Math.round(newTemp)}°C <span style="font-size:14px;">(${diffText})</span></p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-top:12px;border-top:1px solid #333;">
+                    <p style="margin:8px 0 0;font-size:13px;color:#a1a1aa;">Humedad: ${newHumidity}% · Viento: ${Math.round(newWindKmh)} km/h</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          <tr>
+            <td style="padding-bottom:32px;">
+              <p style="margin:0 0 16px;font-size:14px;color:#a1a1aa;">
+                Te recomendamos regenerar tu plan para que refleje las condiciones actuales.
+              </p>
+              <a href="${APP_URL}/races/${raceId}"
+                 style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;
+                        font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">
+                Regenerar mi plan →
+              </a>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="border-top:1px solid #222222;padding-top:24px;">
+              <p style="margin:0;font-size:12px;color:#52525b;">
+                RaceCopilot · Alerta automática 24hs antes de tu carrera.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `⚠ Cambio de clima para ${raceName}`,
+    html,
+  });
+
+  if (error) throw new Error(`[Resend] sendWeatherAlertEmail: ${error.message}`);
+}
