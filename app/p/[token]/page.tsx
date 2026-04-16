@@ -122,6 +122,11 @@ export default function SharedPlanPage() {
           distanceKm={race.distanceKm}
         />
 
+        {/* Disclaimer médico */}
+        <p className="mt-6 text-xs text-center leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+          ⚕ Este plan es orientativo y no reemplaza el consejo de un profesional de la salud. Consultá a tu médico ante cualquier duda sobre tu aptitud para correr.
+        </p>
+
         {/* CTA de conversión — oculto en impresión */}
         <div
           className="mt-10 rounded-2xl p-8 text-center no-print"

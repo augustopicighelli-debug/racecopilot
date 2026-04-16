@@ -76,8 +76,8 @@ export async function POST(req: NextRequest) {
         {
           price_data: {
             currency: 'usd',
-            // 1500 centavos = $15 mensual | 12000 centavos = $120 anual
-            unit_amount: plan === 'monthly' ? 1500 : 12000,
+            // 800 centavos = $8 mensual | 4800 centavos = $48 anual ($4/mes efectivo)
+            unit_amount: plan === 'monthly' ? 800 : 4800,
             recurring: {
               interval: plan === 'monthly' ? 'month' : 'year',
             },

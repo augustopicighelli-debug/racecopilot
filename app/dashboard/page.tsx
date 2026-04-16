@@ -46,34 +46,65 @@ function DashboardContent() {
     init();
   }, [router]);
 
-  // Polling del estado premium cuando se viene de checkout exitoso.
-  // El webhook de Stripe puede tardar unos segundos en llegar; reintentamos
-  // hasta 10 veces (cada 1.5s ≈ 15s máximo) hasta que is_premium sea true.
+  // Estado del banner post-checkout (se oculta cuando se confirma premium o tras 10s)
+  const [showBanner, setShowBanner] = useState(checkoutOk);
+
+  // Sync premium via Stripe directo al volver de checkout.
+  // Evita depender del webhook (que puede tardar o no estar configurado).
   useEffect(() => {
-    if (!checkoutOk || !runner || runner.is_premium) return;
+    if (!checkoutOk || !runner) return;
 
     let attempts = 0;
-    const interval = setInterval(async () => {
+
+    const syncPremium = async () => {
       attempts++;
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { clearInterval(interval); return; }
+      if (!session) return false;
 
-      const { data: fresh } = await supabase
-        .from('runners')
-        .select('id,weight_kg,sweat_level,is_premium')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-
-      if (fresh?.is_premium) {
-        setRunner(fresh);
-        clearInterval(interval);
-      } else if (attempts >= 10) {
-        clearInterval(interval); // dejar de reintentar después de 15s
+      try {
+        const res = await fetch('/api/stripe/sync-premium', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        if (!res.ok) return false;
+        const { premium } = await res.json();
+        return !!premium;
+      } catch {
+        return false;
       }
-    }, 1500);
+    };
 
-    return () => clearInterval(interval);
-  }, [checkoutOk, runner]);
+    const run = async () => {
+      // Intentar hasta 8 veces con 2s entre intentos (≈16s máximo)
+      while (attempts < 8) {
+        const isPremium = await syncPremium();
+        if (isPremium) {
+          // Actualizar runner local y ocultar banner
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            const { data: fresh } = await supabase
+              .from('runners')
+              .select('id,weight_kg,sweat_level,is_premium')
+              .eq('user_id', session.user.id)
+              .maybeSingle();
+            if (fresh) setRunner(fresh);
+          }
+          setShowBanner(false);
+          // Limpiar el param ?checkout=success de la URL
+          window.history.replaceState(null, '', '/dashboard');
+          return;
+        }
+        // Esperar 2s antes del próximo intento
+        await new Promise(r => setTimeout(r, 2000));
+      }
+      // Fallback: ocultar banner después de 10s aunque no se confirme
+      setShowBanner(false);
+      window.history.replaceState(null, '', '/dashboard');
+    };
+
+    run();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkoutOk]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -98,8 +129,8 @@ function DashboardContent() {
     <div className="min-h-screen px-4 py-10" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
       <div className="max-w-2xl mx-auto">
 
-        {/* Banner post-checkout: suscripción en proceso (webhook puede tardar unos segundos) */}
-        {checkoutOk && (
+        {/* Banner post-checkout: visible hasta que se confirme premium o tras timeout */}
+        {showBanner && (
           <div
             className="rounded-xl px-4 py-3 mb-6 text-sm font-medium"
             style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.4)', color: '#4ade80' }}
@@ -130,6 +161,13 @@ function DashboardContent() {
           {/* Acciones del header: unidades, perfil y salir */}
           <div className="flex items-center gap-3">
             <UnitsToggle />
+            <button
+              onClick={() => router.push('/season')}
+              className="text-xs"
+              style={{ color: 'var(--muted-foreground)' }}
+            >
+              {t.season.link}
+            </button>
             <button
               onClick={() => router.push('/profile')}
               className="text-xs"

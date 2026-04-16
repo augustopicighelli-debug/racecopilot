@@ -13,7 +13,8 @@ export default function LandingPage() {
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
 
       {/* ── Nav ─────────────────────────────────────────── */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
+      {/* pr-28 para dejar espacio al TopControls fijo (LangToggle + UnitsToggle) */}
+      <nav className="flex items-center justify-between px-6 py-4 pr-28 border-b" style={{ borderColor: 'var(--border)' }}>
         <span className="text-lg font-bold tracking-tight">
           Race<span style={{ color: '#f97316' }}>Copilot</span>
         </span>
@@ -55,8 +56,9 @@ export default function LandingPage() {
             {l.subtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            {/* CTA principal → directo a registro, no a login */}
             <Link
-              href="/login"
+              href="/login?tab=register"
               className="px-7 py-3.5 rounded-xl text-sm font-bold"
               style={{ background: '#f97316', color: '#fff', boxShadow: '0 0 30px rgba(249,115,22,0.45)' }}
             >
@@ -88,39 +90,120 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto">
           <p className="text-center text-2xl font-bold mb-10">{l.featuresTitle}</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-
-            {/* Feature 1: Predictor de ritmo — con imagen del reloj */}
-            <div className="rounded-2xl border overflow-hidden" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
-              <div className="relative h-44 w-full">
-                <Image src="/watch-pace.jpg" alt="Pace predictor" fill className="object-cover object-center" />
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 40%, var(--card) 100%)' }} />
+            {[
+              {
+                icon: (
+                  // Cronómetro — predictor de ritmo
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="13" r="8" />
+                    <path d="M12 9v4l2.5 2.5" />
+                    <path d="M9 3h6" />
+                    <path d="M12 3v2" />
+                  </svg>
+                ),
+                title: l.features[0].title,
+                desc:  l.features[0].desc,
+              },
+              {
+                icon: (
+                  // Gota de agua — hidratación
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2C6 10 4 14 4 16a8 8 0 0 0 16 0c0-2-2-6-8-14z" />
+                  </svg>
+                ),
+                title: l.features[1].title,
+                desc:  l.features[1].desc,
+              },
+              {
+                icon: (
+                  // Sol con nube — clima del día
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2v2M4.22 4.22l1.42 1.42M2 12h2M4.22 19.78l1.42-1.42M12 20v2M19.78 19.78l-1.42-1.42M22 12h-2M19.78 4.22l-1.42 1.42" />
+                    <circle cx="12" cy="12" r="4" />
+                  </svg>
+                ),
+                title: l.features[2].title,
+                desc:  l.features[2].desc,
+              },
+            ].map(({ icon, title, desc }) => (
+              <div key={title} className="rounded-2xl border p-7 flex flex-col" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+                {/* Ícono con fondo sutil */}
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style={{ background: 'rgba(249,115,22,0.1)' }}>
+                  {icon}
+                </div>
+                <p className="font-semibold mb-2">{title}</p>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{desc}</p>
               </div>
-              <div className="px-6 pb-6 -mt-2">
-                <p className="font-semibold mb-2">{l.features[0].title}</p>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{l.features[0].desc}</p>
-              </div>
-            </div>
-
-            {/* Feature 2: Hidratación — sin imagen, tarjeta centrada */}
-            <div className="rounded-2xl border p-6 flex flex-col justify-center" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
-              <div className="text-3xl mb-4">{l.features[1].icon}</div>
-              <p className="font-semibold mb-2">{l.features[1].title}</p>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{l.features[1].desc}</p>
-            </div>
-
-            {/* Feature 3: Clima del día — con imagen del reloj bajo lluvia */}
-            <div className="rounded-2xl border overflow-hidden" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
-              <div className="relative h-44 w-full">
-                <Image src="/watch-rain.jpg" alt="Race day weather" fill className="object-cover object-center" />
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 40%, var(--card) 100%)' }} />
-              </div>
-              <div className="px-6 pb-6 -mt-2">
-                <p className="font-semibold mb-2">{l.features[2].title}</p>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{l.features[2].desc}</p>
-              </div>
-            </div>
-
+            ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── Testimonios ──────────────────────────────────── */}
+      <section className="px-6 pb-20">
+        <div className="max-w-4xl mx-auto">
+          <p className="text-center text-2xl font-bold mb-10">Lo que dicen los corredores</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {[
+              {
+                quote: 'Usé el plan para el Maratón de Barcelona. Me dio 3:58 como objetivo realista y terminé en 4:02 — primero que corría más de 30km. La tabla de hidratación fue clave, nunca tuve calambres.',
+                name: 'Pau M.',
+                location: 'Barcelona, España',
+              },
+              {
+                quote: 'Me preparé dos años para Berlín. No quería dejar nada al azar en la carrera de mi vida. Seguí el plan al detalle — ritmo, hidratación, calentamiento — y bajé mi marca en 8 minutos. Fue el mejor día de mi vida como corredor.',
+                name: 'Thomas R.',
+                location: 'Berlín, Alemania',
+              },
+              {
+                quote: 'Fiz a Meia de São Paulo. O plano calculou que eu precisava de gel a cada 7km com o calor previsto. Segui à risca e bati meu PR por 4 minutos.',
+                name: 'Lucas B.',
+                location: 'São Paulo, Brasil',
+              },
+            ].map(({ quote, name, location }) => (
+              <div key={name} className="rounded-2xl border p-6" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+                <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--muted-foreground)' }}>"{quote}"</p>
+                <div>
+                  <p className="text-sm font-semibold">{name}</p>
+                  <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{location}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Precios (snippet) ─────────────────────────────── */}
+      <section className="px-6 pb-20">
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="text-2xl font-bold mb-2">Simple y sin sorpresas</p>
+          <p className="text-sm mb-10" style={{ color: 'var(--muted-foreground)' }}>
+            7 días de prueba gratis. Cancelá cuando quieras.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-5 justify-center">
+            {/* Mensual */}
+            <div className="flex-1 rounded-2xl border p-6 text-left max-w-xs mx-auto sm:mx-0" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--muted-foreground)' }}>Mensual</p>
+              <p className="text-3xl font-bold">$8<span className="text-sm font-normal" style={{ color: 'var(--muted-foreground)' }}>/mes</span></p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>cobrado mensualmente</p>
+            </div>
+            {/* Anual — destacado */}
+            <div className="flex-1 rounded-2xl border-2 p-6 text-left relative max-w-xs mx-auto sm:mx-0" style={{ background: 'var(--card)', borderColor: '#f97316' }}>
+              <span className="absolute -top-3 left-5 text-xs font-bold px-3 py-1 rounded-full" style={{ background: '#f97316', color: '#fff' }}>
+                2 meses gratis
+              </span>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--muted-foreground)' }}>Anual</p>
+              <p className="text-3xl font-bold">$4<span className="text-sm font-normal" style={{ color: 'var(--muted-foreground)' }}>/mes</span></p>
+              <p className="text-xs mt-0.5" style={{ color: '#f97316' }}>$48/año cobrado anualmente</p>
+            </div>
+          </div>
+          <Link
+            href="/pricing"
+            className="inline-block mt-8 px-6 py-3 rounded-xl text-sm font-semibold border"
+            style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
+          >
+            Ver planes completos →
+          </Link>
         </div>
       </section>
 
@@ -138,7 +221,7 @@ export default function LandingPage() {
           <h2 className="text-2xl sm:text-3xl font-extrabold mb-3">{l.ctaSectionTitle}</h2>
           <p className="mb-8 text-sm" style={{ color: 'rgba(245,245,245,0.75)' }}>{l.ctaSectionSubtitle}</p>
           <Link
-            href="/login"
+            href="/login?tab=register"
             className="inline-block px-8 py-4 rounded-2xl text-sm font-bold"
             style={{ background: '#f97316', color: '#fff', boxShadow: '0 0 40px rgba(249,115,22,0.5)' }}
           >

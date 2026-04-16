@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import { useLang } from '@/lib/lang';
+import { useUnits } from '@/lib/units';
 
 // Convierte segundos → "H:MM:SS" para mostrar en el input
 function fmtTime(s: number) {
@@ -26,6 +27,8 @@ export default function EditRacePage() {
   const params = useParams();
   const id     = params?.id as string;
   const { t } = useLang();
+  const { units, distUnit } = useUnits();
+  const imp = units === 'imperial';
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
@@ -38,6 +41,7 @@ export default function EditRacePage() {
   const [city, setCity]             = useState('');
   const [targetTime, setTargetTime] = useState('');
   const [elevGain, setElevGain]     = useState('');
+  const [elevLoss, setElevLoss]     = useState('');
   const [goalType, setGoalType]     = useState<'finish' | 'pr' | 'target'>('pr');
 
   // Cargar datos actuales de la carrera
@@ -48,19 +52,25 @@ export default function EditRacePage() {
 
       const { data, error: err } = await supabase
         .from('races')
-        .select('name,distance_km,race_date,city,target_time_s,elevation_gain,goal_type')
+        .select('name,distance_km,race_date,city,target_time_s,elevation_gain,elevation_loss,goal_type')
         .eq('id', id)
         .maybeSingle();
 
-      if (err || !data) { setError('Carrera no encontrada'); setLoading(false); return; }
+      if (err || !data) { setError(t.raceForm.notFound); setLoading(false); return; }
 
-      // Poblar el form con los valores actuales
+      // Poblar el form — convertir a imperial si es necesario para mostrar al usuario
       setName(data.name);
-      setDistanceKm(String(data.distance_km));
+      // Distancia: convertir km → millas si imperial
+      const distVal = imp ? (data.distance_km * 0.621371) : data.distance_km;
+      setDistanceKm(String(parseFloat(distVal.toFixed(3))));
       setRaceDate(data.race_date);
       setCity(data.city ?? '');
       setTargetTime(data.target_time_s ? fmtTime(data.target_time_s) : '');
-      setElevGain(data.elevation_gain ? String(data.elevation_gain) : '');
+      // Elevación: convertir m → ft si imperial
+      const gainVal = data.elevation_gain ? (imp ? Math.round(data.elevation_gain * 3.28084) : data.elevation_gain) : '';
+      const lossVal = data.elevation_loss ? (imp ? Math.round(data.elevation_loss * 3.28084) : data.elevation_loss) : '';
+      setElevGain(gainVal ? String(gainVal) : '');
+      setElevLoss(lossVal ? String(lossVal) : '');
       setGoalType((data.goal_type as 'finish' | 'pr' | 'target') ?? 'pr');
       setLoading(false);
     };
@@ -76,16 +86,22 @@ export default function EditRacePage() {
       let targetTimeSec: number | null = null;
       if (targetTime.trim()) {
         targetTimeSec = parseTime(targetTime);
-        if (!targetTimeSec) throw new Error('Tiempo inválido. Usá H:MM:SS');
+        if (!targetTimeSec) throw new Error(t.raceForm.invalidTime);
       }
+
+      // Convertir a métrico antes de guardar
+      const distKm   = imp ? parseFloat(distanceKm) * 1.60934 : parseFloat(distanceKm);
+      const elevM    = elevGain ? (imp ? parseFloat(elevGain) / 3.28084 : parseFloat(elevGain)) : null;
+      const elevLossM = elevLoss ? (imp ? parseFloat(elevLoss) / 3.28084 : parseFloat(elevLoss)) : null;
 
       const { error: err } = await supabase.from('races').update({
         name:           name.trim(),
-        distance_km:    parseFloat(distanceKm),
+        distance_km:    distKm,
         race_date:      raceDate,
         city:           city.trim() || null,
         target_time_s:  targetTimeSec,
-        elevation_gain: elevGain ? parseFloat(elevGain) : null,
+        elevation_gain: elevM,
+        elevation_loss: elevLossM,
         goal_type:      goalType,
       }).eq('id', id);
 
@@ -103,7 +119,7 @@ export default function EditRacePage() {
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: 'var(--background)', color: 'var(--muted-foreground)' }}>
-      Cargando...
+      {t.common.loading}
     </div>
   );
 
@@ -112,11 +128,11 @@ export default function EditRacePage() {
       <div className="max-w-md mx-auto">
 
         <button onClick={() => router.push(`/races/${id}`)} className="text-sm mb-6 block" style={{ color: 'var(--muted-foreground)' }}>
-          ← Volver
+          {t.common.back}
         </button>
 
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">Editar carrera</h1>
+          <h1 className="text-2xl font-bold">{t.raceForm.titleEdit}</h1>
         </div>
 
         <div className="rounded-xl border p-6" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
@@ -129,20 +145,23 @@ export default function EditRacePage() {
           <form onSubmit={handleSubmit} className="space-y-4">
 
             <div>
-              <label className="block text-sm font-medium mb-1" style={labelStyle}>Nombre</label>
+              <label className="block text-sm font-medium mb-1" style={labelStyle}>{t.raceForm.fieldName}</label>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} required />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium mb-1" style={labelStyle}>Distancia (km)</label>
-                <input type="number" step="0.001" min="1" value={distanceKm}
-                  onChange={(e) => setDistanceKm(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} required />
+                <label className="block text-sm font-medium mb-1" style={labelStyle}>{t.raceForm.fieldDistance}</label>
+                <div className="relative">
+                  <input type="number" step="0.001" min="0.1" value={distanceKm}
+                    onChange={(e) => setDistanceKm(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-10" style={inputStyle} required />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>{distUnit}</span>
+                </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1" style={labelStyle}>Fecha</label>
+                <label className="block text-sm font-medium mb-1" style={labelStyle}>{t.raceForm.fieldDate}</label>
                 <input type="date" value={raceDate} onChange={(e) => setRaceDate(e.target.value)}
                   className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} required />
               </div>
@@ -150,7 +169,7 @@ export default function EditRacePage() {
 
             <div>
               <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                Ciudad <span style={{ color: 'var(--border)' }}>(opcional — para clima)</span>
+                {t.raceForm.fieldCity} <span style={{ color: 'var(--border)' }}>{t.raceForm.fieldCityOptional}</span>
               </label>
               <input type="text" value={city} onChange={(e) => setCity(e.target.value)}
                 placeholder="Mendoza"
@@ -189,7 +208,7 @@ export default function EditRacePage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                  Tiempo objetivo <span style={{ color: 'var(--border)' }}>{goalType === 'target' ? t.goal.timeRequired : `(${t.common.optional})`}</span>
+                  {t.race.targetTime} <span style={{ color: 'var(--border)' }}>{goalType === 'target' ? t.goal.timeRequired : `(${t.common.optional})`}</span>
                 </label>
                 <input type="text" value={targetTime} onChange={(e) => setTargetTime(e.target.value)}
                   placeholder="3:45:00"
@@ -197,18 +216,32 @@ export default function EditRacePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                  Desnivel + (m) <span style={{ color: 'var(--border)' }}>(opcional)</span>
+                  {t.raceForm.fieldElevGain} <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
                 </label>
-                <input type="number" min="0" value={elevGain} onChange={(e) => setElevGain(e.target.value)}
-                  placeholder="250"
-                  className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} />
+                <div className="relative">
+                  <input type="number" min="0" value={elevGain} onChange={(e) => setElevGain(e.target.value)}
+                    placeholder={imp ? '820' : '250'}
+                    className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-8" style={inputStyle} />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>{imp ? 'ft' : 'm'}</span>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1" style={labelStyle}>
+                  {t.raceForm.fieldElevLoss} <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
+                </label>
+                <div className="relative">
+                  <input type="number" min="0" value={elevLoss} onChange={(e) => setElevLoss(e.target.value)}
+                    placeholder={imp ? '820' : '250'}
+                    className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-8" style={inputStyle} />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>{imp ? 'ft' : 'm'}</span>
+                </div>
               </div>
             </div>
 
             <button type="submit" disabled={saving}
               className="w-full py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
               style={{ background: 'var(--primary)', color: '#fff' }}>
-              {saving ? 'Guardando...' : 'Guardar cambios'}
+              {saving ? t.common.saving : t.common.save}
             </button>
           </form>
         </div>

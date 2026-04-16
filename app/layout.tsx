@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title:       'RaceCopilot — Tu plan de carrera inteligente',
     description: 'Hidratación, nutrición y ritmo km a km. 7 días de prueba gratis.',
-    url:         'https://racecopilot.vercel.app',
+    url:         'https://racecopilot.com',
     siteName:    'RaceCopilot',
     locale:      'es_AR',
     type:        'website',
@@ -31,9 +31,9 @@ export const metadata: Metadata = {
     description: 'Hidratación, nutrición y ritmo km a km. 7 días de prueba gratis.',
     images:      ['/hero-runner.jpg'],
   },
-  metadataBase: new URL('https://racecopilot.vercel.app'),
+  metadataBase: new URL('https://racecopilot.com'),
   alternates: {
-    canonical: 'https://racecopilot.vercel.app',
+    canonical: 'https://racecopilot.com',
   },
 };
 

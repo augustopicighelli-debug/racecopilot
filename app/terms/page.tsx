@@ -34,11 +34,18 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>3. Suscripción y pagos</h2>
+            <p className="mb-2">
+              RaceCopilot ofrece una prueba gratuita de 7 días. <strong style={{ color: 'var(--foreground)' }}>No se realiza ningún cobro durante los primeros 7 días.</strong>{' '}
+              Al finalizar el período de prueba, se cobra automáticamente el plan seleccionado mediante Stripe:
+            </p>
+            <ul className="list-disc pl-5 space-y-1 mb-2">
+              <li><strong style={{ color: 'var(--foreground)' }}>Plan mensual:</strong> USD 8 por mes.</li>
+              <li><strong style={{ color: 'var(--foreground)' }}>Plan anual:</strong> USD 48 por año (equivale a USD 4/mes).</li>
+            </ul>
             <p>
-              RaceCopilot ofrece una prueba gratuita de 7 días. Al finalizar el período de prueba,
-              se cobra automáticamente el plan seleccionado (mensual o anual) mediante Stripe.
-              Podés cancelar en cualquier momento desde tu perfil. La cancelación es efectiva al
-              final del período de facturación en curso.
+              El cobro se renueva automáticamente cada período hasta que canceles. Podés cancelar en cualquier momento
+              desde tu perfil → "Gestionar suscripción". La cancelación es efectiva al final del período de facturación en curso
+              y no genera reembolso proporcional.
             </p>
           </section>
 
@@ -52,7 +59,18 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>5. Cuenta</h2>
+            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>5. Edad mínima</h2>
+            <p>
+              RaceCopilot está dirigido a personas de <strong style={{ color: 'var(--foreground)' }}>16 años o más</strong>.
+              Al registrarte confirmás que cumplís con este requisito. Si tenés conocimiento de que un menor ha creado
+              una cuenta, contactanos en{' '}
+              <a href="mailto:hola@racecopilot.app" style={{ color: '#f97316' }}>hola@racecopilot.app</a>{' '}
+              para proceder con la eliminación.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>6. Cuenta</h2>
             <p>
               Sos responsable de mantener la seguridad de tu cuenta y contraseña. No compartás
               tus credenciales. RaceCopilot no se hace responsable por pérdidas derivadas del
@@ -61,7 +79,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>6. Uso aceptable</h2>
+            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>7. Uso aceptable</h2>
             <p>
               No podés usar RaceCopilot para actividades ilegales, para dañar a terceros, ni para
               intentar acceder a sistemas sin autorización. Nos reservamos el derecho de suspender
@@ -70,7 +88,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>7. Limitación de responsabilidad</h2>
+            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>8. Limitación de responsabilidad</h2>
             <p>
               RaceCopilot se provee "tal como está". No garantizamos que el servicio esté libre
               de errores o disponible en todo momento. En ningún caso seremos responsables por
@@ -79,7 +97,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>8. Modificaciones</h2>
+            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>9. Modificaciones</h2>
             <p>
               Podemos modificar estos términos en cualquier momento. Te notificaremos por email
               ante cambios significativos. El uso continuado del servicio implica la aceptación
@@ -88,7 +106,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>9. Contacto</h2>
+            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>10. Contacto</h2>
             <p>
               Para consultas sobre estos términos escribinos a{' '}
               <a href="mailto:hola@racecopilot.app" style={{ color: '#f97316' }}>hola@racecopilot.app</a>.

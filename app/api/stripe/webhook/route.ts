@@ -1,11 +1,13 @@
 // API Route: POST /api/stripe/webhook
 // Recibe eventos de Stripe y actualiza el estado de suscripción en la DB.
-// Verificación de firma: si STRIPE_WEBHOOK_SECRET existe la usa; si no, la omite
-// (útil en desarrollo antes de configurar el webhook real).
+// IMPORTANTE: force-dynamic evita que Next.js optimice/buffere el request body,
+// lo que rompería la verificación de firma de Stripe.
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
+
+export const dynamic = 'force-dynamic';
 
 // Cliente Supabase con service role: puede actualizar sin RLS
 const supabaseAdmin = createClient(

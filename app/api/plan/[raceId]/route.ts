@@ -53,7 +53,7 @@ export async function GET(
   // 1. Cargar la carrera
   const { data: race, error: raceErr } = await supabase
     .from('races')
-    .select('id,distance_km,race_date,target_time_s,elevation_gain,runner_id,city,goal_type')
+    .select('id,distance_km,race_date,target_time_s,elevation_gain,elevation_loss,runner_id,city,goal_type')
     .eq('id', raceId)
     .maybeSingle();
 
@@ -121,7 +121,8 @@ export async function GET(
   // 5. Perfil del recorrido (plano con desnivel manual si existe)
   const course = buildFlatProfile(
     race.distance_km,
-    race.elevation_gain ?? undefined
+    race.elevation_gain ?? undefined,
+    race.elevation_loss ?? undefined
   );
 
   // 6. Clima real vía Open-Meteo (o neutral si no hay ciudad o falla la API)

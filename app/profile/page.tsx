@@ -1,7 +1,18 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
+import { useLang } from '@/lib/lang';
+import { useUnits } from '@/lib/units';
+
+// Formatea segundos → H:MM:SS / MM:SS
+function fmtTime(secs: number): string {
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = Math.floor(secs % 60);
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
 
 // ---------------------------------------------------------------------------
 // Tipos locales que mapean las filas de Supabase
@@ -17,6 +28,15 @@ interface Runner {
   is_premium: boolean | null;
   premium_until: string | null;
   stripe_subscription_id: string | null;
+}
+
+interface ReferenceRace {
+  id: string;
+  distance_km: number;
+  time_seconds: number;
+  race_date: string;
+  race_type: 'race' | 'training';
+  avg_heart_rate: number | null;
 }
 
 interface NutritionProduct {
@@ -36,6 +56,8 @@ interface NutritionProduct {
 // ---------------------------------------------------------------------------
 export default function ProfilePage() {
   const router = useRouter();
+  const { t } = useLang();
+  const { fmtDist, fmtPace } = useUnits();
 
   // --- Estado global ---
   const [runnerId, setRunnerId]           = useState<string | null>(null);
@@ -58,7 +80,26 @@ export default function ProfilePage() {
   const [weeklyKm, setWeeklyKm]   = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
 
-  // --- Sección B: productos de nutrición ---
+  // --- Sección C: tiempos de referencia ---
+  const [refRaces, setRefRaces]         = useState<ReferenceRace[]>([]);
+  const [showRefForm, setShowRefForm]   = useState(false);
+  const [refSaving, setRefSaving]       = useState(false);
+  const [refError, setRefError]         = useState('');
+  // campos modo carrera
+  const [refDist, setRefDist]           = useState('');
+  const [refTimeHH, setRefTimeHH]       = useState('');
+  const [refTimeMM, setRefTimeMM]       = useState('');
+  const [refTimeSS, setRefTimeSS]       = useState('');
+  const [refDate, setRefDate]           = useState('');
+  const [refType, setRefType]           = useState<'race' | 'training'>('race');
+  const [refHR, setRefHR]               = useState('');
+  // campos modo pasadas
+  const [refRepCount, setRefRepCount]   = useState('');
+  const [refRepDist, setRefRepDist]     = useState('');
+  const [refPaceMm, setRefPaceMm]       = useState('');
+  const [refPaceSs, setRefPaceSs]       = useState('');
+
+  // --- Sección D: productos de nutrición ---
   const [products, setProducts]         = useState<NutritionProduct[]>([]);
   const [showForm, setShowForm]         = useState(false);
   const [savingProduct, setSavingProduct] = useState(false);
@@ -97,6 +138,14 @@ export default function ProfilePage() {
       setPremiumUntil(r.premium_until ?? null);
       setHasSub(!!r.stripe_subscription_id);
 
+      // Cargar tiempos de referencia del runner
+      const { data: refs } = await supabase
+        .from('reference_races')
+        .select('id,distance_km,time_seconds,race_date,race_type,avg_heart_rate')
+        .eq('runner_id', r.id)
+        .order('race_date', { ascending: false });
+      setRefRaces(refs ?? []);
+
       // Cargar productos de nutrición del runner
       const { data: prods } = await supabase
         .from('nutrition_products')
@@ -134,7 +183,7 @@ export default function ProfilePage() {
         .eq('id', runnerId!);
 
       if (err) throw err;
-      setSaveMsg('Cambios guardados');
+      setSaveMsg(t.profile.saveSuccess);
     } catch (err: any) {
       setSaveErr(err.message);
     } finally {
@@ -143,7 +192,63 @@ export default function ProfilePage() {
   };
 
   // ---------------------------------------------------------------------------
-  // Sección B: agregar producto de nutrición
+  // Sección C: agregar tiempo de referencia
+  // ---------------------------------------------------------------------------
+  const handleAddRefRace = useCallback(async () => {
+    if (!runnerId) return;
+    setRefError('');
+    if (!refDate) { setRefError('Fecha requerida'); return; }
+
+    const hr = refHR ? parseInt(refHR) : null;
+    let distKm: number;
+    let timeSecs: number;
+
+    if (refType === 'training') {
+      const count   = parseInt(refRepCount);
+      const repDist = parseFloat(refRepDist);
+      const pm      = parseInt(refPaceMm) || 0;
+      const ps      = parseInt(refPaceSs) || 0;
+      const paceSecPerKm = pm * 60 + ps;
+      if (!count || count <= 0)     { setRefError('Cantidad inválida'); return; }
+      if (!repDist || repDist <= 0) { setRefError('Distancia por rep inválida'); return; }
+      if (paceSecPerKm <= 0)        { setRefError('Ritmo inválido'); return; }
+      distKm   = count * repDist;
+      timeSecs = distKm * paceSecPerKm;
+    } else {
+      distKm = parseFloat(refDist);
+      const hh = parseInt(refTimeHH) || 0;
+      const mm = parseInt(refTimeMM) || 0;
+      const ss = parseInt(refTimeSS) || 0;
+      timeSecs = hh * 3600 + mm * 60 + ss;
+      if (!distKm || distKm <= 0) { setRefError('Distancia inválida'); return; }
+      if (timeSecs <= 0)          { setRefError('Tiempo inválido'); return; }
+    }
+
+    setRefSaving(true);
+    const { data, error: err } = await supabase
+      .from('reference_races')
+      .insert({ runner_id: runnerId, distance_km: distKm, time_seconds: timeSecs, race_date: refDate, race_type: refType, avg_heart_rate: hr })
+      .select('id,distance_km,time_seconds,race_date,race_type,avg_heart_rate')
+      .single();
+    setRefSaving(false);
+
+    if (err) { setRefError(err.message); return; }
+
+    // Agregar a la lista local y resetear form
+    setRefRaces(prev => [data, ...prev]);
+    setRefDist(''); setRefTimeHH(''); setRefTimeMM(''); setRefTimeSS('');
+    setRefRepCount(''); setRefRepDist(''); setRefPaceMm(''); setRefPaceSs('');
+    setRefDate(''); setRefType('race'); setRefHR('');
+    setShowRefForm(false);
+  }, [runnerId, refDate, refHR, refType, refDist, refTimeHH, refTimeMM, refTimeSS, refRepCount, refRepDist, refPaceMm, refPaceSs]);
+
+  const handleDeleteRefRace = async (id: string) => {
+    await supabase.from('reference_races').delete().eq('id', id);
+    setRefRaces(prev => prev.filter(r => r.id !== id));
+  };
+
+  // ---------------------------------------------------------------------------
+  // Sección D: agregar producto de nutrición
   // ---------------------------------------------------------------------------
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,7 +329,7 @@ export default function ProfilePage() {
   // Cancelar suscripción (cancel_at_period_end = true)
   // ---------------------------------------------------------------------------
   const handleCancel = async () => {
-    if (!confirm('¿Cancelar tu suscripción? Mantenés el acceso hasta que venza el período actual.')) return;
+    if (!confirm(t.profile.subCancelConfirm)) return;
     setCancelling(true);
     setCancelMsg('');
     try {
@@ -235,7 +340,7 @@ export default function ProfilePage() {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       if (!res.ok) { const b = await res.json(); throw new Error(b.error); }
-      setCancelMsg('Suscripción cancelada. Tenés acceso hasta que venza el período actual.');
+      setCancelMsg(t.profile.subCancelledMsg);
       setHasSub(false);
     } catch (err: unknown) {
       setCancelMsg(err instanceof Error ? err.message : 'Error al cancelar');
@@ -258,7 +363,7 @@ export default function ProfilePage() {
       className="flex items-center justify-center min-h-screen"
       style={{ background: 'var(--background)', color: 'var(--muted-foreground)' }}
     >
-      Cargando...
+      {t.common.loading}
     </div>
   );
 
@@ -275,7 +380,7 @@ export default function ProfilePage() {
             <h1 className="text-xl font-bold">
               Race<span style={{ color: '#f97316' }}>Copilot</span>
             </h1>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>Mi perfil</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{t.profile.title}</p>
           </div>
           <button
             onClick={() => router.push('/dashboard')}
@@ -289,7 +394,7 @@ export default function ProfilePage() {
         {/* ================================================================
             SECCIÓN A — Mi perfil
         ================================================================ */}
-        <h2 className="font-semibold mb-3">Mi perfil</h2>
+        <h2 className="font-semibold mb-3">{t.profile.sectionProfile}</h2>
         <div className="rounded-xl p-6 border mb-8" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
 
           {/* Mensaje de éxito / error al guardar */}
@@ -309,7 +414,7 @@ export default function ProfilePage() {
             {/* Peso y altura en grid 2 columnas */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>Peso (kg)</label>
+                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>{t.profile.fieldWeight}</label>
                 <input
                   type="number" step="0.1" min="30" max="200"
                   value={weightKg} onChange={(e) => setWeightKg(e.target.value)}
@@ -318,7 +423,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>Altura (cm)</label>
+                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>{t.profile.fieldHeight}</label>
                 <input
                   type="number" step="0.1" min="120" max="230"
                   value={heightCm} onChange={(e) => setHeightCm(e.target.value)}
@@ -330,7 +435,7 @@ export default function ProfilePage() {
 
             {/* Nivel de sudoración */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--muted-foreground)' }}>Nivel de sudoración</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--muted-foreground)' }}>{t.profile.fieldSweat}</label>
               <div className="grid grid-cols-3 gap-2">
                 {(['low', 'medium', 'high'] as const).map((s) => (
                   <button
@@ -342,7 +447,7 @@ export default function ProfilePage() {
                       borderColor:  sweat === s ? 'var(--primary)' : 'var(--border)',
                     }}
                   >
-                    {s === 'low' ? 'Poco' : s === 'medium' ? 'Moderado' : 'Mucho'}
+                    {s === 'low' ? t.profile.sweatLow : s === 'medium' ? t.profile.sweatMedium : t.profile.sweatHigh}
                   </button>
                 ))}
               </div>
@@ -352,7 +457,7 @@ export default function ProfilePage() {
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>
-                  FC máx <span style={{ color: 'var(--border)' }}>(opc)</span>
+                  {t.profile.fieldMaxHr} <span style={{ color: 'var(--border)' }}>{t.profile.opc}</span>
                 </label>
                 <input
                   type="number" min="100" max="230"
@@ -363,7 +468,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>
-                  FC reposo <span style={{ color: 'var(--border)' }}>(opc)</span>
+                  {t.profile.fieldRestingHr} <span style={{ color: 'var(--border)' }}>{t.profile.opc}</span>
                 </label>
                 <input
                   type="number" min="30" max="100"
@@ -374,7 +479,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>
-                  Km/semana <span style={{ color: 'var(--border)' }}>(opc)</span>
+                  {t.profile.fieldWeeklyKm} <span style={{ color: 'var(--border)' }}>{t.profile.opc}</span>
                 </label>
                 <input
                   type="number" step="0.1" min="0" max="300"
@@ -391,7 +496,7 @@ export default function ProfilePage() {
               className="w-full py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50 mt-2"
               style={{ background: 'var(--primary)', color: '#fff' }}
             >
-              {savingProfile ? 'Guardando...' : 'Guardar cambios'}
+              {savingProfile ? t.common.saving : t.common.save}
             </button>
           </form>
         </div>
@@ -399,16 +504,16 @@ export default function ProfilePage() {
         {/* ================================================================
             SECCIÓN B — Suscripción
         ================================================================ */}
-        <h2 className="font-semibold mb-3">Suscripción</h2>
+        <h2 className="font-semibold mb-3">{t.profile.sectionSubscription}</h2>
         <div className="rounded-xl border p-5 mb-8" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
           {isPremium ? (
             <div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#4ade80' }}>Activa</p>
+                  <p className="text-sm font-semibold" style={{ color: '#4ade80' }}>{t.profile.subActive}</p>
                   {premiumUntil && (
                     <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
-                      Acceso hasta: {new Date(premiumUntil).toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                      {t.profile.accessUntil} {new Date(premiumUntil).toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' })}
                     </p>
                   )}
                 </div>
@@ -420,7 +525,7 @@ export default function ProfilePage() {
                     className="text-xs px-3 py-1.5 rounded-lg font-semibold disabled:opacity-50"
                     style={{ background: 'var(--primary)', color: '#fff' }}
                   >
-                    {portalLoading ? 'Abriendo...' : 'Gestionar suscripción'}
+                    {portalLoading ? t.profile.subOpening : t.profile.subManage}
                   </button>
                   {hasSub && (
                     <button
@@ -429,7 +534,7 @@ export default function ProfilePage() {
                       className="text-xs px-3 py-1.5 rounded-lg border disabled:opacity-50"
                       style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
                     >
-                      {cancelling ? 'Cancelando...' : 'Cancelar'}
+                      {cancelling ? t.profile.subCancelling : t.common.cancel}
                     </button>
                   )}
                 </div>
@@ -442,23 +547,169 @@ export default function ProfilePage() {
             </div>
           ) : (
             <div className="flex items-center justify-between">
-              <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Sin suscripción activa</p>
+              <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{t.profile.subNone}</p>
               <button
                 onClick={() => router.push('/pricing')}
                 className="text-xs px-3 py-1.5 rounded-lg font-semibold"
                 style={{ background: 'var(--primary)', color: '#fff' }}
               >
-                Activar prueba gratis
+                {t.profile.subActivate}
               </button>
             </div>
           )}
         </div>
 
         {/* ================================================================
-            SECCIÓN C — Mis productos de nutrición
+            SECCIÓN C — Tiempos de referencia
         ================================================================ */}
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold">Mis productos de nutrición</h2>
+          <div>
+            <h2 className="font-semibold">{t.race.refTitle}</h2>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{t.race.refSubtitle}</p>
+          </div>
+          {!showRefForm && (
+            <button
+              onClick={() => { setShowRefForm(true); setRefError(''); }}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold"
+              style={{ background: 'var(--primary)', color: '#fff' }}
+            >
+              {t.race.refAdd}
+            </button>
+          )}
+        </div>
+
+        {/* Lista de tiempos */}
+        <div className="rounded-xl border mb-4 overflow-hidden" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+          {refRaces.length === 0 && !showRefForm ? (
+            <p className="px-5 py-4 text-sm" style={{ color: 'var(--muted-foreground)' }}>{t.race.refEmpty}</p>
+          ) : (
+            <ul>
+              {refRaces.map((r, i) => (
+                <li key={r.id} className={`flex items-center justify-between px-4 py-3 ${i < refRaces.length - 1 ? 'border-b' : ''}`} style={{ borderColor: 'var(--border)' }}>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {fmtDist(r.distance_km)} — {fmtTime(r.time_seconds)}
+                      <span className="ml-2 text-xs" style={{ color: 'var(--muted-foreground)' }}>
+                        ({fmtPace(r.time_seconds / r.distance_km)})
+                      </span>
+                    </p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
+                      {new Date(r.race_date + 'T12:00:00').toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {' · '}{r.race_type === 'race' ? t.race.refTypeRace : t.race.refTypeTrain}
+                      {r.avg_heart_rate ? ` · ${r.avg_heart_rate} bpm` : ''}
+                    </p>
+                  </div>
+                  <button onClick={() => handleDeleteRefRace(r.id)} className="text-xs px-2 py-1 rounded" style={{ color: 'var(--muted-foreground)' }}>✕</button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Formulario inline de nuevo tiempo */}
+        {showRefForm && (
+          <div className="rounded-xl border p-5 mb-8" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+            {/* Fila: tipo + fecha */}
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refTypeLabel}</label>
+                <select value={refType} onChange={e => setRefType(e.target.value as 'race' | 'training')}
+                  className="w-full rounded-lg border px-3 py-2 text-sm" style={inputStyle}>
+                  <option value="race">{t.race.refTypeRace}</option>
+                  <option value="training">{t.race.refTypeTrain}</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refDateLabel}</label>
+                <input type="date" value={refDate} onChange={e => setRefDate(e.target.value)}
+                  className="w-full rounded-lg border px-3 py-2 text-sm" style={inputStyle} />
+              </div>
+            </div>
+
+            {refType === 'race' ? (
+              <div className="space-y-3 mb-3">
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refDistLabel}</label>
+                  <input type="number" min="0.1" step="0.001" value={refDist} onChange={e => setRefDist(e.target.value)}
+                    placeholder="42.195" className="w-full rounded-lg border px-3 py-2 text-sm" style={inputStyle} />
+                </div>
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refTimeLabel}</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: 'hh', val: refTimeHH, set: setRefTimeHH, max: 23, ph: '3' },
+                      { label: 'mm', val: refTimeMM, set: setRefTimeMM, max: 59, ph: '45' },
+                      { label: 'ss', val: refTimeSS, set: setRefTimeSS, max: 59, ph: '00' },
+                    ].map(({ label, val, set, max, ph }) => (
+                      <div key={label}>
+                        <p className="text-xs text-center mb-1" style={{ color: 'var(--muted-foreground)' }}>{label}</p>
+                        <input type="number" min="0" max={max} value={val} onChange={e => set(e.target.value)}
+                          placeholder={ph} className="w-full rounded-lg border px-2 py-2 text-sm text-center" style={inputStyle} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3 mb-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refRepCount}</label>
+                    <input type="number" min="1" step="1" value={refRepCount} onChange={e => setRefRepCount(e.target.value)}
+                      placeholder="8" className="w-full rounded-lg border px-3 py-2 text-sm" style={inputStyle} />
+                  </div>
+                  <div>
+                    <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refRepDist}</label>
+                    <input type="number" min="0.1" step="0.001" value={refRepDist} onChange={e => setRefRepDist(e.target.value)}
+                      placeholder="1.0" className="w-full rounded-lg border px-3 py-2 text-sm" style={inputStyle} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refAvgPace}</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { label: t.race.refPaceMm, val: refPaceMm, set: setRefPaceMm, max: 20, ph: '4' },
+                      { label: t.race.refPaceSs, val: refPaceSs, set: setRefPaceSs, max: 59, ph: '30' },
+                    ].map(({ label, val, set, max, ph }) => (
+                      <div key={label}>
+                        <p className="text-xs text-center mb-1" style={{ color: 'var(--muted-foreground)' }}>{label}</p>
+                        <input type="number" min="0" max={max} value={val} onChange={e => set(e.target.value)}
+                          placeholder={ph} className="w-full rounded-lg border px-2 py-2 text-sm text-center" style={inputStyle} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* FC promedio opcional */}
+            <div className="mb-3">
+              <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refHrLabel} — {t.common.optional}</label>
+              <input type="number" min="60" max="220" value={refHR} onChange={e => setRefHR(e.target.value)}
+                placeholder="158" className="w-full rounded-lg border px-3 py-2 text-sm" style={inputStyle} />
+            </div>
+
+            {refError && <p className="text-xs mb-2" style={{ color: '#ef4444' }}>{refError}</p>}
+            <div className="flex gap-2">
+              <button onClick={handleAddRefRace} disabled={refSaving}
+                className="flex-1 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
+                style={{ background: 'var(--primary)', color: '#fff' }}>
+                {refSaving ? t.common.saving : t.race.refSave}
+              </button>
+              <button onClick={() => { setShowRefForm(false); setRefError(''); }}
+                className="px-4 py-2.5 rounded-lg text-sm border"
+                style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)', background: 'var(--muted)' }}>
+                {t.common.cancel}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================
+            SECCIÓN D — Mis productos de nutrición
+        ================================================================ */}
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold">{t.profile.sectionNutrition}</h2>
           {/* Mostrar botón + solo si el form está cerrado */}
           {!showForm && (
             <button
@@ -466,7 +717,7 @@ export default function ProfilePage() {
               className="px-3 py-1.5 rounded-lg text-xs font-semibold"
               style={{ background: 'var(--primary)', color: '#fff' }}
             >
-              + Agregar producto
+              {t.profile.addProduct}
             </button>
           )}
         </div>
@@ -478,7 +729,7 @@ export default function ProfilePage() {
               className="rounded-xl border p-8 text-center text-sm"
               style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
             >
-              Sin productos todavía. Agregá geles o pastillas de sal.
+              {t.profile.noProducts}
             </div>
           )}
 
@@ -492,10 +743,10 @@ export default function ProfilePage() {
               <div>
                 <p className="text-sm font-semibold">{p.name}</p>
                 <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
-                  {p.type === 'gel' ? 'Gel' : 'Pastilla de sal'}
-                  {p.carbs_grams > 0 ? ` · ${p.carbs_grams}g carbos` : ''}
-                  {p.sodium_mg > 0 ? ` · ${p.sodium_mg}mg sodio` : ''}
-                  {p.caffeine_mg > 0 ? ` · ${p.caffeine_mg}mg cafeína` : ''}
+                  {p.type === 'gel' ? t.profile.gelLabel : t.profile.saltPillLabel}
+                  {p.carbs_grams > 0 ? ` · ${p.carbs_grams}g ${t.profile.carbsUnit}` : ''}
+                  {p.sodium_mg > 0 ? ` · ${p.sodium_mg}mg ${t.profile.sodiumUnit}` : ''}
+                  {p.caffeine_mg > 0 ? ` · ${p.caffeine_mg}mg ${t.profile.caffeineUnit}` : ''}
                 </p>
               </div>
 
@@ -518,13 +769,13 @@ export default function ProfilePage() {
             className="rounded-xl border p-5 mb-4"
             style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
           >
-            <h3 className="text-sm font-semibold mb-4">Nuevo producto</h3>
+            <h3 className="text-sm font-semibold mb-4">{t.profile.newProduct}</h3>
 
             <form onSubmit={handleAddProduct} className="space-y-3">
 
               {/* Nombre */}
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>Nombre</label>
+                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>{t.profile.productName}</label>
                 <input
                   type="text" maxLength={80}
                   value={productName} onChange={(e) => setProductName(e.target.value)}
@@ -536,28 +787,30 @@ export default function ProfilePage() {
 
               {/* Tipo: gel / pastilla de sal */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--muted-foreground)' }}>Tipo</label>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--muted-foreground)' }}>{t.profile.productType}</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(['gel', 'salt_pill'] as const).map((t) => (
+                  {(['gel', 'salt_pill'] as const).map((pt) => (
                     <button
-                      key={t} type="button" onClick={() => setProductType(t)}
+                      key={pt} type="button" onClick={() => setProductType(pt)}
                       className="py-2 rounded-lg text-sm font-medium border transition-colors"
                       style={{
-                        background:  productType === t ? 'var(--primary)' : 'var(--muted)',
-                        color:       productType === t ? '#fff' : 'var(--muted-foreground)',
-                        borderColor: productType === t ? 'var(--primary)' : 'var(--border)',
+                        background:  productType === pt ? 'var(--primary)' : 'var(--muted)',
+                        color:       productType === pt ? '#fff' : 'var(--muted-foreground)',
+                        borderColor: productType === pt ? 'var(--primary)' : 'var(--border)',
                       }}
                     >
-                      {t === 'gel' ? 'Gel' : 'Pastilla de sal'}
+                      {pt === 'gel' ? t.profile.productGel : t.profile.productSaltPill}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Carbos, sodio, cafeína en grid */}
-              <div className="grid grid-cols-3 gap-3">
+              {/* Carbos (solo para geles), sodio, cafeína */}
+              <div className={`grid gap-3 ${productType === 'gel' ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                {/* Carbs: oculto en pastillas (no aportan carbohidratos) */}
+                {productType === 'gel' && (
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>Carbos (g)</label>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>{t.profile.productCarbs}</label>
                   <input
                     type="number" step="0.1" min="0" max="500"
                     value={productCarbs} onChange={(e) => setProductCarbs(e.target.value)}
@@ -565,8 +818,9 @@ export default function ProfilePage() {
                     className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle}
                   />
                 </div>
+                )}
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>Sodio (mg)</label>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>{t.profile.productSodium}</label>
                   <input
                     type="number" min="0" max="2000"
                     value={productSodium} onChange={(e) => setProductSodium(e.target.value)}
@@ -575,7 +829,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>Cafeína (mg)</label>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>{t.profile.productCaffeine}</label>
                   <input
                     type="number" min="0" max="300"
                     value={productCaffeine} onChange={(e) => setProductCaffeine(e.target.value)}
@@ -592,14 +846,14 @@ export default function ProfilePage() {
                   className="flex-1 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
                   style={{ background: 'var(--primary)', color: '#fff' }}
                 >
-                  {savingProduct ? 'Guardando...' : 'Guardar producto'}
+                  {savingProduct ? t.common.saving : t.profile.saveProduct}
                 </button>
                 <button
                   type="button" onClick={() => setShowForm(false)}
                   className="px-4 py-2.5 rounded-lg text-sm font-medium border"
                   style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)', background: 'var(--muted)' }}
                 >
-                  Cancelar
+                  {t.common.cancel}
                 </button>
               </div>
             </form>

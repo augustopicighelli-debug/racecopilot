@@ -13,3 +13,5 @@ vercel.env.txt
 scripts/__pycache__/
 tsconfig.tsbuildinfo
 .claude/
+
+.vercel

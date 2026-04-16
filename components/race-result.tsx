@@ -48,7 +48,7 @@ export function RaceResult({ raceId, planTimeS, planPaceS, distanceKm, actualTim
 
   const handleSave = async () => {
     const secs = parseTime(input);
-    if (!secs || secs <= 0) { setError('Formato inválido. Usá H:MM:SS'); return; }
+    if (!secs || secs <= 0) { setError(t.result.invalidFormat); return; }
     setSaving(true);
     setError('');
     try {
@@ -73,29 +73,29 @@ export function RaceResult({ raceId, planTimeS, planPaceS, distanceKm, actualTim
     const faster        = diffS < 0;
     const accentColor   = faster ? '#22c55e' : diffS > 0 ? '#ef4444' : '#a1a1aa';
     const diffLabel     = faster
-      ? `${fmtTime(Math.abs(diffS))} más rápido (${Math.abs(Number(diffPct))}%)`
+      ? t.result.faster(fmtTime(Math.abs(diffS)), String(Math.abs(Number(diffPct))))
       : diffS > 0
-      ? `${fmtTime(diffS)} más lento (${diffPct}%)`
-      : 'Exactamente en el plan';
+      ? t.result.slower(fmtTime(diffS), diffPct)
+      : t.result.exact;
 
     return (
       <div className="rounded-xl border p-5" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
         <div className="flex items-center justify-between mb-4">
-          <p className="font-semibold text-sm">Resultado vs plan</p>
+          <p className="font-semibold text-sm">{t.result.title}</p>
           <button onClick={() => setEditing(true)} className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
-            Editar
+            {t.common.edit}
           </button>
         </div>
 
         {/* Comparativa lado a lado */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="rounded-lg p-3 text-center" style={{ background: 'var(--muted)' }}>
-            <p className="text-xs mb-1" style={{ color: 'var(--muted-foreground)' }}>Plan</p>
+            <p className="text-xs mb-1" style={{ color: 'var(--muted-foreground)' }}>{t.result.labelPlan}</p>
             <p className="text-xl font-bold tabular-nums">{fmtTime(planTimeS)}</p>
             <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{fmtPace(planPaceS)}</p>
           </div>
           <div className="rounded-lg p-3 text-center" style={{ background: 'var(--muted)', border: `1px solid ${accentColor}40` }}>
-            <p className="text-xs mb-1" style={{ color: 'var(--muted-foreground)' }}>Real</p>
+            <p className="text-xs mb-1" style={{ color: 'var(--muted-foreground)' }}>{t.result.labelActual}</p>
             <p className="text-xl font-bold tabular-nums" style={{ color: accentColor }}>{fmtTime(actualTimeS)}</p>
             <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{fmtPace(actualPaceS)}</p>
           </div>
@@ -108,7 +108,7 @@ export function RaceResult({ raceId, planTimeS, planPaceS, distanceKm, actualTim
 
         {/* Barra de diferencia de ritmo */}
         <div className="mt-3 flex items-center gap-2 text-xs" style={{ color: 'var(--muted-foreground)' }}>
-          <span>Ritmo real:</span>
+          <span>{t.result.actualPace}</span>
           <span className="font-mono" style={{ color: accentColor }}>
             {paceDiffS > 0 ? '+' : ''}{fmtPace(Math.abs(paceDiffS)).replace(' /km','')} /km vs plan
           </span>
@@ -120,9 +120,9 @@ export function RaceResult({ raceId, planTimeS, planPaceS, distanceKm, actualTim
   // ── Formulario para ingresar resultado ───────────────────────────────────
   return (
     <div className="rounded-xl border p-5" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
-      <p className="font-semibold text-sm mb-1">¿Cómo te fue?</p>
+      <p className="font-semibold text-sm mb-1">{t.result.howWasIt}</p>
       <p className="text-xs mb-4" style={{ color: 'var(--muted-foreground)' }}>
-        Registrá tu tiempo real para comparar con el plan
+        {t.result.recordTime}
       </p>
       <div className="flex gap-2">
         <input
@@ -139,7 +139,7 @@ export function RaceResult({ raceId, planTimeS, planPaceS, distanceKm, actualTim
           className="px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
           style={{ background: 'var(--primary)', color: '#fff' }}
         >
-          {saving ? '...' : 'Guardar'}
+          {saving ? '...' : t.result.save}
         </button>
         {editing && (
           <button onClick={() => setEditing(false)} className="px-3 py-2 rounded-lg text-sm" style={{ color: 'var(--muted-foreground)' }}>

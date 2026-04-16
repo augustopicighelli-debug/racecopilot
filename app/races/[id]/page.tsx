@@ -18,6 +18,7 @@ interface Race {
   city: string | null;
   target_time_s: number | null;
   elevation_gain: number | null;
+  elevation_loss: number | null;
   actual_time_s: number | null;
   goal_type: 'finish' | 'pr' | 'target' | null;
 }
@@ -54,7 +55,7 @@ function RacePage() {
   const searchParams = useSearchParams();
   const id           = params?.id as string;
   const justEdited   = searchParams?.get('updated') === '1';
-  const { fmtDist, fmtPace, fmtTemp } = useUnits();
+  const { fmtDist, fmtPace, fmtTemp, fmtElev } = useUnits();
   const { t } = useLang();
 
   // --- estado de la carrera principal ---
@@ -69,12 +70,19 @@ function RacePage() {
   const [refSaving, setRefSaving]     = useState(false);
   const [refError, setRefError]       = useState('');
 
-  // Campos del form de referencia
+  // Campos del form de referencia — modo carrera
   const [refDist, setRefDist] = useState('');
-  const [refTime, setRefTime] = useState(''); // formato H:MM:SS
+  const [refTimeHH, setRefTimeHH] = useState('');   // horas
+  const [refTimeMM, setRefTimeMM] = useState('');   // minutos
+  const [refTimeSS, setRefTimeSS] = useState('');   // segundos
   const [refDate, setRefDate] = useState('');
   const [refType, setRefType] = useState<'race' | 'training'>('race');
-  const [refHR, setRefHR]     = useState(''); // FC promedio (opcional)
+  const [refHR, setRefHR]     = useState('');       // FC promedio (opcional)
+  // Campos extra modo "pasadas"
+  const [refRepCount,  setRefRepCount]  = useState('');  // cantidad de repeticiones
+  const [refRepDist,   setRefRepDist]   = useState('');  // distancia por rep (km)
+  const [refPaceMm,    setRefPaceMm]    = useState('');  // ritmo prom: minutos
+  const [refPaceSs,    setRefPaceSs]    = useState('');  // ritmo prom: segundos
 
   // --- estado del plan ---
   const [plan, setPlan]               = useState<TripleObjectivePlan | null>(null);
@@ -158,7 +166,7 @@ function RacePage() {
       // Cargar carrera
       const { data, error: err } = await supabase
         .from('races')
-        .select('id,name,distance_km,race_date,city,target_time_s,elevation_gain,actual_time_s,goal_type')
+        .select('id,name,distance_km,race_date,city,target_time_s,elevation_gain,elevation_loss,actual_time_s,goal_type')
         .eq('id', id)
         .maybeSingle();
 
@@ -195,19 +203,43 @@ function RacePage() {
     if (!runnerId) return;
     setRefError('');
 
-    const dist = parseFloat(refDist);
-    const secs = parseTimeInput(refTime);
-    const hr   = refHR ? parseInt(refHR) : null;
+    const hr = refHR ? parseInt(refHR) : null;
+    if (!refDate) { setRefError('Fecha requerida'); return; }
 
-    if (!dist || dist <= 0)   { setRefError('Distancia inválida'); return; }
-    if (!secs || secs <= 0)   { setRefError('Tiempo inválido — usá H:MM:SS o M:SS'); return; }
-    if (!refDate)             { setRefError('Fecha requerida'); return; }
+    let distKm: number;
+    let timeSecs: number;
+
+    if (refType === 'training') {
+      // Modo pasadas: calcular distancia total y tiempo total desde ritmo prom
+      const count   = parseInt(refRepCount);
+      const repDist = parseFloat(refRepDist);
+      const pm      = parseInt(refPaceMm) || 0;
+      const ps      = parseInt(refPaceSs) || 0;
+      const paceSecPerKm = pm * 60 + ps; // segundos por km
+
+      if (!count || count <= 0)        { setRefError('Cantidad inválida'); return; }
+      if (!repDist || repDist <= 0)    { setRefError('Distancia por rep inválida'); return; }
+      if (paceSecPerKm <= 0)           { setRefError('Ritmo inválido'); return; }
+
+      distKm   = count * repDist;               // distancia total en km
+      timeSecs = distKm * paceSecPerKm;         // tiempo total = dist × ritmo
+    } else {
+      // Modo carrera: leer HH/MM/SS manualmente
+      distKm = parseFloat(refDist);
+      const hh = parseInt(refTimeHH) || 0;
+      const mm = parseInt(refTimeMM) || 0;
+      const ss = parseInt(refTimeSS) || 0;
+      timeSecs = hh * 3600 + mm * 60 + ss;
+
+      if (!distKm || distKm <= 0)    { setRefError('Distancia inválida'); return; }
+      if (timeSecs <= 0)             { setRefError('Tiempo inválido'); return; }
+    }
 
     setRefSaving(true);
     const { error: err } = await supabase.from('reference_races').insert({
       runner_id:      runnerId,
-      distance_km:    dist,
-      time_seconds:   secs,
+      distance_km:    distKm,
+      time_seconds:   timeSecs,
       race_date:      refDate,
       race_type:      refType,
       avg_heart_rate: hr,
@@ -216,8 +248,11 @@ function RacePage() {
 
     if (err) { setRefError(err.message); return; }
 
-    // Limpiar form, recargar lista y regenerar plan
-    setRefDist(''); setRefTime(''); setRefDate(''); setRefType('race'); setRefHR('');
+    // Limpiar todos los campos del form y regenerar plan
+    setRefDist('');
+    setRefTimeHH(''); setRefTimeMM(''); setRefTimeSS('');
+    setRefRepCount(''); setRefRepDist(''); setRefPaceMm(''); setRefPaceSs('');
+    setRefDate(''); setRefType('race'); setRefHR('');
     setShowRefForm(false);
     await loadRefRaces(runnerId);
     fetchPlan();
@@ -382,13 +417,21 @@ function RacePage() {
         </div>
 
         {/* Desnivel */}
-        {race?.elevation_gain && (
-          <div className="rounded-xl border p-4 mb-6 flex items-center gap-3" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+        {(!!race?.elevation_gain || !!race?.elevation_loss) && (
+          <div className="rounded-xl border p-4 mb-6 flex items-center gap-6" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <span className="text-lg">⛰</span>
-            <div>
-              <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{t.race.elevation}</p>
-              <p className="font-semibold text-sm">{race.elevation_gain} m</p>
-            </div>
+            {!!race?.elevation_gain && (
+              <div>
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>↑ Ascenso</p>
+                <p className="font-semibold text-sm">{fmtElev(race.elevation_gain)}</p>
+              </div>
+            )}
+            {!!race?.elevation_loss && (
+              <div>
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>↓ Descenso</p>
+                <p className="font-semibold text-sm">{fmtElev(race.elevation_loss)}</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -416,40 +459,9 @@ function RacePage() {
           {/* Form de nuevo tiempo */}
           {showRefForm && (
             <div className="px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
+
+              {/* Fila 1: Tipo + Fecha */}
               <div className="grid grid-cols-2 gap-3 mb-3">
-
-                <div>
-                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refDistLabel}</label>
-                  <input
-                    type="number" min="0.1" step="0.001"
-                    value={refDist} onChange={e => setRefDist(e.target.value)}
-                    placeholder="42.195"
-                    className="w-full rounded-lg border px-3 py-2 text-sm"
-                    style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refTimeLabel}</label>
-                  <input
-                    type="text"
-                    value={refTime} onChange={e => setRefTime(e.target.value)}
-                    placeholder="3:45:00"
-                    className="w-full rounded-lg border px-3 py-2 text-sm"
-                    style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refDateLabel}</label>
-                  <input
-                    type="date"
-                    value={refDate} onChange={e => setRefDate(e.target.value)}
-                    className="w-full rounded-lg border px-3 py-2 text-sm"
-                    style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                  />
-                </div>
-
                 <div>
                   <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refTypeLabel}</label>
                   <select
@@ -461,18 +473,112 @@ function RacePage() {
                     <option value="training">{t.race.refTypeTrain}</option>
                   </select>
                 </div>
-
                 <div>
-                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refHrLabel} — {t.common.optional}</label>
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refDateLabel}</label>
                   <input
-                    type="number" min="60" max="220"
-                    value={refHR} onChange={e => setRefHR(e.target.value)}
-                    placeholder="158"
+                    type="date"
+                    value={refDate} onChange={e => setRefDate(e.target.value)}
                     className="w-full rounded-lg border px-3 py-2 text-sm"
                     style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                   />
                 </div>
+              </div>
 
+              {refType === 'race' ? (
+                /* ── Modo carrera: distancia + tiempo HH MM SS ── */
+                <div className="space-y-3 mb-3">
+                  <div>
+                    <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refDistLabel}</label>
+                    <input
+                      type="number" min="0.1" step="0.001"
+                      value={refDist} onChange={e => setRefDist(e.target.value)}
+                      placeholder="42.195"
+                      className="w-full rounded-lg border px-3 py-2 text-sm"
+                      style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                    />
+                  </div>
+                  {/* Tiempo dividido en HH / MM / SS */}
+                  <div>
+                    <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refTimeLabel}</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { label: 'hh', val: refTimeHH, set: setRefTimeHH, max: 23, ph: '3' },
+                        { label: 'mm', val: refTimeMM, set: setRefTimeMM, max: 59, ph: '45' },
+                        { label: 'ss', val: refTimeSS, set: setRefTimeSS, max: 59, ph: '00' },
+                      ].map(({ label, val, set, max, ph }) => (
+                        <div key={label}>
+                          <p className="text-xs text-center mb-1" style={{ color: 'var(--muted-foreground)' }}>{label}</p>
+                          <input
+                            type="number" min="0" max={max}
+                            value={val} onChange={e => set(e.target.value)}
+                            placeholder={ph}
+                            className="w-full rounded-lg border px-2 py-2 text-sm text-center"
+                            style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* ── Modo pasadas: cantidad + dist/rep + ritmo MM:SS ── */
+                <div className="space-y-3 mb-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refRepCount}</label>
+                      <input
+                        type="number" min="1" step="1"
+                        value={refRepCount} onChange={e => setRefRepCount(e.target.value)}
+                        placeholder="8"
+                        className="w-full rounded-lg border px-3 py-2 text-sm"
+                        style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refRepDist}</label>
+                      <input
+                        type="number" min="0.1" step="0.001"
+                        value={refRepDist} onChange={e => setRefRepDist(e.target.value)}
+                        placeholder="1.0"
+                        className="w-full rounded-lg border px-3 py-2 text-sm"
+                        style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                      />
+                    </div>
+                  </div>
+                  {/* Ritmo promedio: MM : SS */}
+                  <div>
+                    <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refAvgPace}</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { label: t.race.refPaceMm, val: refPaceMm, set: setRefPaceMm, max: 20, ph: '4' },
+                        { label: t.race.refPaceSs, val: refPaceSs, set: setRefPaceSs, max: 59, ph: '30' },
+                      ].map(({ label, val, set, max, ph }) => (
+                        <div key={label}>
+                          <p className="text-xs text-center mb-1" style={{ color: 'var(--muted-foreground)' }}>{label}</p>
+                          <input
+                            type="number" min="0" max={max}
+                            value={val} onChange={e => set(e.target.value)}
+                            placeholder={ph}
+                            className="w-full rounded-lg border px-2 py-2 text-sm text-center"
+                            style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* FC promedio — siempre opcional */}
+              <div className="mb-3">
+                <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refHrLabel} — {t.common.optional}</label>
+                <input
+                  type="number" min="60" max="220"
+                  value={refHR} onChange={e => setRefHR(e.target.value)}
+                  placeholder="158"
+                  className="w-full rounded-lg border px-3 py-2 text-sm"
+                  style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                />
               </div>
 
               {refError && (
@@ -641,6 +747,13 @@ function RacePage() {
               onSave={setActualTimeS}
             />
           </div>
+        )}
+
+        {/* Disclaimer médico — visible cuando hay plan generado, incluso en PDF */}
+        {plan && !planLoading && (
+          <p className="mt-6 text-xs text-center leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+            ⚕ {t.race.medicalDisclaimer}
+          </p>
         )}
 
       </div>

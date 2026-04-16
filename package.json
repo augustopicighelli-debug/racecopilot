@@ -9,6 +9,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.89.0",
     "@supabase/supabase-js": "2.48.1",
     "@tmcw/togeojson": "5.8.1",
     "class-variance-authority": "0.7.1",

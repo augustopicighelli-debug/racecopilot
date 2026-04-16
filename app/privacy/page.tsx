@@ -20,7 +20,7 @@ export default function PrivacyPage() {
             <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>1. Qué datos recolectamos</h2>
             <ul className="list-disc pl-5 space-y-1">
               <li><strong style={{ color: 'var(--foreground)' }}>Cuenta:</strong> email y contraseña (hasheada por Supabase).</li>
-              <li><strong style={{ color: 'var(--foreground)' }}>Perfil del corredor:</strong> peso, nivel de sudoración.</li>
+              <li><strong style={{ color: 'var(--foreground)' }}>Perfil del corredor:</strong> peso, frecuencia cardíaca en reposo y máxima, nivel de sudoración. Estos datos son de naturaleza relacionada con la salud y se usan exclusivamente para generar tu plan personalizado.</li>
               <li><strong style={{ color: 'var(--foreground)' }}>Carreras:</strong> nombre, distancia, fecha, ciudad, tiempo objetivo, desnivel.</li>
               <li><strong style={{ color: 'var(--foreground)' }}>Tiempos de referencia:</strong> distancia, tiempo, fecha y frecuencia cardíaca opcional.</li>
               <li><strong style={{ color: 'var(--foreground)' }}>Productos de nutrición:</strong> geles, sales y otros productos que cargues.</li>
@@ -84,7 +84,23 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>8. Contacto</h2>
+            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>8. Usuarios en la Unión Europea (GDPR)</h2>
+            <p className="mb-2">
+              Si te encontrás en la Unión Europea, tenés los siguientes derechos adicionales bajo el RGPD:
+            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><strong style={{ color: 'var(--foreground)' }}>Portabilidad:</strong> podés solicitar una copia de tus datos en formato estructurado.</li>
+              <li><strong style={{ color: 'var(--foreground)' }}>Oposición:</strong> podés oponerte al procesamiento de tus datos en determinadas circunstancias.</li>
+              <li><strong style={{ color: 'var(--foreground)' }}>Limitación:</strong> podés solicitar que limitemos el procesamiento mientras se resuelve un reclamo.</li>
+              <li><strong style={{ color: 'var(--foreground)' }}>Reclamación:</strong> tenés derecho a presentar una reclamación ante tu autoridad de protección de datos local.</li>
+            </ul>
+            <p className="mt-2">
+              Edad mínima: no recolectamos ni procesamos datos de personas menores de <strong style={{ color: 'var(--foreground)' }}>16 años</strong>.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>9. Contacto</h2>
             <p>
               Para cualquier consulta sobre privacidad contactanos en{' '}
               <a href="mailto:hola@racecopilot.app" style={{ color: '#f97316' }}>hola@racecopilot.app</a>.

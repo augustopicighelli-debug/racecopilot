@@ -10,22 +10,21 @@ export default function PricingPage() {
   const [loading, setLoading]     = useState<Plan | null>(null);
   const [error, setError]         = useState('');
   const [isPremium, setIsPremium] = useState(false);
-  const [checking, setChecking]   = useState(true);
+  // No bloqueamos el render inicial — los precios se muestran de inmediato
+  // (importante para SEO y usuarios sin JS lento). El estado premium
+  // se detecta en background y muestra un banner si corresponde.
+  const [checking, setChecking] = useState(false);
 
-  // Verificar si el usuario ya es premium al cargar
   useEffect(() => {
     const check = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { setChecking(false); return; }
-
+      if (!session) return;
       const { data: runner } = await supabase
         .from('runners')
         .select('is_premium')
         .eq('user_id', session.user.id)
         .maybeSingle();
-
       setIsPremium(!!runner?.is_premium);
-      setChecking(false);
     };
     check();
   }, []);
@@ -62,26 +61,16 @@ export default function PricingPage() {
     }
   };
 
-  if (checking) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: 'var(--background)', color: 'var(--muted-foreground)' }}>
-      Cargando...
-    </div>
-  );
-
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-4 py-16"
       style={{ background: 'var(--background)', color: 'var(--foreground)' }}
     >
-      {/* Botón volver (solo si tiene sesión) */}
+      {/* Navegación superior: volver a landing o al dashboard */}
       <div className="w-full max-w-2xl mb-6">
-        <button
-          onClick={() => router.push('/dashboard')}
-          className="text-sm"
-          style={{ color: 'var(--muted-foreground)' }}
-        >
-          ← Dashboard
-        </button>
+        <a href="/" className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+          ← Inicio
+        </a>
       </div>
 
       {/* Título */}
@@ -94,7 +83,7 @@ export default function PricingPage() {
         </p>
       </div>
 
-      {/* Ya es premium → mensaje y botón al dashboard */}
+      {/* Banner de suscripción activa (se muestra en background si ya es premium) */}
       {isPremium ? (
         <div className="w-full max-w-md rounded-2xl border p-8 text-center" style={{ background: 'var(--card)', borderColor: 'rgba(249,115,22,0.4)' }}>
           <p className="font-semibold mb-2" style={{ color: '#4ade80' }}>Ya tenés una suscripción activa</p>
@@ -138,8 +127,8 @@ export default function PricingPage() {
               <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--muted-foreground)' }}>
                 Mensual
               </p>
-              <p className="text-3xl font-bold mb-1">$15</p>
-              <p className="text-sm mb-6" style={{ color: 'var(--muted-foreground)' }}>por mes</p>
+              <p className="text-3xl font-bold mb-0.5">$8<span className="text-base font-normal" style={{ color: 'var(--muted-foreground)' }}>/mes</span></p>
+              <p className="text-xs mb-6" style={{ color: 'var(--muted-foreground)' }}>cobrado mensualmente</p>
 
               <ul className="text-sm space-y-2 mb-8 flex-1" style={{ color: 'var(--muted-foreground)' }}>
                 <li>✓ Planes de hidratación y nutrición</li>
@@ -173,10 +162,8 @@ export default function PricingPage() {
               <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--muted-foreground)' }}>
                 Anual
               </p>
-              <p className="text-3xl font-bold mb-1">$120</p>
-              <p className="text-sm mb-6" style={{ color: 'var(--muted-foreground)' }}>
-                por año <span style={{ color: '#f97316' }}>· $10/mes</span>
-              </p>
+              <p className="text-3xl font-bold mb-0.5">$4<span className="text-base font-normal" style={{ color: 'var(--muted-foreground)' }}>/mes</span></p>
+              <p className="text-xs mb-6" style={{ color: '#f97316' }}>$48/año cobrado anualmente</p>
 
               <ul className="text-sm space-y-2 mb-8 flex-1" style={{ color: 'var(--muted-foreground)' }}>
                 <li>✓ Planes de hidratación y nutrición</li>
@@ -196,13 +183,26 @@ export default function PricingPage() {
             </div>
           </div>
 
-          <p className="text-xs mt-8 text-center" style={{ color: 'var(--muted-foreground)' }}>
-            Al continuar aceptás nuestros{' '}
-            <a href="/terms" target="_blank" className="underline">términos</a>
-            {' '}y{' '}
-            <a href="/privacy" target="_blank" className="underline">política de privacidad</a>.
-            {' '}Cancelá antes del día 7 para no ser cobrado.
-          </p>
+          {/* Aviso de cobro — FTC / GDPR */}
+          <div className="w-full max-w-2xl mt-8 rounded-xl border p-4 text-xs text-center space-y-1"
+            style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)', background: 'var(--card)' }}>
+            <p>
+              <strong style={{ color: 'var(--foreground)' }}>Prueba gratuita de 7 días.</strong>{' '}
+              No se realiza ningún cobro hasta el día 8. Podés cancelar en cualquier momento antes desde tu perfil.
+            </p>
+            <p>
+              Mensual: <strong style={{ color: 'var(--foreground)' }}>USD 8/mes</strong> ·
+              Anual: <strong style={{ color: 'var(--foreground)' }}>USD 48/año</strong> (equivale a USD 4/mes).
+              El cobro es automático vía Stripe al finalizar la prueba y se renueva cada período hasta que canceles.
+            </p>
+            <p>
+              Al continuar aceptás nuestros{' '}
+              <a href="/terms" target="_blank" className="underline">términos de uso</a>
+              {' '}y{' '}
+              <a href="/privacy" target="_blank" className="underline">política de privacidad</a>.
+              Debés tener al menos 16 años para usar RaceCopilot.
+            </p>
+          </div>
         </>
       )}
     </div>
