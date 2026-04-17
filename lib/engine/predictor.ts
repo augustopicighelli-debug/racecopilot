@@ -41,10 +41,49 @@ interface WeightedRace {
 }
 
 /**
- * Collapse races at similar distances into a single weighted representative,
- * so that recency weighting of same-distance races feeds into exponent fitting.
+ * Effort-based weight multiplier. Penalises submaximal races so they don't
+ * distort the Riegel exponent or the final prediction.
+ *
+ * Uses Karvonen HR Reserve when restingHR is available (more accurate).
+ * At threshold (full effort): weight = 1.0
+ * 7 pp below threshold: ~0.57; 10 pp below: ~0.45; floor: 0.1
  */
-function collapseByDistance(races: ReferenceRace[]): WeightedRace[] {
+function calcEffortWeight(
+  race: ReferenceRace,
+  maxHR?: number,
+  restingHR?: number
+): number {
+  if (!race.avgHeartRate || !maxHR) return 1.0;
+
+  let effortRatio: number;
+  let threshold: number;
+
+  if (restingHR && restingHR > 0 && restingHR < maxHR) {
+    // Karvonen HR Reserve
+    const hrReserve = maxHR - restingHR;
+    effortRatio = (race.avgHeartRate - restingHR) / hrReserve;
+    threshold = race.type === 'race' ? 0.85 : 0.76;
+  } else {
+    // Fallback: raw %HRmax
+    effortRatio = race.avgHeartRate / maxHR;
+    threshold = race.type === 'race' ? 0.88 : 0.85;
+  }
+
+  if (effortRatio >= threshold) return 1.0;
+  const gap = threshold - effortRatio;
+  return Math.max(0.1, Math.exp(-8 * gap));
+}
+
+/**
+ * Collapse races at similar distances into a single weighted representative.
+ * Uses normalized times (climate+effort adjusted) so the exponent fitting
+ * is not distorted by submaximal or hot-weather runs.
+ */
+function collapseByDistance(
+  races: ReferenceRace[],
+  maxHR?: number,
+  restingHR?: number
+): WeightedRace[] {
   const groups: ReferenceRace[][] = [];
 
   for (const race of races) {
@@ -62,8 +101,12 @@ function collapseByDistance(races: ReferenceRace[]): WeightedRace[] {
     let weightedTime = 0;
     let totalWeight = 0;
     for (const r of group) {
-      const w = recencyWeight(r.date);
-      weightedTime += r.timeSeconds * w;
+      // Combined weight: recency × effort quality
+      const w = recencyWeight(r.date) * calcEffortWeight(r, maxHR, restingHR);
+      // Use effort+climate normalized time so the exponent is fitted on
+      // equivalent "full-effort, neutral-conditions" times
+      const normTime = normalizeRaceTime(r.timeSeconds, r, maxHR, restingHR);
+      weightedTime += normTime * w;
       totalWeight += w;
     }
     return {
@@ -74,10 +117,37 @@ function collapseByDistance(races: ReferenceRace[]): WeightedRace[] {
   });
 }
 
-export function fitExponent(races: ReferenceRace[]): number {
+export function fitExponent(
+  races: ReferenceRace[],
+  options?: { maxHeartRate?: number; restingHeartRate?: number }
+): number {
   if (races.length < 2) return defaultExponent(races);
 
-  const collapsed = collapseByDistance(races);
+  // Solo usar carreras de tipo 'race' con esfuerzo suficiente para exponent fitting.
+  // Los trainings y las carreras submáximas distorsionan el modelo de Riegel
+  // porque su pace es por diseño más lento que el esfuerzo máximo.
+  const highEffortRaces = options?.maxHeartRate
+    ? races.filter(r => {
+        if (r.type !== 'race') return false; // no usar trainings/pasadas
+        if (!r.avgHeartRate) return true;    // sin HR → incluir
+        const maxHR = options.maxHeartRate!;
+        const restHR = options.restingHeartRate;
+        const ratio = restHR && restHR < maxHR
+          ? (r.avgHeartRate - restHR) / (maxHR - restHR)
+          : r.avgHeartRate / maxHR;
+        return ratio >= 0.85; // race threshold: 10km all-out típico ≥85% HRR
+      })
+    : races.filter(r => r.type === 'race');
+
+  // Si no hay ≥2 carreras de alta intensidad → defaultExponent (no intentar ajustar
+  // con carreras submáximas — distorsionaría el modelo de Riegel)
+  if (highEffortRaces.length < 2) return defaultExponent(races);
+
+  const collapsed = collapseByDistance(
+    highEffortRaces,
+    options?.maxHeartRate,
+    options?.restingHeartRate
+  );
 
   if (collapsed.length < 2) return defaultExponent(races);
 
@@ -156,7 +226,7 @@ function normalizeRaceTime(
       effortRatio = (race.avgHeartRate - restingHeartRate) / hrReserve;
       // ~80% HRR = "full effort" race (≈88% HRmax at resting=60, max=170)
       // ~76% HRR = "full effort" training
-      threshold = race.type === 'race' ? 0.80 : 0.76;
+      threshold = race.type === 'race' ? 0.85 : 0.76;
     } else {
       // Fallback: raw %HRmax
       effortRatio = race.avgHeartRate / maxHeartRate;
@@ -185,14 +255,17 @@ export function predictTime(
   targetDistanceKm: number,
   options?: { weeklyKm?: number; maxHeartRate?: number; restingHeartRate?: number }
 ): number {
-  const exponent = fitExponent(races);
+  // Pass HR options so fitExponent normalises times before fitting
+  const exponent = fitExponent(races, {
+    maxHeartRate: options?.maxHeartRate,
+    restingHeartRate: options?.restingHeartRate,
+  });
 
   let weightedPrediction = 0;
   let totalWeight = 0;
 
   for (const race of races) {
-    // Normalize to neutral conditions before extrapolating
-    // Pass restingHeartRate for Karvonen-based effort normalization if available
+    // Normalize to neutral conditions + full effort before extrapolating
     const neutralTime = normalizeRaceTime(
       race.timeSeconds,
       race,
@@ -201,7 +274,13 @@ export function predictTime(
     );
     const predicted =
       neutralTime * Math.pow(targetDistanceKm / race.distanceKm, exponent);
-    const weight = recencyWeight(race.date);
+
+    // Combined weight: recency × effort quality
+    // Submaximal training runs get much less influence on the final prediction
+    const weight =
+      recencyWeight(race.date) *
+      calcEffortWeight(race, options?.maxHeartRate, options?.restingHeartRate);
+
     weightedPrediction += predicted * weight;
     totalWeight += weight;
   }

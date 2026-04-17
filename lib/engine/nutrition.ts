@@ -73,7 +73,6 @@ export function generateNutritionPlan(input: GenerateNutritionPlanInput): Nutrit
   // Pre-race: recommend real food (banana or membrillo) ~15 min before start
   // Only when breakfast was >2h ago — otherwise glycogen stores are sufficient
   let preRaceGel: NutritionEvent | undefined;
-  const gelProduct = products.find(p => p.type === 'gel');
   if (breakfastHoursAgo > 2) {
     const preRaceProduct: NutritionProduct = {
       name: 'Banana o membrillo',
@@ -120,24 +119,70 @@ export function generateNutritionPlan(input: GenerateNutritionPlanInput): Nutrit
   const gelIntervalMinutes = 25;
   const totalMinutes = totalTimeSeconds / 60;
 
-  let currentMinute = firstGelMinute;
+  // Separar geles con y sin cafeína
+  // La cafeína es más efectiva en la parte final (~60-70% de la carrera)
+  const allGels = products.filter(p => p.type === 'gel');
+  const caffeineGels = allGels.filter(g => (g.caffeineMg ?? 0) > 0);
+  const regularGels  = allGels.filter(g => (g.caffeineMg ?? 0) === 0);
+
+  // Calcular todos los slots primero para asignar cafeína al slot correcto
+  const gelSlots: number[] = [];
+  let slotMinute = firstGelMinute;
+  while (slotMinute <= totalMinutes - 5 && allGels.length > 0) {
+    gelSlots.push(slotMinute);
+    slotMinute += gelIntervalMinutes;
+  }
+
+  // La cafeína tarda ~40min en hacer efecto → tomarla 45min antes del final
+  // para que el pico coincida con los km más duros del final de carrera
+  const caffeineTargetMinute = totalMinutes - 45;
+  const caffeineSlotIdx = caffeineGels.length > 0 && gelSlots.length > 0
+    ? gelSlots.reduce((bestIdx, m, idx) =>
+        Math.abs(m - caffeineTargetMinute) < Math.abs(gelSlots[bestIdx] - caffeineTargetMinute)
+          ? idx : bestIdx
+      , 0)
+    : -1;
+
+  // Fuente para cada slot: si es el slot de cafeína → gel con cafeína; si no → rotar regulares
+  let regularIdx = 0;
   let cumulativeCarbs = 0;
 
-  while (currentMinute <= totalMinutes - 5 && gelProduct) {
+  for (let slotIdx = 0; slotIdx < gelSlots.length; slotIdx++) {
+    const currentMinute = gelSlots[slotIdx];
+    const isCaffeineSlot = slotIdx === caffeineSlotIdx;
+
+    // Elegir producto para este slot
+    let product: NutritionProduct | undefined;
+    if (isCaffeineSlot && caffeineGels.length > 0) {
+      product = caffeineGels[0]; // siempre el primero si hay uno
+    } else if (regularGels.length > 0) {
+      // Rotar entre los geles sin cafeína
+      product = regularGels[regularIdx % regularGels.length];
+      regularIdx++;
+    } else if (allGels.length > 0) {
+      // Sin distinción: rotar entre todos
+      product = allGels[regularIdx % allGels.length];
+      regularIdx++;
+    }
+
+    if (!product) continue;
+
     const rawKm = Math.min((currentMinute / totalMinutes) * distanceKm, distanceKm);
     const km = snapToHydration(Math.round(rawKm * 10) / 10, hydrationKms, 2);
-    // Recalculate minute from snapped km
     const snappedMinute = (km / distanceKm) * totalMinutes;
+
+    const hasCaffeine = (product.caffeineMg ?? 0) > 0;
+    const noteExtra = hasCaffeine ? ` ☕ (${product.caffeineMg}mg cafeína)` : '';
+
     gelEvents.push({
       km,
       minutesSinceStart: Math.round(snappedMinute),
-      product: gelProduct,
-      carbsGrams: gelProduct.carbsGrams,
-      sodiumMg: gelProduct.sodiumMg,
-      note: `Gel en km ${km}`,
+      product,
+      carbsGrams: product.carbsGrams,
+      sodiumMg: product.sodiumMg,
+      note: `${product.name} en km ${km}${noteExtra}`,
     });
-    cumulativeCarbs += gelProduct.carbsGrams;
-    currentMinute += gelIntervalMinutes;
+    cumulativeCarbs += product.carbsGrams;
   }
 
   // Calculate sodium already provided by gels

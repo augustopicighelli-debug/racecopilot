@@ -80,7 +80,7 @@ function RacePage() {
   const [refHR, setRefHR]     = useState('');       // FC promedio (opcional)
   // Campos extra modo "pasadas"
   const [refRepCount,  setRefRepCount]  = useState('');  // cantidad de repeticiones
-  const [refRepDist,   setRefRepDist]   = useState('');  // distancia por rep (km)
+  const [refRepDist,   setRefRepDist]   = useState('');  // distancia por rep (metros)
   const [refPaceMm,    setRefPaceMm]    = useState('');  // ritmo prom: minutos
   const [refPaceSs,    setRefPaceSs]    = useState('');  // ritmo prom: segundos
 
@@ -212,7 +212,7 @@ function RacePage() {
     if (refType === 'training') {
       // Modo pasadas: calcular distancia total y tiempo total desde ritmo prom
       const count   = parseInt(refRepCount);
-      const repDist = parseFloat(refRepDist);
+      const repDist = parseFloat(refRepDist) / 1000; // metros → km
       const pm      = parseInt(refPaceMm) || 0;
       const ps      = parseInt(refPaceSs) || 0;
       const paceSecPerKm = pm * 60 + ps; // segundos por km
@@ -537,9 +537,9 @@ function RacePage() {
                     <div>
                       <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refRepDist}</label>
                       <input
-                        type="number" min="0.1" step="0.001"
+                        type="number" min="1" step="1"
                         value={refRepDist} onChange={e => setRefRepDist(e.target.value)}
-                        placeholder="1.0"
+                        placeholder="400"
                         className="w-full rounded-lg border px-3 py-2 text-sm"
                         style={{ background: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                       />

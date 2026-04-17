@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import { useLang } from '@/lib/lang';
 import { useUnits } from '@/lib/units';
+import RaceCatalogPicker, { type CatalogRace } from '@/components/race-catalog-picker';
 
 export default function NewRacePage() {
   const router = useRouter();
@@ -35,6 +36,20 @@ export default function NewRacePage() {
     };
     init();
   }, [router]);
+
+  // Aplicar una carrera del catálogo al formulario
+  const applyGpxMatch = (m: CatalogRace) => {
+    setName(m.name);
+    const distKm = m.distance_km;
+    const dispDist = imp ? (distKm / 1.60934).toFixed(2) : distKm.toString();
+    setDistanceKm(dispDist);
+    const presets = ['10', '21.1', '42.195'] as const;
+    const matched = presets.find(p => Math.abs(parseFloat(p) - distKm) < 0.5);
+    setDistPreset(matched ?? 'custom');
+    if (m.city) setCity(m.city);
+    if (m.gain_m) setElevGain(imp ? Math.round(m.gain_m * 3.28084).toString() : m.gain_m.toString());
+    if (m.loss_m) setElevLoss(imp ? Math.round(m.loss_m * 3.28084).toString() : m.loss_m.toString());
+  };
 
   const parseTime = (t: string): number | null => {
     const parts = t.trim().split(':').map(Number);
@@ -109,6 +124,14 @@ export default function NewRacePage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
+            {/* Picker de carrera: catálogo o manual */}
+            <RaceCatalogPicker
+              defaultMode="catalog"
+              onSelect={applyGpxMatch}
+              onManual={() => {/* modo manual: campos libres abajo */}}
+            />
+
+            {/* Nombre de carrera (siempre visible para ajuste fino) */}
             <div>
               <label className="block text-sm font-medium mb-1" style={labelStyle}>{t.raceForm.fieldName}</label>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)}

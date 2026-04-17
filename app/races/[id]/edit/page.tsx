@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import { useLang } from '@/lib/lang';
 import { useUnits } from '@/lib/units';
+import RaceCatalogPicker, { type CatalogRace } from '@/components/race-catalog-picker';
 
 // Convierte segundos → "H:MM:SS" para mostrar en el input
 function fmtTime(s: number) {
@@ -77,6 +78,16 @@ export default function EditRacePage() {
     load();
   }, [id, router]);
 
+  // Aplicar una carrera del catálogo (actualiza nombre, distancia, ciudad, elevación)
+  const applyGpxMatch = (m: CatalogRace) => {
+    setName(m.name);
+    const distVal = imp ? (m.distance_km / 1.60934).toFixed(2) : m.distance_km.toString();
+    setDistanceKm(distVal);
+    if (m.city) setCity(m.city);
+    if (m.gain_m) setElevGain(imp ? Math.round(m.gain_m * 3.28084).toString() : m.gain_m.toString());
+    if (m.loss_m) setElevLoss(imp ? Math.round(m.loss_m * 3.28084).toString() : m.loss_m.toString());
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -143,6 +154,13 @@ export default function EditRacePage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+
+            {/* Picker: permite cambiar a una carrera del catálogo o quedarse en modo manual */}
+            <RaceCatalogPicker
+              defaultMode="manual"
+              onSelect={applyGpxMatch}
+              onManual={() => {/* modo manual: mantener campos actuales */}}
+            />
 
             <div>
               <label className="block text-sm font-medium mb-1" style={labelStyle}>{t.raceForm.fieldName}</label>

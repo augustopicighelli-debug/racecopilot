@@ -114,7 +114,7 @@ export const T = {
       refHrLabel:   'FC promedio (bpm)',
       // Campos modo pasadas
       refRepCount:   'Cantidad',
-      refRepDist:    'Dist/rep (km)',
+      refRepDist:    'Dist/rep (m)',
       refAvgPace:    'Ritmo prom (min:ss/km)',
       refPaceMm:     'min',
       refPaceSs:     'seg',
@@ -485,7 +485,7 @@ export const T = {
       refHrLabel:   'Avg HR (bpm)',
       // Training mode fields
       refRepCount:   'Reps',
-      refRepDist:    'Dist/rep (km)',
+      refRepDist:    'Dist/rep (m)',
       refAvgPace:    'Avg pace (min:ss/km)',
       refPaceMm:     'min',
       refPaceSs:     'sec',

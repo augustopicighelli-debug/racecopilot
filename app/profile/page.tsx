@@ -205,7 +205,7 @@ export default function ProfilePage() {
 
     if (refType === 'training') {
       const count   = parseInt(refRepCount);
-      const repDist = parseFloat(refRepDist);
+      const repDist = parseFloat(refRepDist) / 1000; // metros → km
       const pm      = parseInt(refPaceMm) || 0;
       const ps      = parseInt(refPaceSs) || 0;
       const paceSecPerKm = pm * 60 + ps;
@@ -660,8 +660,8 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <label className="text-xs mb-1 block" style={{ color: 'var(--muted-foreground)' }}>{t.race.refRepDist}</label>
-                    <input type="number" min="0.1" step="0.001" value={refRepDist} onChange={e => setRefRepDist(e.target.value)}
-                      placeholder="1.0" className="w-full rounded-lg border px-3 py-2 text-sm" style={inputStyle} />
+                    <input type="number" min="1" step="1" value={refRepDist} onChange={e => setRefRepDist(e.target.value)}
+                      placeholder="400" className="w-full rounded-lg border px-3 py-2 text-sm" style={inputStyle} />
                   </div>
                 </div>
                 <div>

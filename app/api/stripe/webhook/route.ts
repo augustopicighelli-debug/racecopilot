@@ -23,16 +23,18 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
 
   if (webhookSecret) {
-    // Modo producción/staging: verificar firma de Stripe para seguridad
     const signature = req.headers.get('stripe-signature');
     if (!signature) {
+      console.error('[Webhook] Sin stripe-signature header');
       return NextResponse.json({ error: 'Sin firma' }, { status: 400 });
     }
+    // Log para diagnóstico: primeros chars del secreto y del body
+    console.log(`[Webhook] secret prefix: ${webhookSecret.slice(0, 12)}... body length: ${rawBody.length} sig prefix: ${signature.slice(0, 30)}...`);
     try {
       event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
-    } catch (err) {
-      console.error('[Webhook] Firma inválida:', err);
-      return NextResponse.json({ error: 'Firma inválida' }, { status: 400 });
+    } catch (err: any) {
+      console.error('[Webhook] constructEvent falló:', err?.message ?? err);
+      return NextResponse.json({ error: 'Firma inválida', detail: err?.message }, { status: 400 });
     }
   } else {
     // Modo desarrollo sin STRIPE_WEBHOOK_SECRET: parsear sin verificar
@@ -55,8 +57,11 @@ export async function POST(req: NextRequest) {
       // Determinar si la suscripción da acceso (activa o en trial)
       const isPremium = sub.status === 'active' || sub.status === 'trialing';
 
-      // current_period_end es un Unix timestamp en segundos → convertir a Date
-      const premiumUntil = new Date(sub.current_period_end * 1000).toISOString();
+      // En API >=2026-03-25 current_period_end se movió a los items; fallback a trial_end
+      const periodEnd = (sub as any).current_period_end
+        ?? (sub.items?.data?.[0] as any)?.current_period_end
+        ?? (sub.trial_end ?? null);
+      const premiumUntil = periodEnd ? new Date(periodEnd * 1000).toISOString() : null;
 
       // Actualizar el runner que tenga este customer de Stripe
       const { error } = await supabaseAdmin
