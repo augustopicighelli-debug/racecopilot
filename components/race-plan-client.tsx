@@ -35,16 +35,34 @@ export function RacePlanClient({ plan, mapPoints, distanceKm }: RacePlanClientPr
   return (
     <div className="space-y-4">
 
-      {/* 1. Selector de objetivo (Pronóstico / Target / Consenso) */}
+      {/* 1. Selector de objetivo — siempre primero */}
       <ObjectiveCards plan={plan} selected={selected} onSelect={setSelected} />
 
-      {/* 2. Barra de exigencia relativa — se mueve con el selector */}
-      <ConditionsBar plan={plan} selected={selected} />
+      {/* 2. Plan km a km — el contenido accionable más importante */}
+      <RaceTable
+        splits={activePlan.splits}
+        avgPace={activePlan.prediction.paceSecondsPerKm}
+        hydration={activePlan.hydration}
+        nutrition={activePlan.nutrition}
+      />
 
-      {/* 3. Clima detallado */}
+      {/* 3. Barra de exigencia + clima — contexto del objetivo */}
+      <ConditionsBar plan={plan} selected={selected} />
       <WeatherCard weather={activePlan.weather} />
 
-      {/* 4. Cómo se construye el pronóstico (solo para forecast) */}
+      {/* 4. Fuel — qué tomar y cuándo */}
+      <FuelTimeline hydration={activePlan.hydration} nutrition={activePlan.nutrition} />
+
+      {/* 5. Gráfico de ritmo */}
+      <PaceChart
+        splits={activePlan.splits}
+        avgPace={activePlan.prediction.paceSecondsPerKm}
+      />
+
+      {/* 6. Perfil de elevación */}
+      <ElevationChart course={activePlan.course} />
+
+      {/* 7. Cómo se construye el pronóstico (más técnico, al final) */}
       {waterfall && (
         <WaterfallChart
           waterfall={waterfall}
@@ -53,27 +71,7 @@ export function RacePlanClient({ plan, mapPoints, distanceKm }: RacePlanClientPr
         />
       )}
 
-      {/* 5. Perfil de elevación del recorrido */}
-      <ElevationChart course={activePlan.course} />
-
-      {/* 6. Plan km a km con hidratación y nutrición integradas */}
-      <RaceTable
-        splits={activePlan.splits}
-        avgPace={activePlan.prediction.paceSecondsPerKm}
-        hydration={activePlan.hydration}
-        nutrition={activePlan.nutrition}
-      />
-
-      {/* 7. Gráfico de ritmo por km */}
-      <PaceChart
-        splits={activePlan.splits}
-        avgPace={activePlan.prediction.paceSecondsPerKm}
-      />
-
-      {/* 8. Timeline unificado: agua + geles + pastillas */}
-      <FuelTimeline hydration={activePlan.hydration} nutrition={activePlan.nutrition} />
-
-      {/* 9. Mapa del recorrido (solo si hay GPX) */}
+      {/* 8. Mapa del recorrido (bonus visual, solo si hay GPX) */}
       {mapPoints.length > 0 && (
         <CourseMap
           points={mapPoints}
@@ -83,7 +81,7 @@ export function RacePlanClient({ plan, mapPoints, distanceKm }: RacePlanClientPr
         />
       )}
 
-      {/* 10. Disclaimer médico */}
+      {/* 9. Disclaimer médico */}
       <Disclaimer />
 
     </div>
