@@ -274,30 +274,27 @@ export default function NewRacePage() {
                 </div>
               </div>
 
-              {/* Selector de estrategia de split */}
+              {/* Selector de estrategia de split — estilo ObjectiveCards */}
               <div>
                 <label className="block text-sm font-medium mb-2" style={labelStyle}>
                   Estrategia de ritmo
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-3">
                   {([
-                    { val: 'negative', label: 'Negativo', desc: 'Arrancá conservador, acelerá al final' },
-                    { val: 'even',     label: 'Neutro',   desc: 'Ritmo parejo de principio a fin' },
-                    { val: 'positive', label: 'Positivo', desc: 'Arrancá fuerte, administrá al final' },
+                    { val: 'negative', label: 'Negativo', icon: '📉', desc: 'Arrancá conservador, acelerá al final' },
+                    { val: 'even',     label: 'Neutro',   icon: '➡️',  desc: 'Ritmo parejo de principio a fin' },
+                    { val: 'positive', label: 'Positivo', icon: '📈', desc: 'Arrancá fuerte, administrá al final' },
                   ] as const).map(opt => (
                     <button
                       key={opt.val}
                       type="button"
                       onClick={() => setSplitType(opt.val)}
-                      className="rounded-lg border px-3 py-2.5 text-left transition-all"
-                      style={{
-                        background:   splitType === opt.val ? 'rgba(99,102,241,0.15)' : 'var(--card)',
-                        borderColor:  splitType === opt.val ? 'var(--primary)' : 'var(--border)',
-                        color:        splitType === opt.val ? 'var(--primary)' : 'var(--foreground)',
-                      }}
+                      className={`rounded-xl border p-3 text-left transition-all ${splitType === opt.val ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : 'opacity-60 hover:opacity-90'}`}
+                      style={{ background: 'var(--card)', borderColor: splitType === opt.val ? 'var(--primary)' : 'var(--border)' }}
                     >
-                      <p className="text-xs font-semibold">{opt.label}</p>
-                      <p className="text-xs mt-0.5 leading-tight" style={{ color: 'var(--muted-foreground)' }}>{opt.desc}</p>
+                      <p className="text-base mb-1">{opt.icon}</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>{opt.label}</p>
+                      <p className="text-xs mt-1 leading-tight" style={{ color: 'var(--foreground)' }}>{opt.desc}</p>
                     </button>
                   ))}
                 </div>
