@@ -133,23 +133,34 @@ export function generateNutritionPlan(input: GenerateNutritionPlanInput): Nutrit
     slotMinute += gelIntervalMinutes;
   }
 
-  // La cafeína tarda ~40min en hacer efecto → tomarla 45min antes del final
-  // para que el pico coincida con los km más duros del final de carrera
-  const caffeineTargetMinute = totalMinutes - 45;
-  const caffeineSlotIdx = caffeineGels.length > 0 && gelSlots.length > 0
-    ? gelSlots.reduce((bestIdx, m, idx) =>
-        Math.abs(m - caffeineTargetMinute) < Math.abs(gelSlots[bestIdx] - caffeineTargetMinute)
-          ? idx : bestIdx
-      , 0)
-    : -1;
+  // La cafeína tarda ~40min en hacer efecto → primer slot al 60% de la carrera
+  // (cuando empieza el bajón energético), segundo slot ~45min antes del final.
+  // Para carreras largas (>2h) se usan 2 slots; para más cortas, solo uno al final.
+  const caffeineSlotIdxs = new Set<number>();
+  if (caffeineGels.length > 0 && gelSlots.length > 0) {
+    // Slot principal: ~45min antes del final (pico de cafeína en los km finales)
+    const mainTarget = totalMinutes - 45;
+    const mainIdx = gelSlots.reduce((bestIdx, m, idx) =>
+      Math.abs(m - mainTarget) < Math.abs(gelSlots[bestIdx] - mainTarget) ? idx : bestIdx, 0);
+    caffeineSlotIdxs.add(mainIdx);
 
-  // Fuente para cada slot: si es el slot de cafeína → gel con cafeína; si no → rotar regulares
+    // Segundo slot: ~60% de la carrera si quedan al menos 60 min entre ambos slots
+    if (totalMinutes > 120) {
+      const earlyTarget = totalMinutes * 0.60;
+      const earlyIdx = gelSlots.reduce((bestIdx, m, idx) =>
+        Math.abs(m - earlyTarget) < Math.abs(gelSlots[bestIdx] - earlyTarget) ? idx : bestIdx, 0);
+      const gap = Math.abs(gelSlots[earlyIdx] - gelSlots[mainIdx]);
+      if (earlyIdx !== mainIdx && gap >= 60) caffeineSlotIdxs.add(earlyIdx);
+    }
+  }
+
+  // Fuente para cada slot: si es slot de cafeína → gel con cafeína; si no → rotar regulares
   let regularIdx = 0;
   let cumulativeCarbs = 0;
 
   for (let slotIdx = 0; slotIdx < gelSlots.length; slotIdx++) {
     const currentMinute = gelSlots[slotIdx];
-    const isCaffeineSlot = slotIdx === caffeineSlotIdx;
+    const isCaffeineSlot = caffeineSlotIdxs.has(slotIdx);
 
     // Elegir producto para este slot
     let product: NutritionProduct | undefined;
