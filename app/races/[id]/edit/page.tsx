@@ -44,6 +44,7 @@ export default function EditRacePage() {
   const [elevGain, setElevGain]     = useState('');
   const [elevLoss, setElevLoss]     = useState('');
   const [goalType, setGoalType]     = useState<'finish' | 'pr' | 'target'>('pr');
+  const [splitType, setSplitType]   = useState<'positive' | 'even' | 'negative'>('negative');
   const [gpxSlug, setGpxSlug]       = useState<string | null>(null);
 
   // Cargar datos actuales de la carrera
@@ -54,7 +55,7 @@ export default function EditRacePage() {
 
       const { data, error: err } = await supabase
         .from('races')
-        .select('name,distance_km,race_date,city,target_time_s,elevation_gain,elevation_loss,goal_type,gpx_slug')
+        .select('name,distance_km,race_date,city,target_time_s,elevation_gain,elevation_loss,goal_type,split_type,gpx_slug')
         .eq('id', id)
         .maybeSingle();
 
@@ -74,6 +75,7 @@ export default function EditRacePage() {
       setElevGain(gainVal ? String(gainVal) : '');
       setElevLoss(lossVal ? String(lossVal) : '');
       setGoalType((data.goal_type as 'finish' | 'pr' | 'target') ?? 'pr');
+      setSplitType((data.split_type as 'positive' | 'even' | 'negative') ?? 'negative');
       setGpxSlug(data.gpx_slug ?? null);
       setLoading(false);
     };
@@ -117,6 +119,7 @@ export default function EditRacePage() {
         elevation_gain: elevM,
         elevation_loss: elevLossM,
         goal_type:      goalType,
+        split_type:     splitType,
         gpx_slug:       gpxSlug,
       }).eq('id', id);
 
@@ -258,6 +261,35 @@ export default function EditRacePage() {
                 </div>
               </div>
             </div>
+
+              {/* Selector de estrategia de split */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={labelStyle}>
+                  Estrategia de ritmo
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { val: 'negative', label: 'Negativo', desc: 'Arrancá conservador, acelerá al final' },
+                    { val: 'even',     label: 'Neutro',   desc: 'Ritmo parejo de principio a fin' },
+                    { val: 'positive', label: 'Positivo', desc: 'Arrancá fuerte, administrá al final' },
+                  ] as const).map(opt => (
+                    <button
+                      key={opt.val}
+                      type="button"
+                      onClick={() => setSplitType(opt.val)}
+                      className="rounded-lg border px-3 py-2.5 text-left transition-all"
+                      style={{
+                        background:   splitType === opt.val ? 'rgba(99,102,241,0.15)' : 'var(--card)',
+                        borderColor:  splitType === opt.val ? 'var(--primary)' : 'var(--border)',
+                        color:        splitType === opt.val ? 'var(--primary)' : 'var(--foreground)',
+                      }}
+                    >
+                      <p className="text-xs font-semibold">{opt.label}</p>
+                      <p className="text-xs mt-0.5 leading-tight" style={{ color: 'var(--muted-foreground)' }}>{opt.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
             <button type="submit" disabled={saving}
               className="w-full py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"

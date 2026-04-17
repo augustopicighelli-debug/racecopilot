@@ -24,6 +24,7 @@ export default function NewRacePage() {
   const [elevGain, setElevGain]     = useState('');
   const [elevLoss, setElevLoss]     = useState('');
   const [goalType, setGoalType]     = useState<'finish' | 'pr' | 'target'>('pr');
+  const [splitType, setSplitType]   = useState<'positive' | 'even' | 'negative'>('negative');
   const [distPreset, setDistPreset] = useState<'10' | '21.1' | '42.195' | 'custom'>('custom');
   // Slug del catálogo GPX si se eligió una carrera conocida
   const [gpxSlug, setGpxSlug]       = useState<string | null>(null);
@@ -106,6 +107,7 @@ export default function NewRacePage() {
         elevation_gain: elevM,
         elevation_loss: elevLossM,
         goal_type:      goalType,
+        split_type:     splitType,
         gpx_slug:       gpxSlug,
       }).select('id').single();
       if (err) throw err;
@@ -269,6 +271,35 @@ export default function NewRacePage() {
                       className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-8" style={inputStyle} />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>{imp ? 'ft' : 'm'}</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Selector de estrategia de split */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={labelStyle}>
+                  Estrategia de ritmo
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { val: 'negative', label: 'Negativo', desc: 'Arrancá conservador, acelerá al final' },
+                    { val: 'even',     label: 'Neutro',   desc: 'Ritmo parejo de principio a fin' },
+                    { val: 'positive', label: 'Positivo', desc: 'Arrancá fuerte, administrá al final' },
+                  ] as const).map(opt => (
+                    <button
+                      key={opt.val}
+                      type="button"
+                      onClick={() => setSplitType(opt.val)}
+                      className="rounded-lg border px-3 py-2.5 text-left transition-all"
+                      style={{
+                        background:   splitType === opt.val ? 'rgba(99,102,241,0.15)' : 'var(--card)',
+                        borderColor:  splitType === opt.val ? 'var(--primary)' : 'var(--border)',
+                        color:        splitType === opt.val ? 'var(--primary)' : 'var(--foreground)',
+                      }}
+                    >
+                      <p className="text-xs font-semibold">{opt.label}</p>
+                      <p className="text-xs mt-0.5 leading-tight" style={{ color: 'var(--muted-foreground)' }}>{opt.desc}</p>
+                    </button>
+                  ))}
                 </div>
               </div>
 

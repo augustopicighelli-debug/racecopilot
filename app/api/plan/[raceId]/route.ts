@@ -15,20 +15,26 @@ import { fetchWeather } from '@/lib/weather/open-meteo';
 import type { RunnerProfile, AggregatedWeather, PacingStrategyConfig } from '@/lib/engine/types';
 
 /**
- * Convierte el objetivo del corredor en una PacingStrategyConfig.
- * - finish: arranca muy conservador (negative split 20s/km), evita explotar en los km finales
- * - pr:     split negativo leve (8s/km), estrategia óptima para rendimiento
- * - target: split parejo al tiempo objetivo (sin modificar — el engine lo maneja)
+ * Resuelve la PacingStrategyConfig a partir de split_type explícito o goal_type como fallback.
+ * split_type (guardado por el usuario) tiene prioridad sobre goal_type.
+ * - negative: arranca conservador, acelera al final
+ * - even:     ritmo parejo
+ * - positive: arranca fuerte, administra al final
  */
-function goalToPacingStrategy(goalType: string): PacingStrategyConfig | undefined {
-  if (goalType === 'finish') {
-    return { type: 'negative', segments: 2, deltaSecondsPerKm: 20 };
-  }
-  if (goalType === 'pr') {
-    return { type: 'negative', segments: 2, deltaSecondsPerKm: 8 };
-  }
-  // 'target' → even split implícito, sin override
-  return undefined;
+function resolvePacingStrategy(
+  splitType: string | null,
+  goalType: string,
+): PacingStrategyConfig | undefined {
+  // Delta por defecto según goal si no hay split_type explícito
+  const deltaByGoal: Record<string, number> = { finish: 20, pr: 8, target: 0 };
+
+  const type = splitType ?? (goalType === 'finish' || goalType === 'pr' ? 'negative' : 'even');
+  const delta = splitType
+    ? 10  // override manual → delta fijo moderado
+    : (deltaByGoal[goalType] ?? 8);
+
+  if (type === 'even' || delta === 0) return undefined;
+  return { type: type as 'positive' | 'negative', segments: 2, deltaSecondsPerKm: delta };
 }
 
 export async function GET(
@@ -56,7 +62,7 @@ export async function GET(
   // 1. Cargar la carrera
   const { data: race, error: raceErr } = await supabase
     .from('races')
-    .select('id,distance_km,race_date,target_time_s,elevation_gain,elevation_loss,runner_id,city,goal_type,gpx_slug')
+    .select('id,distance_km,race_date,target_time_s,elevation_gain,elevation_loss,runner_id,city,goal_type,split_type,gpx_slug')
     .eq('id', raceId)
     .maybeSingle();
 
@@ -167,7 +173,7 @@ export async function GET(
     : undefined;
 
   // 8. Estrategia de pacing según objetivo del corredor
-  const pacingStrategy = goalToPacingStrategy(race.goal_type ?? 'pr');
+  const pacingStrategy = resolvePacingStrategy(race.split_type ?? null, race.goal_type ?? 'pr');
 
   // 9. Generar plan
   try {
