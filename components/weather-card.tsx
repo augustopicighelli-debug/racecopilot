@@ -37,9 +37,15 @@ export function WeatherCard({ weather }: WeatherCardProps) {
             </span>
             <div>
               <p className="text-2xl font-bold tabular-nums">
-                {fmtTemp(weather.temperature)} → {weather.temperatureEnd != null ? fmtTemp(weather.temperatureEnd) : '?'}
+                {weather.temperatureEnd != null
+                  ? `${fmtTemp(weather.temperature)} → ${fmtTemp(weather.temperatureEnd)}`
+                  : fmtTemp(weather.temperature)}
               </p>
-              <p className="text-sm text-[var(--muted-foreground)]">{p.startToFinish}</p>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                {weather.temperatureEnd != null
+                  ? (weather.daysUntilRace > 16 ? p.historicalRange : p.startToFinish)
+                  : p.atStart}
+              </p>
             </div>
           </div>
           <div className="text-right">

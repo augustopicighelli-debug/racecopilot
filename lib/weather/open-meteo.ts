@@ -7,8 +7,10 @@
 
 import type { AggregatedWeather } from '@/lib/engine/types';
 
-// Límite máximo de días que soporta el plan gratuito de Open-Meteo
+// Límite máximo del forecast en tiempo real de Open-Meteo
 const MAX_FORECAST_DAYS = 16;
+// Cuántos años atrás consultar para el promedio histórico
+const HISTORICAL_YEARS = 5;
 
 // Clima neutral de fallback: condiciones benignas para no distorsionar el plan
 const NEUTRAL_WEATHER: AggregatedWeather = {
@@ -61,6 +63,65 @@ async function geocodeCity(
   return {
     lat: data.results[0].latitude,
     lon: data.results[0].longitude,
+  };
+}
+
+/**
+ * Obtiene datos históricos de Open-Meteo Archive para una fecha específica
+ * (mismo mes/día, en años pasados). Devuelve promedios de temp min/max/humedad.
+ * Útil para carreras con más de 16 días de anticipación.
+ */
+async function fetchHistoricalClimate(
+  lat: number,
+  lon: number,
+  raceDate: string  // YYYY-MM-DD
+): Promise<{ tempMin: number; tempMax: number; humidity: number } | null> {
+  const [, month, day] = raceDate.split('-');
+  const currentYear = new Date().getFullYear();
+
+  // Construir rangos: mismo día en los últimos HISTORICAL_YEARS años
+  const queries = Array.from({ length: HISTORICAL_YEARS }, (_, i) => {
+    const year = currentYear - 1 - i; // empezar desde el año pasado
+    const dateStr = `${year}-${month}-${day}`;
+    return dateStr;
+  });
+
+  const allTempsMin: number[] = [];
+  const allTempsMax: number[] = [];
+  const allHumidity: number[] = [];
+
+  await Promise.all(queries.map(async (date) => {
+    const params = new URLSearchParams({
+      latitude:   String(lat),
+      longitude:  String(lon),
+      daily:      'temperature_2m_min,temperature_2m_max,relative_humidity_2m_mean',
+      timezone:   'auto',
+      start_date: date,
+      end_date:   date,
+    });
+    try {
+      const res = await fetch(
+        `https://archive-api.open-meteo.com/v1/archive?${params}`,
+        { next: { revalidate: 86400 } }  // cachear 24h — datos históricos no cambian
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      const min  = data?.daily?.temperature_2m_min?.[0];
+      const max  = data?.daily?.temperature_2m_max?.[0];
+      const hum  = data?.daily?.relative_humidity_2m_mean?.[0];
+      if (min != null && !isNaN(min)) allTempsMin.push(min);
+      if (max != null && !isNaN(max)) allTempsMax.push(max);
+      if (hum != null && !isNaN(hum)) allHumidity.push(hum);
+    } catch { /* ignorar errores individuales */ }
+  }));
+
+  if (allTempsMin.length === 0) return null;
+
+  const avg = (arr: number[]) => arr.reduce((s, v) => s + v, 0) / arr.length;
+  return {
+    tempMin:  Math.round(avg(allTempsMin) * 10) / 10,
+    tempMax:  Math.round(avg(allTempsMax) * 10) / 10,
+    humidity: Math.round(avg(allHumidity)),
   };
 }
 
@@ -129,9 +190,26 @@ export async function fetchWeather(
   // Base del objeto neutral con los días ya calculados
   const neutral: AggregatedWeather = { ...NEUTRAL_WEATHER, daysUntilRace };
 
-  // Si la carrera supera el límite del plan gratuito, no hay datos disponibles
+  // Si la carrera supera el límite del forecast en tiempo real → usar histórico
   if (daysUntilRace > MAX_FORECAST_DAYS) {
-    return neutral;
+    try {
+      const coords = await geocodeCity(city);
+      if (!coords) return neutral;
+      const hist = await fetchHistoricalClimate(coords.lat, coords.lon, raceDate);
+      if (!hist) return neutral;
+      return {
+        temperature:      hist.tempMin,     // mínima como proxy de temp de mañana
+        temperatureEnd:   hist.tempMax,     // máxima como proxy al mediodía/tarde
+        humidity:         hist.humidity,
+        windSpeedKmh:     0,                // viento no disponible en histórico diario
+        windDirectionDeg: 0,
+        sourcesCount:     HISTORICAL_YEARS,
+        sourceAgreement:  'low',            // siempre baja: son datos históricos, no pronóstico
+        daysUntilRace,
+      };
+    } catch {
+      return neutral;
+    }
   }
 
   try {
