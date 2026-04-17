@@ -19,7 +19,7 @@ interface FuelTimelineProps {
 type FuelRow = {
   km:      number | 'pre';
   water?:  { ml: number };
-  items:   { icon: string; name: string; carbs: number; sodium: number; caffeine: number }[];
+  items:   { icon: string; name: string }[];
   minutes?: number;
 };
 
@@ -41,14 +41,14 @@ function buildRows(hydration: HydrationPlan, nutrition: NutritionPlan): FuelRow[
   if (nutrition.preRaceGel) {
     const row = get('pre');
     const p   = nutrition.preRaceGel;
-    row.items.push({ icon: '⚡', name: p.product.name, carbs: p.carbsGrams, sodium: p.sodiumMg, caffeine: p.product.caffeineMg ?? 0 });
+    row.items.push({ icon: '⚡', name: p.product.name });
   }
 
   // Nutrición durante la carrera
   for (const e of nutrition.events) {
     const row    = get(e.km);
     const isSalt = e.product.type === 'salt_pill';
-    row.items.push({ icon: isSalt ? '🧂' : '⚡', name: e.product.name, carbs: e.carbsGrams, sodium: e.sodiumMg, caffeine: e.product.caffeineMg ?? 0 });
+    row.items.push({ icon: isSalt ? '🧂' : '⚡', name: e.product.name });
     if (row.minutes === undefined) row.minutes = e.minutesSinceStart;
   }
 
@@ -123,36 +123,11 @@ export function FuelTimeline({ hydration, nutrition }: FuelTimelineProps) {
 
                 {/* Geles / pastillas */}
                 {row.items.map((item, j) => (
-                  <span key={j} className="flex items-center gap-1.5 flex-wrap">
+                  <span key={j} className="flex items-center gap-1.5">
                     <span className="text-xs">{item.icon}</span>
                     <span className="font-medium" style={{ color: 'var(--foreground)' }}>
                       {item.name}
                     </span>
-                    {item.carbs > 0 && (
-                      <span
-                        className="text-xs px-1.5 py-0.5 rounded-full"
-                        style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }}
-                      >
-                        {item.carbs}g
-                      </span>
-                    )}
-                    {item.sodium > 0 && (
-                      <span
-                        className="text-xs px-1.5 py-0.5 rounded-full"
-                        style={{ background: 'rgba(244,114,182,0.15)', color: '#f472b6' }}
-                      >
-                        {item.sodium}mg Na
-                      </span>
-                    )}
-                    {item.caffeine > 0 && (
-                      <span
-                        className="text-xs px-1.5 py-0.5 rounded-full"
-                        style={{ background: 'rgba(139,92,246,0.15)', color: '#a78bfa' }}
-                      >
-                        {item.caffeine}mg ☕
-                      </span>
-                    )}
-                    {/* Separador entre items si hay más de uno */}
                     {j < row.items.length - 1 && (
                       <span className="text-[var(--border)] select-none">·</span>
                     )}
