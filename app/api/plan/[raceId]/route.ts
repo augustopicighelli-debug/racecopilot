@@ -137,22 +137,29 @@ export async function GET(
     course = buildFlatProfile(race.distance_km, race.elevation_gain ?? undefined, race.elevation_loss ?? undefined);
   }
 
-  // 6. Clima real vía Open-Meteo (o neutral si no hay ciudad o falla la API)
+  // 6. Clima real vía Open-Meteo
   const daysUntilRace = Math.ceil(
     (new Date(race.race_date + 'T12:00:00').getTime() - Date.now()) / 86400000
   );
-  const weather: AggregatedWeather = race.city
-    ? await fetchWeather(race.city, race.race_date, daysUntilRace)
-    : {
-        // Sin ciudad configurada → clima neutral
-        temperature:      12,
-        humidity:         50,
-        windSpeedKmh:     0,
-        windDirectionDeg: 0,
-        sourcesCount:     0,
-        sourceAgreement:  'low',
-        daysUntilRace,
-      };
+
+  // Resolver ciudad: usar la de la carrera, o la del catálogo GPX como fallback
+  let cityForWeather = race.city ?? null;
+  if (!cityForWeather && race.gpx_slug) {
+    const { data: catalog } = await supabaseAdmin
+      .from('gpx_catalog')
+      .select('city')
+      .eq('slug', race.gpx_slug)
+      .maybeSingle();
+    if (catalog?.city) cityForWeather = catalog.city;
+  }
+
+  const neutralWeather: AggregatedWeather = {
+    temperature: 12, humidity: 50, windSpeedKmh: 0,
+    windDirectionDeg: 0, sourcesCount: 0, sourceAgreement: 'low', daysUntilRace,
+  };
+  const weather: AggregatedWeather = cityForWeather
+    ? await fetchWeather(cityForWeather, race.race_date, daysUntilRace)
+    : neutralWeather;
 
   // 7. Ritmo objetivo (si el usuario lo cargó en la carrera)
   const targetPacePerKm = race.target_time_s
