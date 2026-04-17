@@ -5,6 +5,7 @@ import { generateSplits } from './pacing';
 import { generateHydrationPlan } from './hydration';
 import { generateNutritionPlan } from './nutrition';
 import { calculateConfidence } from './confidence';
+import { windImpactPerKm } from './wind';
 import type {
   RunnerProfile,
   CourseProfile,
@@ -162,7 +163,33 @@ export function generateRacePlan(input: GenerateRacePlanInput): TripleObjectiveP
   // Step 1d: Apply climate adjustment (Ely et al. 2007) using avg temp across race
   const baseHours = baseTimeSeconds / 3600;
   const climateFactor = computeClimateFactor(weather, baseHours);
-  let forecastTimeSeconds = baseTimeSeconds * climateFactor;
+  const climateAdjustment = baseTimeSeconds * climateFactor - baseTimeSeconds;
+
+  // Step 1e: Pre-compute elevation adjustment from course segments.
+  // Uses same formula as pacing.ts: +6 s/km per 1% uphill, -3 s/km per 1% downhill.
+  // This gives a global time correction (not just pace redistribution), so the
+  // waterfall components add up correctly: base + climate + elevation + wind = final.
+  let elevationAdjustment = 0;
+  for (const seg of course.segments) {
+    const segLengthM  = seg.endDistance - seg.startDistance;
+    const segLengthKm = segLengthM / 1000;
+    if (segLengthM <= 0) continue;
+    const uphillGrad   = (seg.elevationGain / segLengthM) * 100;
+    const downhillGrad = (seg.elevationLoss / segLengthM) * 100;
+    elevationAdjustment += (uphillGrad * 6 + downhillGrad * -3) * segLengthKm;
+  }
+
+  // Step 1f: Pre-compute wind adjustment (only for GPX routes with reliable forecast ≤3 days)
+  let windAdjustment = 0;
+  if (course.hasGpx && weather.daysUntilRace <= 3 && weather.windSpeedKmh > 0) {
+    for (const seg of course.segments) {
+      const segLengthKm = (seg.endDistance - seg.startDistance) / 1000;
+      windAdjustment += windImpactPerKm(seg.bearing, weather.windSpeedKmh, weather.windDirectionDeg) * segLengthKm;
+    }
+  }
+
+  // Final forecast = base + all adjustments. Splits are normalized to this total.
+  let forecastTimeSeconds = baseTimeSeconds + climateAdjustment + elevationAdjustment + windAdjustment;
 
   const forecastPaceSecondsPerKm = forecastTimeSeconds / course.distanceKm;
 
@@ -175,7 +202,7 @@ export function generateRacePlan(input: GenerateRacePlanInput): TripleObjectiveP
   // Step 2: Build confidence inputs (shared across plans)
   const confidenceInputs = buildConfidenceInputs(runner, weather, course);
 
-  // Step 3: Build forecast plan
+  // Step 3: Build forecast plan (splits are generated from corrected total time)
   const forecast = buildSinglePlan(
     forecastPrediction,
     runner,
@@ -187,19 +214,7 @@ export function generateRacePlan(input: GenerateRacePlanInput): TripleObjectiveP
     aidStationKms
   );
 
-  // Step 3b: Compute waterfall for forecast
-  const climateAdjustment = forecastTimeSeconds - baseTimeSeconds;
-  // Sum elevation and wind deltas from split breakdowns (weighted by segment length)
-  let elevationAdjustment = 0;
-  let windAdjustment = 0;
-  for (const split of forecast.splits) {
-    const segLength = split.km <= Math.floor(course.distanceKm)
-      ? 1
-      : course.distanceKm - Math.floor(course.distanceKm);
-    elevationAdjustment += split.breakdown.elevationDelta * segLength;
-    windAdjustment += split.breakdown.windDelta * segLength;
-  }
-
+  // Step 3b: Waterfall — components now add up correctly
   forecast.waterfall = {
     baseTimeSeconds,
     riegelTimeSeconds,

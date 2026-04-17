@@ -19,9 +19,18 @@ export function WaterfallChart({ waterfall, weather, course }: WaterfallChartPro
 
   const rows: { label: string; value: string; isDelta?: boolean; isTotal?: boolean }[] = [];
 
-  if (waterfall.riegelTimeSeconds)   rows.push({ label: p.rowRiegel,    value: formatTime(waterfall.riegelTimeSeconds) });
-  if (waterfall.intervalTimeSeconds) rows.push({ label: p.rowIntervals, value: formatTime(waterfall.intervalTimeSeconds) });
-  rows.push({ label: p.rowBase, value: formatTime(waterfall.baseTimeSeconds) });
+  const hasMultipleModels = !!waterfall.riegelTimeSeconds && !!waterfall.intervalTimeSeconds;
+
+  // Si hay un solo modelo (solo Riegel, sin intervalos), no mostrar "Blend base" — es redundante.
+  // Si hay blend (Riegel + intervalos), mostrar ambos + la base combinada.
+  if (hasMultipleModels) {
+    rows.push({ label: p.rowRiegel,    value: formatTime(waterfall.riegelTimeSeconds!) });
+    rows.push({ label: p.rowIntervals, value: formatTime(waterfall.intervalTimeSeconds!) });
+    rows.push({ label: p.rowBase,      value: formatTime(waterfall.baseTimeSeconds) });
+  } else {
+    // Un solo modelo: mostrar solo la etiqueta genérica sin Blend
+    rows.push({ label: p.rowRiegel ?? p.rowBase, value: formatTime(waterfall.baseTimeSeconds) });
+  }
   rows.push({
     label: `${p.rowClimate} (${fmtTemp(weather.temperature)}→${weather.temperatureEnd != null ? fmtTemp(weather.temperatureEnd) : '?'})`,
     value: formatDelta(waterfall.climateAdjustment),

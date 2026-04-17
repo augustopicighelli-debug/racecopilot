@@ -49,8 +49,16 @@ function weatherScore(w: AggregatedWeather): number {
 
 /**
  * Score total para el objetivo seleccionado.
- * Si es 'target': penaliza/bonifica según qué tan rápido o lento es vs el forecast.
- * La idea: si el target es 10% más ambicioso que el pronóstico, el clima pesa más.
+ *
+ * Base: score climático (temperatura, humedad, viento) → 0–100.
+ * Ajuste: diferencia absoluta en segundos entre el tiempo del objetivo y el forecast.
+ *   - Forecast: sin ajuste (es el pronóstico realista del engine)
+ *   - Target más rápido que forecast → condiciones necesitan ser mejores → baja el score
+ *   - Target más lento → condiciones sobran → sube el score
+ *   - Consenso: ajuste a mitad de camino entre forecast y target
+ *
+ * Escala: cada 60 segundos más ambicioso que el forecast ≈ -8 puntos.
+ * Ejemplo: target 4 min más rápido que forecast → -32 pts.
  */
 function computeScore(
   plan:     TripleObjectivePlan,
@@ -59,25 +67,23 @@ function computeScore(
 ): number {
   const base = weatherScore(weather);
 
+  // Sin plan target/consensus → solo el score climático
   if (selected === 'forecast' || !plan.target) return base;
 
+  const forecastTime = plan.forecast.prediction.timeSeconds;
+
   if (selected === 'target') {
-    const forecastPace = plan.forecast.prediction.paceSecondsPerKm;
-    const targetPace   = (plan.target ?? plan.forecast).prediction.paceSecondsPerKm;
-
-    // delta > 0 → target más rápido (más exigente) → penalidad
-    // delta < 0 → target más lento (más conservador) → bonificación leve
-    const delta = (forecastPace - targetPace) / forecastPace; // fracción
-    const adjustment = -(delta * 180); // 10% más rápido → -18pts aprox
-
+    const targetTime = plan.target.prediction.timeSeconds;
+    // deltaSeconds > 0 → target MÁS RÁPIDO (más exigente) → penalidad
+    const deltaSeconds = forecastTime - targetTime;
+    const adjustment   = -(deltaSeconds / 60) * 8; // 60s más rápido → -8 pts
     return Math.round(Math.max(5, Math.min(100, base + adjustment)));
   }
 
   if (selected === 'consensus' && plan.consensus) {
-    const forecastPace  = plan.forecast.prediction.paceSecondsPerKm;
-    const consensusPace = plan.consensus.prediction.paceSecondsPerKm;
-    const delta = (forecastPace - consensusPace) / forecastPace;
-    const adjustment = -(delta * 90); // mitad de penalidad que target puro
+    const consensusTime = plan.consensus.prediction.timeSeconds;
+    const deltaSeconds  = forecastTime - consensusTime;
+    const adjustment    = -(deltaSeconds / 60) * 8;
     return Math.round(Math.max(5, Math.min(100, base + adjustment)));
   }
 
