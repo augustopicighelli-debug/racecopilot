@@ -85,6 +85,20 @@ export function FuelTimeline({ hydration, nutrition }: FuelTimelineProps) {
       </CardHeader>
 
       <CardContent className="p-0 pb-2">
+        {/* Tip: si hay pocos productos cargados, sugerir agregar más */}
+        {nutrition.events.length > 0 && new Set(nutrition.events.map(e => e.product.name)).size <= 1 && (
+          <div
+            className="mx-4 mt-2 mb-1 px-3 py-2 rounded-lg text-xs flex items-start gap-2"
+            style={{ background: 'rgba(249,115,22,0.08)', color: 'var(--muted-foreground)', border: '1px solid rgba(249,115,22,0.2)' }}
+          >
+            <span>💡</span>
+            <span>
+              Tenés un solo producto de nutrición. Agregar una pastilla de sal y un gel sin cafeína para los km anteriores puede mejorar la estrategia.{' '}
+              <a href="/profile" className="underline" style={{ color: '#f97316' }}>Agregar productos →</a>
+            </span>
+          </div>
+        )}
+
         {rows.map((row, i) => {
           const isPre    = row.km === 'pre';
           const kmLabel  = isPre ? 'PRE' : `Km ${row.km}`;
