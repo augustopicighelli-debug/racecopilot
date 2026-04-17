@@ -183,7 +183,7 @@ export default function ProfilePage() {
   // --- Sección C: tiempos de referencia ---
   const [refRaces, setRefRaces]         = useState<ReferenceRace[]>([]);
   const [showRefForm, setShowRefForm]   = useState(false);
-  const [refCollapsed, setRefCollapsed] = useState(false); // colapsar sección de referencia
+  const [refCollapsed, setRefCollapsed] = useState(true); // colapsar sección de referencia (inicia cerrado)
   const [refSaving, setRefSaving]       = useState(false);
   const [refError, setRefError]         = useState('');
   // campos modo carrera

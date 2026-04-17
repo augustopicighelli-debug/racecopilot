@@ -106,6 +106,11 @@ function RacePage() {
   // --- banner "plan actualizado" tras guardar edición ---
   const [planUpdated, setPlanUpdated] = useState(false);
 
+  // --- split strategy (se puede cambiar inline sin ir a editar) ---
+  const [splitType, setSplitType] = useState<'negative' | 'even' | 'positive'>('negative');
+  // Estado de colapso de la sección de carreras de referencia
+  const [refCollapsed, setRefCollapsed] = useState(true);
+
   // Cuando llega un plan nuevo y el usuario venía de editar, mostrar banner 3s
   useEffect(() => {
     if (justEdited && plan) {
@@ -151,6 +156,15 @@ function RacePage() {
     }
   }, [id]);
 
+  // Cambia la estrategia de split → guarda en DB y regenera el plan
+  const handleSplitChange = useCallback(async (val: 'negative' | 'even' | 'positive') => {
+    setSplitType(val);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('races').update({ split_type: val }).eq('id', id);
+    fetchPlan();
+  }, [id, fetchPlan]);
+
   // Carga (o recarga) las carreras de referencia del runner
   const loadRefRaces = useCallback(async (rid: string) => {
     const { data } = await supabase
@@ -171,13 +185,14 @@ function RacePage() {
       // Cargar carrera
       const { data, error: err } = await supabase
         .from('races')
-        .select('id,name,distance_km,race_date,city,target_time_s,elevation_gain,elevation_loss,actual_time_s,goal_type,gpx_slug')
+        .select('id,name,distance_km,race_date,city,target_time_s,elevation_gain,elevation_loss,actual_time_s,goal_type,split_type,gpx_slug')
         .eq('id', id)
         .maybeSingle();
 
       if (err || !data) { setError('Carrera no encontrada'); setLoading(false); return; }
       setRace(data);
       setActualTimeS(data.actual_time_s ?? null);
+      setSplitType((data.split_type as 'negative' | 'even' | 'positive') ?? 'negative');
 
       // Si la carrera tiene GPX del catálogo, cargar los puntos para el mapa
       if (data.gpx_slug) {
@@ -457,22 +472,38 @@ function RacePage() {
         {/* Sección: Mis tiempos de referencia — oculta en impresión           */}
         {/* ------------------------------------------------------------------ */}
         <div className="rounded-xl border mb-6 no-print" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
-          {/* Header */}
+          {/* Header — clickeable para colapsar */}
           <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
-            <div>
-              <p className="font-semibold text-sm">{t.race.refTitle}</p>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
-                {t.race.refSubtitle}
-              </p>
-            </div>
             <button
-              onClick={() => { setShowRefForm(v => !v); setRefError(''); }}
-              className="text-xs px-3 py-1.5 rounded-lg font-semibold"
-              style={{ background: 'var(--primary)', color: '#fff' }}
+              type="button"
+              onClick={() => setRefCollapsed(c => !c)}
+              className="flex items-center gap-2 text-left flex-1"
             >
-              {showRefForm ? t.common.cancel : t.race.refAdd}
+              <span
+                className="text-xs"
+                style={{ color: 'var(--muted-foreground)', display: 'inline-block', transform: refCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+              >▾</span>
+              <div>
+                <p className="font-semibold text-sm">{t.race.refTitle}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
+                  {t.race.refSubtitle}
+                </p>
+              </div>
             </button>
+            {!refCollapsed && (
+              <button
+                type="button"
+                onClick={() => { setShowRefForm(v => !v); setRefError(''); }}
+                className="text-xs px-3 py-1.5 rounded-lg font-semibold shrink-0"
+                style={{ background: 'var(--primary)', color: '#fff' }}
+              >
+                {showRefForm ? t.common.cancel : t.race.refAdd}
+              </button>
+            )}
           </div>
+
+          {/* Contenido colapsable */}
+          {!refCollapsed && <>
 
           {/* Form de nuevo tiempo */}
           {showRefForm && (
@@ -651,6 +682,7 @@ function RacePage() {
               ))}
             </ul>
           )}
+          </>}
         </div>
 
         {/* ------------------------------------------------------------------ */}
@@ -733,6 +765,29 @@ function RacePage() {
             style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.4)', color: '#4ade80' }}
           >
             ✓ {t.race.planRefreshed}
+          </div>
+        )}
+
+        {/* Selector de estrategia de split — visible cuando hay plan */}
+        {plan && !planLoading && (
+          <div className="grid grid-cols-3 gap-3 mb-4 no-print">
+            {([
+              { val: 'negative' as const, label: 'Negativo', icon: '📉', desc: 'Arrancá conservador, acelerá al final' },
+              { val: 'even'     as const, label: 'Neutro',   icon: '➡️',  desc: 'Ritmo parejo de principio a fin' },
+              { val: 'positive' as const, label: 'Positivo', icon: '📈', desc: 'Arrancá fuerte, administrá al final' },
+            ]).map(opt => (
+              <button
+                key={opt.val}
+                type="button"
+                onClick={() => handleSplitChange(opt.val)}
+                className={`rounded-xl border p-3 text-left transition-all ${splitType === opt.val ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : 'opacity-60 hover:opacity-90'}`}
+                style={{ background: 'var(--card)', borderColor: splitType === opt.val ? 'var(--primary)' : 'var(--border)' }}
+              >
+                <p className="text-base mb-1">{opt.icon}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>{opt.label}</p>
+                <p className="text-xs mt-1 leading-tight" style={{ color: 'var(--foreground)' }}>{opt.desc}</p>
+              </button>
+            ))}
           </div>
         )}
 
