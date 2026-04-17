@@ -70,7 +70,7 @@ export const T = {
     // ── Dashboard ─────────────────────────────────────────
     dashboard: {
       trialBanner:  'Activá tu prueba gratuita de 7 días',
-      checkoutBanner: 'Verificando tu suscripción...',
+      checkoutBanner: '¡Listo! Tu suscripción está siendo procesada. Acceso completo en segundos.',
       weight:       'Peso',
       sweat:        'Sudoración',
       sweatLow:     'baja',

@@ -1,0 +1,222 @@
+[
+  {
+    "slug": "buenos-aires-international-marathon-2025-42k",
+    "name": "Buenos Aires International Marathon 2025",
+    "year": 2025,
+    "country": "Argentina",
+    "city": "Buenos Aires",
+    "distance": "42.2 km",
+    "source_url": "https://www.goandrace.com/gpx/2025/09/21/gpx_20250921_id10560_race1_20250906154220.gpx",
+    "gpx_file": "buenos-aires-international-marathon-2025-42k.gpx"
+  },
+  {
+    "slug": "maraton-de-mendoza-2025-42k",
+    "name": "Maraton de Mendoza 2025",
+    "year": 2025,
+    "country": "Argentina",
+    "city": "Mendoza",
+    "distance": "42.2 km",
+    "source_url": "https://www.goandrace.com/gpx/2025/05/04/gpx_20250504_id10172_race1_20250407222646.gpx",
+    "gpx_file": "maraton-de-mendoza-2025-42k.gpx"
+  },
+  {
+    "slug": "maraton-internacional-de-buenos-aires-2024-42k",
+    "name": "Maratón Internacional De Buenos Aires 2024",
+    "year": 2024,
+    "country": "Argentina",
+    "city": "Buenos Aires",
+    "distance": "42.2 km",
+    "source_url": "https://www.goandrace.com/gpx/2024/09/22/gpx_20240922_id9954_race1_20240731151718.gpx",
+    "gpx_file": "maraton-internacional-de-buenos-aires-2024-42k.gpx"
+  },
+  {
+    "slug": "maratona-monumental-de-brasilia-2025-42k",
+    "name": "Maratona Monumental de Brasília 2025",
+    "year": 2025,
+    "country": "Brazil",
+    "city": "Brasilia",
+    "distance": "42.2 km",
+    "source_url": "https://www.goandrace.com/gpx/2025/11/23/gpx_20251123_id10633_race1_20251115150003.gpx",
+    "gpx_file": "maratona-monumental-de-brasilia-2025-42k.gpx"
+  },
+  {
+    "slug": "maratona-do-rio-2024-42k",
+    "name": "Maratona do Rio 2024",
+    "year": 2024,
+    "country": "Brazil",
+    "city": "Rio de Janeiro",
+    "distance": "42.2 km",
+    "source_url": "https://www.goandrace.com/gpx/2024/06/02/gpx_20240602_id9863_race1_20240524160414.gpx",
+    "gpx_file": "maratona-do-rio-2024-42k.gpx"
+  },
+  {
+    "slug": "christ-the-redeemer-half-marathon-2025-21k",
+    "name": "Christ the Redeemer Half Marathon 2025",
+    "year": 2025,
+    "country": "Brazil",
+    "city": "Rio de Janeiro",
+    "distance": "21.1 km",
+    "source_url": "https://www.goandrace.com/gpx/2025/10/19/gpx_20251019_id10520_race1_20251013143316.gpx",
+    "gpx_file": "christ-the-redeemer-half-marathon-2025-21k.gpx"
+  },
+  {
+    "slug": "patagonian-international-marathon-2024-42k",
+    "name": "Patagonian International Marathon",
+    "year": 2024,
+    "country": "Chile",
+    "city": "Puerto Natales",
+    "distance": "42.2 km",
+    "source_url": "https://www.goandrace.com/gpx/2024/09/07/gpx_20240907_id9652_race1_20240730225556.gpx",
+    "gpx_file": "patagonian-international-marathon-2024-42k.gpx"
+  },
+  {
+    "slug": "patagonian-international-marathon-2024-21k-r2",
+    "name": "Patagonian International Marathon",
+    "year": 2024,
+    "country": "Chile",
+    "city": "Puerto Natales",
+    "distance": "21.1 km",
+    "source_url": "https://www.goandrace.com/gpx/2024/09/07/gpx_20240907_id9652_race2_20240730225116.gpx",
+    "gpx_file": "patagonian-international-marathon-2024-21k-r2.gpx"
+  },
+  {
+    "slug": "patagonian-international-marathon-2024-10k-r3",
+    "name": "Patagonian International Marathon",
+    "year": 2024,
+    "country": "Chile",
+    "city": "Puerto Natales",
+    "distance": "10 km",
+    "source_url": "https://www.goandrace.com/gpx/2024/09/07/gpx_20240907_id9652_race3_20240730225132.gpx",
+    "gpx_file": "patagonian-international-marathon-2024-10k-r3.gpx"
+  },
+  {
+    "slug": "maraton-de-santiago-2024-42k",
+    "name": "Maratón de Santiago",
+    "year": 2024,
+    "country": "Chile",
+    "city": "Santiago",
+    "distance": "42.2 km",
+    "source_url": "https://www.goandrace.com/gpx/2024/04/28/gpx_20240428_id8678_race1_20240127235838.gpx",
+    "gpx_file": "maraton-de-santiago-2024-42k.gpx"
+  },
+  {
+    "slug": "maraton-de-santiago-2024-21k-r2",
+    "name": "Maratón de Santiago",
+    "year": 2024,
+    "country": "Chile",
+    "city": "Santiago",
+    "distance": "21.1 km",
+    "source_url": "https://www.goandrace.com/gpx/2024/04/28/gpx_20240428_id8678_race2_20240325162536.gpx",
+    "gpx_file": "maraton-de-santiago-2024-21k-r2.gpx"
+  },
+  {
+    "slug": "ultra-paine-2023-80k",
+    "name": "Ultra Paine 2023",
+    "year": 2023,
+    "country": "Chile",
+    "city": "Puerto Natales",
+    "distance": "80 km",
+    "source_url": "https://www.goandrace.com/gpx/2023/09/30/gpx_20230930_id7987_race1_20230805183524.gpx",
+    "gpx_file": "ultra-paine-2023-80k.gpx"
+  },
+  {
+    "slug": "ultra-paine-2023-50k-r2",
+    "name": "Ultra Paine 2023",
+    "year": 2023,
+    "country": "Chile",
+    "city": "Puerto Natales",
+    "distance": "50 km",
+    "source_url": "https://www.goandrace.com/gpx/2023/09/30/gpx_20230930_id7987_race2_20230805183554.gpx",
+    "gpx_file": "ultra-paine-2023-50k-r2.gpx"
+  },
+  {
+    "slug": "ultra-paine-2023-42k-r3",
+    "name": "Ultra Paine 2023",
+    "year": 2023,
+    "country": "Chile",
+    "city": "Puerto Natales",
+    "distance": "42.2 km",
+    "source_url": "https://www.goandrace.com/gpx/2023/09/30/gpx_20230930_id7987_race3_20230805183621.gpx",
+    "gpx_file": "ultra-paine-2023-42k-r3.gpx"
+  },
+  {
+    "slug": "ultra-paine-2023-35k-r4",
+    "name": "Ultra Paine 2023",
+    "year": 2023,
+    "country": "Chile",
+    "city": "Puerto Natales",
+    "distance": "35 km",
+    "source_url": "https://www.goandrace.com/gpx/2023/09/30/gpx_20230930_id7987_race4_20230805183706.gpx",
+    "gpx_file": "ultra-paine-2023-35k-r4.gpx"
+  },
+  {
+    "slug": "ultra-paine-2023-21k-r5",
+    "name": "Ultra Paine 2023",
+    "year": 2023,
+    "country": "Chile",
+    "city": "Puerto Natales",
+    "distance": "21.1 km",
+    "source_url": "https://www.goandrace.com/gpx/2023/09/30/gpx_20230930_id7987_race5_20230805183749.gpx",
+    "gpx_file": "ultra-paine-2023-21k-r5.gpx"
+  },
+  {
+    "slug": "ultra-paine-2024-80k",
+    "name": "Ultra Paine",
+    "year": 2024,
+    "country": "Chile",
+    "city": "Puerto Natales",
+    "distance": "80 km",
+    "source_url": "https://www.goandrace.com/gpx/2024/09/28/gpx_20240928_id9653_race1_20240803122658.gpx",
+    "gpx_file": "ultra-paine-2024-80k.gpx"
+  },
+  {
+    "slug": "ultra-paine-2024-50k-r2",
+    "name": "Ultra Paine",
+    "year": 2024,
+    "country": "Chile",
+    "city": "Puerto Natales",
+    "distance": "50 km",
+    "source_url": "https://www.goandrace.com/gpx/2024/09/28/gpx_20240928_id9653_race2_20240803185114.gpx",
+    "gpx_file": "ultra-paine-2024-50k-r2.gpx"
+  },
+  {
+    "slug": "ultra-paine-2024-35k-r3",
+    "name": "Ultra Paine",
+    "year": 2024,
+    "country": "Chile",
+    "city": "Puerto Natales",
+    "distance": "35 km",
+    "source_url": "https://www.goandrace.com/gpx/2024/09/28/gpx_20240928_id9653_race3_20240803185131.gpx",
+    "gpx_file": "ultra-paine-2024-35k-r3.gpx"
+  },
+  {
+    "slug": "ultra-paine-2024-21k-r4",
+    "name": "Ultra Paine",
+    "year": 2024,
+    "country": "Chile",
+    "city": "Puerto Natales",
+    "distance": "21.1 km",
+    "source_url": "https://www.goandrace.com/gpx/2024/09/28/gpx_20240928_id9653_race4_20240803185153.gpx",
+    "gpx_file": "ultra-paine-2024-21k-r4.gpx"
+  },
+  {
+    "slug": "media-maraton-de-bogota-2025-21k",
+    "name": "Media maratón de Bogotá 2025",
+    "year": 2025,
+    "country": "Colombia",
+    "city": "BogotÃ¡",
+    "distance": "21.1 km",
+    "source_url": "https://www.goandrace.com/gpx/2025/07/27/gpx_20250727_id10380_race1_20250721220614.gpx",
+    "gpx_file": "media-maraton-de-bogota-2025-21k.gpx"
+  },
+  {
+    "slug": "lima-42k-2025-42k",
+    "name": "Lima 42K 2025",
+    "year": 2025,
+    "country": "Peru",
+    "city": "Lima",
+    "distance": "42.2 km",
+    "source_url": "https://www.goandrace.com/gpx/2025/05/25/gpx_20250525_id10306_race1_20250517175733.gpx",
+    "gpx_file": "lima-42k-2025-42k.gpx"
+  }
+]
