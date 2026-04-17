@@ -190,11 +190,22 @@ export async function fetchWeather(
       };
     }
 
-    // 3. Forecast en tiempo real
+    // 3. Forecast en tiempo real — si falla (fecha fuera de rango u otro error), usar histórico
     const forecast = await fetchForecastData(coords.lat, coords.lon, raceDate);
     if (!forecast?.hourly) {
-      console.warn(`[weather] forecast sin datos para ${raceDate}`);
-      return neutral;
+      console.warn(`[weather] forecast falló para ${raceDate}, intentando histórico`);
+      const hist = await fetchHistoricalClimate(coords.lat, coords.lon, raceDate);
+      if (!hist) return neutral;
+      return {
+        temperature:      hist.tempMin,
+        temperatureEnd:   hist.tempMax,
+        humidity:         hist.humidity,
+        windSpeedKmh:     0,
+        windDirectionDeg: 0,
+        sourcesCount:     HISTORICAL_YEARS,
+        sourceAgreement:  'low',
+        daysUntilRace,
+      };
     }
 
     const { time, temperature_2m, relative_humidity_2m, wind_speed_10m, wind_direction_10m } =
