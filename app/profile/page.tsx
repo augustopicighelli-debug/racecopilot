@@ -52,6 +52,106 @@ interface NutritionProduct {
 // ---------------------------------------------------------------------------
 // Página: /profile
 // Sección A — editar perfil del runner
+// ---------------------------------------------------------------------------
+// Kit sugerido de nutrición — aparece en la sección de productos
+// ---------------------------------------------------------------------------
+function NutritionKitGuide({ hasGel, hasCafGel, hasSalt }: {
+  hasGel: boolean;
+  hasCafGel: boolean;
+  hasSalt: boolean;
+}) {
+  // Preferencia de cafeína persiste en localStorage
+  const [noCaffeine, setNoCaffeine] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('rc_avoid_caffeine') === '1';
+  });
+
+  const toggleCaffeine = () => {
+    const next = !noCaffeine;
+    setNoCaffeine(next);
+    localStorage.setItem('rc_avoid_caffeine', next ? '1' : '0');
+  };
+
+  // Si evita cafeína, tratar hasCafGel como satisfecho
+  const cafSatisfied = hasCafGel || noCaffeine;
+
+  // Kit completo → no mostrar guía
+  if (hasGel && cafSatisfied && hasSalt) return null;
+
+  const items: { key: string; icon: string; label: string; desc: string; done: boolean }[] = [
+    {
+      key: 'gel',
+      icon: '⚡',
+      label: 'Gel sin cafeína',
+      desc: 'Carbos cada ~45 min desde km 7 hasta km 28',
+      done: hasGel,
+    },
+    ...(!noCaffeine ? [{
+      key: 'cafgel',
+      icon: '⚡☕',
+      label: 'Gel con cafeína',
+      desc: 'Guardarlo para km 30-32 — efecto máximo en la fatiga final',
+      done: hasCafGel,
+    }] : []),
+    {
+      key: 'salt',
+      icon: '🧂',
+      label: 'Pastilla de sal',
+      desc: 'Cada 60-90 min para retener fluidos y evitar calambres',
+      done: hasSalt,
+    },
+  ];
+
+  return (
+    <div
+      className="rounded-xl border p-4 mb-4"
+      style={{ background: 'rgba(249,115,22,0.05)', borderColor: 'rgba(249,115,22,0.25)' }}
+    >
+      {/* Encabezado + toggle cafeína */}
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold" style={{ color: '#f97316' }}>
+          💡 Kit recomendado para maratón / media
+        </p>
+        {/* Toggle: no consumo cafeína */}
+        <button
+          type="button"
+          onClick={toggleCaffeine}
+          className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border transition-colors"
+          style={{
+            background:   noCaffeine ? 'rgba(99,102,241,0.15)' : 'transparent',
+            borderColor:  noCaffeine ? 'rgba(99,102,241,0.5)'  : 'var(--border)',
+            color:        noCaffeine ? '#818cf8'                : 'var(--muted-foreground)',
+          }}
+        >
+          ☕ {noCaffeine ? 'Sin cafeína' : 'Con cafeína'}
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        {items.map((m) => (
+          <div key={m.key} className={`flex items-start gap-2 ${m.done ? 'opacity-40' : ''}`}>
+            <span className="text-xs mt-0.5" style={{ color: m.done ? 'var(--muted-foreground)' : '#f97316' }}>
+              {m.done ? '✓' : '+'}
+            </span>
+            <div>
+              <p
+                className={`text-xs font-medium ${m.done ? 'line-through' : ''}`}
+                style={{ color: m.done ? 'var(--muted-foreground)' : 'var(--foreground)' }}
+              >
+                {m.icon} {m.label}
+              </p>
+              {!m.done && (
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{m.desc}</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Sección B — gestionar productos de nutrición
 // ---------------------------------------------------------------------------
 export default function ProfilePage() {
@@ -721,6 +821,9 @@ export default function ProfilePage() {
             </button>
           )}
         </div>
+
+        {/* ── Kit sugerido para maratón / media ──────────────────────────── */}
+        <NutritionKitGuide hasGel={products.some(p => p.type === 'gel' && p.caffeine_mg === 0)} hasCafGel={products.some(p => p.type === 'gel' && p.caffeine_mg > 0)} hasSalt={products.some(p => p.type === 'salt_pill')} />
 
         {/* Lista de productos existentes */}
         <div className="space-y-2 mb-4">
