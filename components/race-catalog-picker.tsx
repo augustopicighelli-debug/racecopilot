@@ -1,10 +1,12 @@
 'use client';
 /**
- * RaceCatalogPicker — buscador de carreras del catálogo GPX.
- * Muestra un input de búsqueda con dropdown de resultados.
- * Al final del dropdown siempre aparece "Mi carrera no figura" para activar el modo manual.
+ * RaceCatalogPicker — desplegable con todas las carreras del catálogo GPX.
+ * - Al hacer foco muestra todas las carreras agrupadas por país
+ * - Al tipear filtra en tiempo real (sin API calls — todo client-side)
+ * - Los nombres no muestran el año
+ * - Al final siempre aparece "Mi carrera no figura"
  */
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export interface CatalogRace {
   slug: string;
@@ -17,37 +19,56 @@ export interface CatalogRace {
 }
 
 interface Props {
-  /** Llamado cuando el usuario elige una carrera del catálogo */
   onSelect: (race: CatalogRace) => void;
-  /** Llamado cuando el usuario elige "mi carrera no figura" */
   onManual: () => void;
 }
 
-export default function RaceCatalogPicker({ onSelect, onManual }: Props) {
-  const [query, setQuery]     = useState('');
-  const [results, setResults] = useState<CatalogRace[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen]       = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+/** Quita el año (4 dígitos) del nombre para mostrarlo más limpio */
+function stripYear(name: string): string {
+  return name.replace(/\s+\d{4}/g, '').trim();
+}
 
-  const search = (q: string) => {
-    setQuery(q);
-    if (timer.current) clearTimeout(timer.current);
-    // Mostrar el dropdown apenas el usuario empiece a escribir
-    setOpen(true);
-    if (q.length < 2) { setResults([]); return; }
-    timer.current = setTimeout(async () => {
-      setLoading(true);
-      const res = await fetch(`/api/gpx/search?q=${encodeURIComponent(q)}`);
-      if (res.ok) setResults(await res.json());
-      setLoading(false);
-    }, 300);
-  };
+/** Agrupa las carreras por país */
+function groupByCountry(races: CatalogRace[]): { country: string; races: CatalogRace[] }[] {
+  const map = new Map<string, CatalogRace[]>();
+  for (const r of races) {
+    if (!map.has(r.country)) map.set(r.country, []);
+    map.get(r.country)!.push(r);
+  }
+  return Array.from(map.entries()).map(([country, races]) => ({ country, races }));
+}
+
+/** Filtra por query contra nombre, ciudad y país (case-insensitive, sin tildes) */
+function normalize(s: string) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function filterRaces(races: CatalogRace[], q: string): CatalogRace[] {
+  const nq = normalize(q);
+  return races.filter(r =>
+    normalize(r.name).includes(nq) ||
+    normalize(r.city ?? '').includes(nq) ||
+    normalize(r.country).includes(nq)
+  );
+}
+
+export default function RaceCatalogPicker({ onSelect, onManual }: Props) {
+  const [allRaces, setAllRaces]   = useState<CatalogRace[]>([]);
+  const [query, setQuery]         = useState('');
+  const [open, setOpen]           = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Cargar catálogo completo una sola vez al montar
+  useEffect(() => {
+    fetch('/api/gpx/catalog')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then((data: CatalogRace[]) => setAllRaces(data))
+      .catch(() => setLoadError(true));
+  }, []);
 
   const handleSelect = (r: CatalogRace) => {
-    // Prellenar el input con el nombre de la carrera seleccionada
-    setQuery(r.name);
-    setResults([]);
+    setQuery(stripYear(r.name));
     setOpen(false);
     onSelect(r);
   };
@@ -57,70 +78,94 @@ export default function RaceCatalogPicker({ onSelect, onManual }: Props) {
     onManual();
   };
 
-  const handleBlur = () => {
-    // Delay para permitir que los clicks en el dropdown se procesen antes de cerrarlo
-    setTimeout(() => setOpen(false), 150);
-  };
+  // Calcular qué mostrar en el dropdown
+  const filtered = query.length >= 1 ? filterRaces(allRaces, query) : allRaces;
+  const groups   = groupByCountry(filtered);
 
   return (
     <div className="mb-5 relative">
       {/* Input de búsqueda */}
       <div className="relative">
         <input
+          ref={inputRef}
           type="text"
           value={query}
-          onChange={(e) => search(e.target.value)}
+          onChange={e => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
-          onBlur={handleBlur}
-          placeholder="Buscar carrera... ej: Mendoza, Boston, Lima"
+          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          placeholder={loadError ? 'Error cargando catálogo' : 'Buscar carrera... ej: Mendoza, Boston, Lima'}
           className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none"
           style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
           autoComplete="off"
         />
         {/* Indicador de carga */}
-        {loading && (
+        {allRaces.length === 0 && !loadError && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>
             ...
           </span>
         )}
+        {/* Flecha desplegable */}
+        {allRaces.length > 0 && (
+          <button
+            type="button"
+            onMouseDown={e => { e.preventDefault(); setOpen(o => !o); inputRef.current?.focus(); }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs"
+            style={{ color: 'var(--muted-foreground)' }}
+          >
+            {open ? '▲' : '▼'}
+          </button>
+        )}
       </div>
 
-      {/* Dropdown de resultados */}
-      {open && (
+      {/* Dropdown */}
+      {open && allRaces.length > 0 && (
         <div
-          className="absolute z-20 w-full mt-1 rounded-lg border shadow-lg overflow-hidden"
-          style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
+          className="absolute z-20 w-full mt-1 rounded-lg border shadow-lg overflow-y-auto"
+          style={{ background: 'var(--card)', borderColor: 'var(--border)', maxHeight: '320px' }}
         >
-          {/* Resultados del catálogo */}
-          {results.map((r) => (
-            <button
-              key={r.slug}
-              type="button"
-              onMouseDown={() => handleSelect(r)}
-              className="w-full px-3 py-3 text-left hover:bg-orange-500/10 transition-colors border-b"
-              style={{ borderColor: 'var(--border)' }}
-            >
-              <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>{r.name}</p>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
-                {r.city && `${r.city} · `}{r.distance_km} km
-                {r.gain_m ? ` · +${r.gain_m}m` : ''}
-                {r.loss_m ? ` −${r.loss_m}m` : ''}
-              </p>
-            </button>
-          ))}
-
-          {/* Mensaje cuando no hay resultados pero se buscó algo */}
-          {query.length >= 2 && !loading && results.length === 0 && (
+          {groups.length === 0 && (
             <p className="px-3 py-2.5 text-xs" style={{ color: 'var(--muted-foreground)' }}>
               Sin resultados para "{query}"
             </p>
           )}
 
-          {/* Opción siempre visible: cargar manualmente */}
+          {groups.map(({ country, races }) => (
+            <div key={country}>
+              {/* Encabezado de país */}
+              <p
+                className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wide sticky top-0"
+                style={{ background: 'var(--muted)', color: 'var(--muted-foreground)' }}
+              >
+                {country}
+              </p>
+
+              {races.map(r => (
+                <button
+                  key={r.slug}
+                  type="button"
+                  onMouseDown={() => handleSelect(r)}
+                  className="w-full px-3 py-2.5 text-left hover:bg-orange-500/10 transition-colors border-b last:border-b-0"
+                  style={{ borderColor: 'var(--border)' }}
+                >
+                  <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+                    {stripYear(r.name)}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
+                    {r.city && `${r.city} · `}{r.distance_km} km
+                    {r.gain_m ? ` · +${r.gain_m}m` : ''}
+                    {r.loss_m ? ` −${r.loss_m}m` : ''}
+                  </p>
+                </button>
+              ))}
+            </div>
+          ))}
+
+          {/* Opción fija: cargar manualmente */}
           <button
             type="button"
             onMouseDown={handleManual}
-            className="w-full px-3 py-3 text-left hover:bg-orange-500/10 transition-colors flex items-center gap-2"
+            className="w-full px-3 py-3 text-left hover:bg-orange-500/10 transition-colors flex items-center gap-2 border-t"
+            style={{ borderColor: 'var(--border)' }}
           >
             <span className="text-base">✏️</span>
             <div>
