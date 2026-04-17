@@ -155,11 +155,10 @@ export default function EditRacePage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
-            {/* Picker: permite cambiar a una carrera del catálogo o quedarse en modo manual */}
+            {/* Picker: permite reemplazar con una carrera del catálogo; "no figura" no hace nada (campos ya visibles) */}
             <RaceCatalogPicker
-              defaultMode="manual"
               onSelect={applyGpxMatch}
-              onManual={() => {/* modo manual: mantener campos actuales */}}
+              onManual={() => {/* campos ya visibles, no hacer nada */}}
             />
 
             <div>

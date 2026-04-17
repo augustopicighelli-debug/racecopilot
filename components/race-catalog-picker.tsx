@@ -1,8 +1,8 @@
 'use client';
 /**
- * RaceCatalogPicker — buscador de carreras pre-cargadas del catálogo GPX.
- * Muestra dos slots: "Carrera conocida" (catálogo) y "Manual".
- * Al seleccionar una carrera del catálogo llama a onSelect con los datos.
+ * RaceCatalogPicker — buscador de carreras del catálogo GPX.
+ * Muestra un input de búsqueda con dropdown de resultados.
+ * Al final del dropdown siempre aparece "Mi carrera no figura" para activar el modo manual.
  */
 import { useState, useRef } from 'react';
 
@@ -17,22 +17,24 @@ export interface CatalogRace {
 }
 
 interface Props {
-  /** Modo activo al montar. 'catalog' muestra la búsqueda; 'manual' la oculta. */
-  defaultMode?: 'catalog' | 'manual';
+  /** Llamado cuando el usuario elige una carrera del catálogo */
   onSelect: (race: CatalogRace) => void;
+  /** Llamado cuando el usuario elige "mi carrera no figura" */
   onManual: () => void;
 }
 
-export default function RaceCatalogPicker({ defaultMode = 'catalog', onSelect, onManual }: Props) {
-  const [mode, setMode]           = useState<'catalog' | 'manual'>(defaultMode);
-  const [query, setQuery]         = useState('');
-  const [results, setResults]     = useState<CatalogRace[]>([]);
-  const [loading, setLoading]     = useState(false);
+export default function RaceCatalogPicker({ onSelect, onManual }: Props) {
+  const [query, setQuery]     = useState('');
+  const [results, setResults] = useState<CatalogRace[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen]       = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const search = (q: string) => {
     setQuery(q);
     if (timer.current) clearTimeout(timer.current);
+    // Mostrar el dropdown apenas el usuario empiece a escribir
+    setOpen(true);
     if (q.length < 2) { setResults([]); return; }
     timer.current = setTimeout(async () => {
       setLoading(true);
@@ -43,81 +45,93 @@ export default function RaceCatalogPicker({ defaultMode = 'catalog', onSelect, o
   };
 
   const handleSelect = (r: CatalogRace) => {
-    onSelect(r);
+    // Prellenar el input con el nombre de la carrera seleccionada
     setQuery(r.name);
     setResults([]);
+    setOpen(false);
+    onSelect(r);
   };
 
   const handleManual = () => {
-    setMode('manual');
+    setOpen(false);
     onManual();
   };
 
+  const handleBlur = () => {
+    // Delay para permitir que los clicks en el dropdown se procesen antes de cerrarlo
+    setTimeout(() => setOpen(false), 150);
+  };
+
   return (
-    <div className="mb-5">
-      {/* Selector de modo */}
-      <div className="grid grid-cols-2 gap-2 mb-4">
-        <button type="button" onClick={() => setMode('catalog')}
-          className="py-3 px-4 rounded-xl border text-sm font-semibold transition-colors text-left"
-          style={{
-            background:  mode === 'catalog' ? 'rgba(249,115,22,0.12)' : 'var(--muted)',
-            borderColor: mode === 'catalog' ? 'rgba(249,115,22,0.5)'  : 'var(--border)',
-            color:       mode === 'catalog' ? '#f97316'               : 'var(--muted-foreground)',
-          }}>
-          <p className="font-semibold">Carrera conocida</p>
-          <p className="text-xs mt-0.5 opacity-70 font-normal">Buscar en catálogo</p>
-        </button>
-        <button type="button" onClick={handleManual}
-          className="py-3 px-4 rounded-xl border text-sm font-semibold transition-colors text-left"
-          style={{
-            background:  mode === 'manual' ? 'rgba(249,115,22,0.12)' : 'var(--muted)',
-            borderColor: mode === 'manual' ? 'rgba(249,115,22,0.5)'  : 'var(--border)',
-            color:       mode === 'manual' ? '#f97316'               : 'var(--muted-foreground)',
-          }}>
-          <p className="font-semibold">Cargar manualmente</p>
-          <p className="text-xs mt-0.5 opacity-70 font-normal">Ingresar mis datos</p>
-        </button>
+    <div className="mb-5 relative">
+      {/* Input de búsqueda */}
+      <div className="relative">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => search(e.target.value)}
+          onFocus={() => setOpen(true)}
+          onBlur={handleBlur}
+          placeholder="Buscar carrera... ej: Mendoza, Boston, Lima"
+          className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none"
+          style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+          autoComplete="off"
+        />
+        {/* Indicador de carga */}
+        {loading && (
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>
+            ...
+          </span>
+        )}
       </div>
 
-      {/* Búsqueda en catálogo */}
-      {mode === 'catalog' && (
-        <div className="relative">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => search(e.target.value)}
-            placeholder="Buscar carrera... ej: Mendoza, Santiago, Lima"
-            className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none"
-            style={{ background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-            autoFocus
-          />
-          {loading && (
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>
-              ...
-            </span>
-          )}
-          {results.length > 0 && (
-            <div className="mt-1 rounded-lg border overflow-hidden"
-              style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
-              {results.map((r) => (
-                <button key={r.slug} type="button" onClick={() => handleSelect(r)}
-                  className="w-full px-3 py-3 text-left hover:bg-orange-500/10 transition-colors border-b last:border-b-0"
-                  style={{ borderColor: 'var(--border)' }}>
-                  <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>{r.name}</p>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
-                    {r.city && `${r.city} · `}{r.distance_km} km
-                    {r.gain_m ? ` · +${r.gain_m}m` : ''}
-                    {r.loss_m ? ` -${r.loss_m}m` : ''}
-                  </p>
-                </button>
-              ))}
-            </div>
-          )}
+      {/* Dropdown de resultados */}
+      {open && (
+        <div
+          className="absolute z-20 w-full mt-1 rounded-lg border shadow-lg overflow-hidden"
+          style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
+        >
+          {/* Resultados del catálogo */}
+          {results.map((r) => (
+            <button
+              key={r.slug}
+              type="button"
+              onMouseDown={() => handleSelect(r)}
+              className="w-full px-3 py-3 text-left hover:bg-orange-500/10 transition-colors border-b"
+              style={{ borderColor: 'var(--border)' }}
+            >
+              <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>{r.name}</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
+                {r.city && `${r.city} · `}{r.distance_km} km
+                {r.gain_m ? ` · +${r.gain_m}m` : ''}
+                {r.loss_m ? ` −${r.loss_m}m` : ''}
+              </p>
+            </button>
+          ))}
+
+          {/* Mensaje cuando no hay resultados pero se buscó algo */}
           {query.length >= 2 && !loading && results.length === 0 && (
-            <p className="text-xs mt-2 text-center" style={{ color: 'var(--muted-foreground)' }}>
-              Sin resultados — usá "Cargar manualmente"
+            <p className="px-3 py-2.5 text-xs" style={{ color: 'var(--muted-foreground)' }}>
+              Sin resultados para "{query}"
             </p>
           )}
+
+          {/* Opción siempre visible: cargar manualmente */}
+          <button
+            type="button"
+            onMouseDown={handleManual}
+            className="w-full px-3 py-3 text-left hover:bg-orange-500/10 transition-colors flex items-center gap-2"
+          >
+            <span className="text-base">✏️</span>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: '#f97316' }}>
+                Mi carrera no figura
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
+                Ingresar ciudad, distancia y desnivel manualmente
+              </p>
+            </div>
+          </button>
         </div>
       )}
     </div>

@@ -14,17 +14,20 @@ export default function NewRacePage() {
   const [runnerId, setRunnerId] = useState<string | null>(null);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
-  // Prellenado con Boston Marathon 2026 como ejemplo
-  const [name, setName]               = useState('Boston Marathon 2026');
-  const [distanceKm, setDistanceKm]   = useState('42.195');
-  const [raceDate, setRaceDate]       = useState('2026-04-21');
-  const [city, setCity]               = useState('Boston, MA');
-  const [targetTime, setTargetTime]   = useState('');
-  const [elevGain, setElevGain]       = useState('');
-  const [elevLoss, setElevLoss]       = useState('');
-  const [goalType, setGoalType]       = useState<'finish' | 'pr' | 'target'>('pr');
-  // Preset de distancia: '10' | '21.1' | '42.195' | 'custom'
-  const [distPreset, setDistPreset]   = useState<'10' | '21.1' | '42.195' | 'custom'>('42.195');
+
+  // Campos del formulario
+  const [name, setName]             = useState('');
+  const [distanceKm, setDistanceKm] = useState('');
+  const [raceDate, setRaceDate]     = useState('');
+  const [city, setCity]             = useState('');
+  const [targetTime, setTargetTime] = useState('');
+  const [elevGain, setElevGain]     = useState('');
+  const [elevLoss, setElevLoss]     = useState('');
+  const [goalType, setGoalType]     = useState<'finish' | 'pr' | 'target'>('pr');
+  const [distPreset, setDistPreset] = useState<'10' | '21.1' | '42.195' | 'custom'>('custom');
+
+  // Controla si mostrar los campos del form (false = solo se ve el buscador)
+  const [formVisible, setFormVisible] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -37,8 +40,8 @@ export default function NewRacePage() {
     init();
   }, [router]);
 
-  // Aplicar una carrera del catálogo al formulario
-  const applyGpxMatch = (m: CatalogRace) => {
+  // Selección desde el catálogo: prellenar todo y mostrar form
+  const handleCatalogSelect = (m: CatalogRace) => {
     setName(m.name);
     const distKm = m.distance_km;
     const dispDist = imp ? (distKm / 1.60934).toFixed(2) : distKm.toString();
@@ -47,8 +50,22 @@ export default function NewRacePage() {
     const matched = presets.find(p => Math.abs(parseFloat(p) - distKm) < 0.5);
     setDistPreset(matched ?? 'custom');
     if (m.city) setCity(m.city);
-    if (m.gain_m) setElevGain(imp ? Math.round(m.gain_m * 3.28084).toString() : m.gain_m.toString());
-    if (m.loss_m) setElevLoss(imp ? Math.round(m.loss_m * 3.28084).toString() : m.loss_m.toString());
+    setElevGain(m.gain_m ? (imp ? Math.round(m.gain_m * 3.28084).toString() : m.gain_m.toString()) : '');
+    setElevLoss(m.loss_m ? (imp ? Math.round(m.loss_m * 3.28084).toString() : m.loss_m.toString()) : '');
+    setFormVisible(true);
+  };
+
+  // "Mi carrera no figura": limpiar campos y mostrar form en blanco
+  const handleManual = () => {
+    setName('');
+    setDistanceKm('');
+    setRaceDate('');
+    setCity('');
+    setTargetTime('');
+    setElevGain('');
+    setElevLoss('');
+    setDistPreset('custom');
+    setFormVisible(true);
   };
 
   const parseTime = (t: string): number | null => {
@@ -71,10 +88,8 @@ export default function NewRacePage() {
         if (!targetTimeSec) throw new Error(t.raceForm.invalidTime);
       }
       // Convertir a métrico antes de guardar (DB siempre en km y metros)
-      const distKm   = imp ? parseFloat(distanceKm) * 1.60934 : parseFloat(distanceKm);
-      const elevM    = elevGain ? (imp ? parseFloat(elevGain) / 3.28084 : parseFloat(elevGain)) : null;
-
-      // Retornar el id para redirigir directo a la carrera creada
+      const distKm    = imp ? parseFloat(distanceKm) * 1.60934 : parseFloat(distanceKm);
+      const elevM     = elevGain ? (imp ? parseFloat(elevGain) / 3.28084 : parseFloat(elevGain)) : null;
       const elevLossM = elevLoss ? (imp ? parseFloat(elevLoss) / 3.28084 : parseFloat(elevLoss)) : null;
 
       const { data: newRace, error: err } = await supabase.from('races').insert({
@@ -122,143 +137,143 @@ export default function NewRacePage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Buscador de catálogo — siempre visible arriba */}
+          <RaceCatalogPicker
+            onSelect={handleCatalogSelect}
+            onManual={handleManual}
+          />
 
-            {/* Picker de carrera: catálogo o manual */}
-            <RaceCatalogPicker
-              defaultMode="catalog"
-              onSelect={applyGpxMatch}
-              onManual={() => {/* modo manual: campos libres abajo */}}
-            />
+          {/* Campos del form: solo se muestran después de elegir catálogo o manual */}
+          {formVisible && (
+            <form onSubmit={handleSubmit} className="space-y-4 mt-2">
 
-            {/* Nombre de carrera (siempre visible para ajuste fino) */}
-            <div>
-              <label className="block text-sm font-medium mb-1" style={labelStyle}>{t.raceForm.fieldName}</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-                placeholder="Maratón de Mendoza 2026"
-                className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} required />
-            </div>
+              <div>
+                <label className="block text-sm font-medium mb-1" style={labelStyle}>{t.raceForm.fieldName}</label>
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)}
+                  placeholder="Maratón de Mendoza 2026"
+                  className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} required />
+              </div>
 
-            {/* Presets de distancia */}
-            <div>
-              <label className="block text-sm font-medium mb-2" style={labelStyle}>{t.raceForm.fieldDistance}</label>
-              <div className="grid grid-cols-4 gap-1.5 mb-2">
-                {(['10', '21.1', '42.195', 'custom'] as const).map((p) => {
-                  const label = p === '10' ? '10K' : p === '21.1' ? 'Media' : p === '42.195' ? 'Maratón' : 'Otra';
-                  return (
+              {/* Presets de distancia */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={labelStyle}>{t.raceForm.fieldDistance}</label>
+                <div className="grid grid-cols-4 gap-1.5 mb-2">
+                  {(['10', '21.1', '42.195', 'custom'] as const).map((p) => {
+                    const label = p === '10' ? '10K' : p === '21.1' ? 'Media' : p === '42.195' ? 'Maratón' : 'Otra';
+                    return (
+                      <button
+                        key={p} type="button"
+                        onClick={() => {
+                          setDistPreset(p);
+                          if (p !== 'custom') setDistanceKm(p);
+                        }}
+                        className="py-1.5 rounded-lg text-xs font-semibold border transition-colors"
+                        style={{
+                          background:  distPreset === p ? 'rgba(249,115,22,0.12)' : 'var(--muted)',
+                          color:       distPreset === p ? '#f97316'               : 'var(--muted-foreground)',
+                          borderColor: distPreset === p ? 'rgba(249,115,22,0.5)'  : 'var(--border)',
+                        }}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="relative">
+                  <input type="number" step="0.001" min="0.1" value={distanceKm}
+                    onChange={(e) => { setDistanceKm(e.target.value); setDistPreset('custom'); }}
+                    placeholder={imp ? '26.2' : '42.195'}
+                    className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-10" style={inputStyle} required />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>{distUnit}</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1" style={labelStyle}>{t.raceForm.fieldDate}</label>
+                <input type="date" value={raceDate} onChange={(e) => setRaceDate(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} required />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1" style={labelStyle}>
+                  {t.raceForm.fieldCity} <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
+                </label>
+                <input type="text" value={city} onChange={(e) => setCity(e.target.value)}
+                  placeholder="Mendoza"
+                  className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} />
+              </div>
+
+              {/* Objetivo de la carrera */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={labelStyle}>{t.goal.label}</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: 'finish' as const, icon: '🏁', title: t.goal.finishTitle, desc: t.goal.finishDesc },
+                    { value: 'pr'     as const, icon: '⚡', title: t.goal.prTitle,     desc: t.goal.prDesc },
+                    { value: 'target' as const, icon: '🎯', title: t.goal.targetTitle, desc: t.goal.targetDesc },
+                  ].map(({ value, icon, title, desc }) => (
                     <button
-                      key={p} type="button"
-                      onClick={() => {
-                        setDistPreset(p);
-                        if (p !== 'custom') setDistanceKm(p);
-                      }}
-                      className="py-1.5 rounded-lg text-xs font-semibold border transition-colors"
+                      key={value} type="button" onClick={() => setGoalType(value)}
+                      className="py-3 px-2 rounded-xl text-left border transition-colors"
                       style={{
-                        background:  distPreset === p ? 'rgba(249,115,22,0.12)' : 'var(--muted)',
-                        color:       distPreset === p ? '#f97316'               : 'var(--muted-foreground)',
-                        borderColor: distPreset === p ? 'rgba(249,115,22,0.5)'  : 'var(--border)',
+                        background:  goalType === value ? 'rgba(249,115,22,0.12)' : 'var(--muted)',
+                        borderColor: goalType === value ? 'rgba(249,115,22,0.5)'  : 'var(--border)',
                       }}
                     >
-                      {label}
+                      <p className="text-base text-center mb-1">{icon}</p>
+                      <p className="text-xs font-semibold text-center" style={{ color: goalType === value ? '#f97316' : 'var(--foreground)' }}>
+                        {title}
+                      </p>
+                      <p className="text-xs text-center mt-0.5 leading-tight opacity-60" style={{ color: 'var(--muted-foreground)' }}>
+                        {desc}
+                      </p>
                     </button>
-                  );
-                })}
-              </div>
-              {/* Input numérico libre: siempre visible para ajuste fino */}
-              <div className="relative">
-                <input type="number" step="0.001" min="0.1" value={distanceKm}
-                  onChange={(e) => { setDistanceKm(e.target.value); setDistPreset('custom'); }}
-                  placeholder={imp ? '26.2' : '42.195'}
-                  className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-10" style={inputStyle} required />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>{distUnit}</span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1" style={labelStyle}>{t.raceForm.fieldDate}</label>
-              <input type="date" value={raceDate} onChange={(e) => setRaceDate(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} required />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                {t.raceForm.fieldCity} <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
-              </label>
-              <input type="text" value={city} onChange={(e) => setCity(e.target.value)}
-                placeholder="Mendoza"
-                className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} />
-            </div>
-
-            {/* Objetivo de la carrera */}
-            <div>
-              <label className="block text-sm font-medium mb-2" style={labelStyle}>{t.goal.label}</label>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { value: 'finish' as const, icon: '🏁', title: t.goal.finishTitle, desc: t.goal.finishDesc },
-                  { value: 'pr'     as const, icon: '⚡', title: t.goal.prTitle,     desc: t.goal.prDesc },
-                  { value: 'target' as const, icon: '🎯', title: t.goal.targetTitle, desc: t.goal.targetDesc },
-                ].map(({ value, icon, title, desc }) => (
-                  <button
-                    key={value} type="button" onClick={() => setGoalType(value)}
-                    className="py-3 px-2 rounded-xl text-left border transition-colors"
-                    style={{
-                      background:  goalType === value ? 'rgba(249,115,22,0.12)' : 'var(--muted)',
-                      borderColor: goalType === value ? 'rgba(249,115,22,0.5)'  : 'var(--border)',
-                    }}
-                  >
-                    <p className="text-base text-center mb-1">{icon}</p>
-                    <p className="text-xs font-semibold text-center" style={{ color: goalType === value ? '#f97316' : 'var(--foreground)' }}>
-                      {title}
-                    </p>
-                    <p className="text-xs text-center mt-0.5 leading-tight opacity-60" style={{ color: 'var(--muted-foreground)' }}>
-                      {desc}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                {t.race.targetTime} <span style={{ color: 'var(--border)' }}>{goalType === 'target' ? t.goal.timeRequired : `(${t.common.optional})`}</span>
-              </label>
-              <input type="text" value={targetTime} onChange={(e) => setTargetTime(e.target.value)}
-                placeholder="3:45:00"
-                className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} />
-            </div>
-
-            {/* Ascenso y descenso separados */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                  {t.raceForm.fieldElevGain} <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
-                </label>
-                <div className="relative">
-                  <input type="number" min="0" value={elevGain} onChange={(e) => setElevGain(e.target.value)}
-                    placeholder={imp ? '820' : '250'}
-                    className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-8" style={inputStyle} />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>{imp ? 'ft' : 'm'}</span>
+                  ))}
                 </div>
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                  {t.raceForm.fieldElevLoss} <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
+                  {t.race.targetTime} <span style={{ color: 'var(--border)' }}>{goalType === 'target' ? t.goal.timeRequired : `(${t.common.optional})`}</span>
                 </label>
-                <div className="relative">
-                  <input type="number" min="0" value={elevLoss} onChange={(e) => setElevLoss(e.target.value)}
-                    placeholder={imp ? '820' : '250'}
-                    className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-8" style={inputStyle} />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>{imp ? 'ft' : 'm'}</span>
+                <input type="text" value={targetTime} onChange={(e) => setTargetTime(e.target.value)}
+                  placeholder="3:45:00"
+                  className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} />
+              </div>
+
+              {/* Ascenso y descenso */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1" style={labelStyle}>
+                    {t.raceForm.fieldElevGain} <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
+                  </label>
+                  <div className="relative">
+                    <input type="number" min="0" value={elevGain} onChange={(e) => setElevGain(e.target.value)}
+                      placeholder={imp ? '820' : '250'}
+                      className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-8" style={inputStyle} />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>{imp ? 'ft' : 'm'}</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1" style={labelStyle}>
+                    {t.raceForm.fieldElevLoss} <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
+                  </label>
+                  <div className="relative">
+                    <input type="number" min="0" value={elevLoss} onChange={(e) => setElevLoss(e.target.value)}
+                      placeholder={imp ? '820' : '250'}
+                      className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-8" style={inputStyle} />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>{imp ? 'ft' : 'm'}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <button type="submit" disabled={loading || !runnerId}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
-              style={{ background: 'var(--primary)', color: '#fff' }}>
-              {loading ? t.common.saving : t.raceForm.submitNew}
-            </button>
-          </form>
+              <button type="submit" disabled={loading || !runnerId}
+                className="w-full py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
+                style={{ background: 'var(--primary)', color: '#fff' }}>
+                {loading ? t.common.saving : t.raceForm.submitNew}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>
