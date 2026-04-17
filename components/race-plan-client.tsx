@@ -38,8 +38,8 @@ export function RacePlanClient({ plan, mapPoints, distanceKm }: RacePlanClientPr
       {/* 1. Selector de objetivo (Pronóstico / Target / Consenso) */}
       <ObjectiveCards plan={plan} selected={selected} onSelect={setSelected} />
 
-      {/* 2. Barra de condiciones — full-width, se mueve con el selector */}
-      <ConditionsBar plan={plan} selected={selected} weather={activePlan.weather} />
+      {/* 2. Barra de exigencia relativa — se mueve con el selector */}
+      <ConditionsBar plan={plan} selected={selected} />
 
       {/* 3. Clima detallado */}
       <WeatherCard weather={activePlan.weather} />

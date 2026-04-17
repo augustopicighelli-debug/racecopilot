@@ -194,8 +194,13 @@ export const T = {
       nutritionTitle: 'Nutrición',
       carbs:          'carbos',
       sodium:         'sodio',
-      // Barra de condiciones en WeatherCard
-      conditionsLabel: 'Condiciones para el tiempo objetivo',
+      // Barra de nivel de exigencia (relativa entre objetivos)
+      conditionsLabel:   'Nivel de exigencia',
+      condConservative:  'Conservador',
+      condBalanced:      'Equilibrado',
+      condAmbitious:     'Ambicioso',
+      condVeryAmbitious: 'Muy ambicioso',
+      // Mantener estas por compatibilidad con WeatherCard (aunque ya no se usan en barra)
       condIdeal:       'Ideales',
       condGood:        'Buenas',
       condFair:        'Aceptables',
@@ -570,7 +575,11 @@ export const T = {
       nutritionTitle: 'Nutrition',
       carbs:          'carbs',
       sodium:         'sodium',
-      conditionsLabel: 'Conditions for target time',
+      conditionsLabel:   'Effort level',
+      condConservative:  'Conservative',
+      condBalanced:      'Balanced',
+      condAmbitious:     'Ambitious',
+      condVeryAmbitious: 'Very ambitious',
       condIdeal:       'Ideal',
       condGood:        'Good',
       condFair:        'Fair',

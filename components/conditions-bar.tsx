@@ -1,111 +1,78 @@
 'use client';
 
 /**
- * ConditionsBar — barra de condiciones full-width que reacciona al objetivo seleccionado.
+ * ConditionsBar — barra de nivel de exigencia del objetivo seleccionado.
  *
- * Score 0–100 compuesto por:
- *   1. Condiciones climáticas base (temperatura, humedad, viento)
- *   2. Penalidad/bonificación según qué tan ambicioso es el tiempo seleccionado
- *      vs el pronóstico base del engine.
+ * Lógica de posicionamiento RELATIVA entre los planes disponibles:
+ *   - El plan más conservador (tiempo más largo = más fácil) → siempre en el extremo derecho
+ *   - El plan más ambicioso (tiempo más corto = más difícil) → siempre en el extremo izquierdo
+ *   - Los intermedios se interpolan en ese rango
  *
- * Ejemplo: clima perfecto (85pts) + target 8% más rápido que forecast → ~65pts
+ * Esto garantiza que el needle siempre se mueva al cambiar el selector,
+ * aunque las diferencias de tiempo sean pequeñas (ej: 3min en un maratón de 3h30).
+ *
+ * Cuando solo hay un plan (sin target ni consensus): posición fija en 75.
  */
 
 import { useLang } from '@/lib/lang';
-import type { AggregatedWeather, TripleObjectivePlan } from '@/lib/engine/types';
+import type { TripleObjectivePlan } from '@/lib/engine/types';
 
 type Objective = 'forecast' | 'target' | 'consensus';
 
 interface ConditionsBarProps {
   plan:     TripleObjectivePlan;
   selected: Objective;
-  weather:  AggregatedWeather;   // clima del plan activo
-}
-
-// ── Score climático base (idéntico al de WeatherCard) ──────────────────────
-function weatherScore(w: AggregatedWeather): number {
-  if (w.sourcesCount === 0) return 50; // neutral → punto medio
-
-  const temp = w.temperature;
-  let tScore: number;
-  if (temp >= 8 && temp <= 15)       tScore = 40;
-  else if (temp > 15 && temp <= 20)  tScore = 40 - (temp - 15) * 3;
-  else if (temp > 20 && temp <= 28)  tScore = 25 - (temp - 20) * 2.5;
-  else if (temp > 28)                tScore = Math.max(0, 5 - (temp - 28) * 2);
-  else if (temp >= 0 && temp < 8)    tScore = 40 - (8 - temp) * 2.5;
-  else                               tScore = Math.max(0, 20 - Math.abs(temp) * 3);
-  tScore = Math.max(0, Math.min(40, tScore));
-
-  const hum = w.humidity;
-  let hScore = hum <= 60 ? 30 : hum <= 75 ? 30 - (hum - 60) * 1.5 : Math.max(0, 7.5 - (hum - 75) * 0.5);
-  hScore = Math.max(0, Math.min(30, hScore));
-
-  const wind = w.windSpeedKmh;
-  let wScore = wind <= 15 ? 30 : wind <= 25 ? 30 - (wind - 15) * 2 : Math.max(0, 10 - (wind - 25) * 0.67);
-  wScore = Math.max(0, Math.min(30, wScore));
-
-  return Math.round(tScore + hScore + wScore);
 }
 
 /**
- * Score total para el objetivo seleccionado.
- *
- * Base: score climático (temperatura, humedad, viento) → 0–100.
- * Ajuste: diferencia absoluta en segundos entre el tiempo del objetivo y el forecast.
- *   - Forecast: sin ajuste (es el pronóstico realista del engine)
- *   - Target más rápido que forecast → condiciones necesitan ser mejores → baja el score
- *   - Target más lento → condiciones sobran → sube el score
- *   - Consenso: ajuste a mitad de camino entre forecast y target
- *
- * Escala: cada 60 segundos más ambicioso que el forecast ≈ -8 puntos.
- * Ejemplo: target 4 min más rápido que forecast → -32 pts.
+ * Calcula la posición 0–100 del objetivo seleccionado en escala relativa.
+ * 100 = más conservador (más a la derecha), 0 = más ambicioso (más a la izquierda).
+ * Los extremos se mapean a [15, 90] para que nunca toque los bordes.
  */
-function computeScore(
-  plan:     TripleObjectivePlan,
-  selected: Objective,
-  weather:  AggregatedWeather
-): number {
-  const base = weatherScore(weather);
+function computePosition(plan: TripleObjectivePlan, selected: Objective): number {
+  const times: Record<string, number> = {
+    forecast: plan.forecast.prediction.timeSeconds,
+  };
+  if (plan.target)    times.target    = plan.target.prediction.timeSeconds;
+  if (plan.consensus) times.consensus = plan.consensus.prediction.timeSeconds;
 
-  // Sin plan target/consensus → solo el score climático
-  if (selected === 'forecast' || !plan.target) return base;
+  const allTimes = Object.values(times);
 
-  const forecastTime = plan.forecast.prediction.timeSeconds;
+  // Solo un plan disponible: posición fija
+  if (allTimes.length === 1) return 75;
 
-  if (selected === 'target') {
-    const targetTime = plan.target.prediction.timeSeconds;
-    // deltaSeconds > 0 → target MÁS RÁPIDO (más exigente) → penalidad
-    const deltaSeconds = forecastTime - targetTime;
-    const adjustment   = -(deltaSeconds / 60) * 8; // 60s más rápido → -8 pts
-    return Math.round(Math.max(5, Math.min(100, base + adjustment)));
-  }
+  const maxTime = Math.max(...allTimes); // más conservador → derecha
+  const minTime = Math.min(...allTimes); // más ambicioso  → izquierda
+  const spread  = maxTime - minTime;
 
-  if (selected === 'consensus' && plan.consensus) {
-    const consensusTime = plan.consensus.prediction.timeSeconds;
-    const deltaSeconds  = forecastTime - consensusTime;
-    const adjustment    = -(deltaSeconds / 60) * 8;
-    return Math.round(Math.max(5, Math.min(100, base + adjustment)));
-  }
+  // Si los tiempos son idénticos (spread = 0), posición media
+  if (spread === 0) return 55;
 
-  return base;
+  const selectedTime = times[selected] ?? times.forecast;
+
+  // Mapear [minTime, maxTime] → [15, 90]
+  const raw = (selectedTime - minTime) / spread; // 0 (ambicioso) → 1 (conservador)
+  return Math.round(15 + raw * 75);
+}
+
+/** Etiqueta según la posición relativa */
+function positionLabel(pos: number, t: ReturnType<typeof useLang>['t']): {
+  label: string; color: string; bgColor: string;
+} {
+  const p = t.plan;
+  if (pos >= 75) return { label: p.condConservative ?? 'Conservador',   color: '#4ade80', bgColor: 'rgba(74,222,128,0.15)' };
+  if (pos >= 52) return { label: p.condBalanced    ?? 'Equilibrado',    color: '#86efac', bgColor: 'rgba(134,239,172,0.12)' };
+  if (pos >= 35) return { label: p.condAmbitious   ?? 'Ambicioso',      color: '#fbbf24', bgColor: 'rgba(251,191,36,0.12)' };
+  return              { label: p.condVeryAmbitious ?? 'Muy ambicioso',  color: '#f97316', bgColor: 'rgba(249,115,22,0.12)' };
 }
 
 /** Etiqueta y colores según el score */
-function scoreStyle(score: number, t: ReturnType<typeof useLang>['t']) {
-  const p = t.plan;
-  if (score >= 80) return { label: p.condIdeal    ?? 'Ideales',        color: '#4ade80', track: 'rgba(74,222,128,0.2)' };
-  if (score >= 60) return { label: p.condGood     ?? 'Buenas',         color: '#86efac', track: 'rgba(134,239,172,0.15)' };
-  if (score >= 40) return { label: p.condFair     ?? 'Aceptables',     color: '#fbbf24', track: 'rgba(251,191,36,0.15)' };
-  if (score >= 20) return { label: p.condHard     ?? 'Difíciles',      color: '#f97316', track: 'rgba(249,115,22,0.15)' };
-  return              { label: p.condVeryHard  ?? 'Muy difíciles',  color: '#f87171', track: 'rgba(248,113,113,0.15)' };
-}
-
-export function ConditionsBar({ plan, selected, weather }: ConditionsBarProps) {
+export function ConditionsBar({ plan, selected }: ConditionsBarProps) {
   const { t } = useLang();
   const p = t.plan;
 
-  const score = computeScore(plan, selected, weather);
-  const style = scoreStyle(score, t);
+  const pos   = computePosition(plan, selected);
+  const style = positionLabel(pos, t);
 
   const objectiveLabel =
     selected === 'forecast'  ? (p.labelForecast  ?? 'Pronóstico') :
@@ -120,39 +87,40 @@ export function ConditionsBar({ plan, selected, weather }: ConditionsBarProps) {
       {/* Encabezado */}
       <div className="flex items-center justify-between mb-2.5">
         <p className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>
-          {p.conditionsLabel ?? 'Condiciones para el tiempo objetivo'}
+          {p.conditionsLabel ?? 'Nivel de exigencia'}
           <span className="ml-1.5 opacity-70">· {objectiveLabel}</span>
         </p>
         <span
           className="text-xs font-semibold px-2.5 py-0.5 rounded-full transition-all duration-500"
-          style={{ background: style.track, color: style.color }}
+          style={{ background: style.bgColor, color: style.color }}
         >
           {style.label}
         </span>
       </div>
 
       {/* Barra completa */}
-      <div className="relative h-3 rounded-full overflow-visible"
-        style={{ background: 'linear-gradient(to right, #f87171 0%, #fbbf24 45%, #86efac 75%, #4ade80 100%)' }}
+      <div
+        className="relative h-3 rounded-full overflow-visible"
+        style={{ background: 'linear-gradient(to right, #f97316 0%, #fbbf24 40%, #86efac 75%, #4ade80 100%)' }}
       >
-        {/* Needle — se mueve con CSS transition cuando cambia el score */}
+        {/* Needle animada con spring */}
         <div
           className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-white shadow-lg"
           style={{
-            left:       `calc(${score}% - 10px)`,
+            left:       `calc(${pos}% - 10px)`,
             background: style.color,
-            transition: 'left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)', // spring suave
+            transition: 'left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
           }}
         />
       </div>
 
-      {/* Etiquetas de extremos */}
+      {/* Extremos de la escala */}
       <div className="flex justify-between mt-2">
-        <span className="text-xs" style={{ color: '#f87171' }}>
-          {p.condVeryHard ?? 'Muy difíciles'}
+        <span className="text-xs" style={{ color: '#f97316' }}>
+          {p.condVeryAmbitious ?? 'Muy ambicioso'}
         </span>
         <span className="text-xs" style={{ color: '#4ade80' }}>
-          {p.condIdeal ?? 'Ideales'}
+          {p.condConservative ?? 'Conservador'}
         </span>
       </div>
     </div>
