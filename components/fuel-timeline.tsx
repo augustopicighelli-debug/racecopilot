@@ -1,9 +1,8 @@
 'use client';
 
 /**
- * FuelTimeline — timeline compacto de hidratación + nutrición.
- * Diseño: una sola fila por km, todos los items en línea horizontal.
- * Agua + geles + pastillas agrupados por km, sin columna de dots.
+ * FuelTimeline — tabla de hidratación + nutrición con columnas alineadas.
+ * Columnas: Km | Agua | Gel | Sal | Tiempo
  */
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -17,18 +16,20 @@ interface FuelTimelineProps {
 }
 
 type FuelRow = {
-  km:      number | 'pre';
-  water?:  { ml: number };
-  items:   { icon: string; name: string }[];
+  km:       number | 'pre';
+  water?:   { ml: number };
+  gel?:     string;         // nombre del gel (sin cafeína o con)
+  cafGel?:  string;         // nombre del gel con cafeína (slot separado si coinciden)
+  salt?:    string;         // nombre de la pastilla de sal
   minutes?: number;
 };
 
-/** Construye la lista de filas fusionando agua + nutrición por km */
+/** Construye las filas fusionando agua + nutrición por km */
 function buildRows(hydration: HydrationPlan, nutrition: NutritionPlan): FuelRow[] {
   const map = new Map<number | 'pre', FuelRow>();
 
   const get = (km: number | 'pre'): FuelRow => {
-    if (!map.has(km)) map.set(km, { km, items: [] });
+    if (!map.has(km)) map.set(km, { km });
     return map.get(km)!;
   };
 
@@ -39,17 +40,25 @@ function buildRows(hydration: HydrationPlan, nutrition: NutritionPlan): FuelRow[
 
   // Gel pre-carrera
   if (nutrition.preRaceGel) {
-    const row = get('pre');
-    const p   = nutrition.preRaceGel;
-    row.items.push({ icon: '⚡', name: p.product.name });
+    get('pre').gel = nutrition.preRaceGel.product.name;
   }
 
-  // Nutrición durante la carrera
+  // Geles y pastillas durante la carrera
   for (const e of nutrition.events) {
-    const row    = get(e.km);
-    const isSalt = e.product.type === 'salt_pill';
-    row.items.push({ icon: isSalt ? '🧂' : '⚡', name: e.product.name });
+    const row = get(e.km);
     if (row.minutes === undefined) row.minutes = e.minutesSinceStart;
+
+    if (e.product.type === 'salt_pill') {
+      row.salt = e.product.name;
+    } else {
+      // Gel: si tiene cafeína va a cafGel, sino a gel
+      const hasCaffeine = e.product.caffeineMg > 0;
+      if (hasCaffeine) {
+        row.cafGel = e.product.name;
+      } else {
+        row.gel = e.product.name;
+      }
+    }
   }
 
   // Ordenar: PRE primero, luego por km
@@ -69,6 +78,9 @@ export function FuelTimeline({ hydration, nutrition }: FuelTimelineProps) {
 
   const rows = buildRows(hydration, nutrition);
   const hasNutrition = nutrition.events.length > 0 || !!nutrition.preRaceGel;
+
+  // Detectar si alguna fila tiene gel con cafeína (para mostrar columna o no)
+  const hasCafCol = rows.some(r => r.cafGel);
 
   return (
     <Card>
@@ -93,74 +105,93 @@ export function FuelTimeline({ hydration, nutrition }: FuelTimelineProps) {
           >
             <span>💡</span>
             <span>
-              Tenés un solo producto de nutrición. Agregar una pastilla de sal y un gel sin cafeína para los km anteriores puede mejorar la estrategia.{' '}
+              Tenés un solo producto de nutrición. Agregar una pastilla de sal y un gel sin cafeína puede mejorar la estrategia.{' '}
               <a href="/profile" className="underline" style={{ color: '#f97316' }}>Agregar productos →</a>
             </span>
           </div>
         )}
 
-        {rows.map((row, i) => {
-          const isPre    = row.km === 'pre';
-          const kmLabel  = isPre ? 'PRE' : `Km ${row.km}`;
-          const isEmpty  = !row.water && row.items.length === 0;
-          if (isEmpty) return null;
+        {/* Tabla con grid de columnas fijas */}
+        <div className="w-full">
+          {rows.map((row, i) => {
+            const isPre   = row.km === 'pre';
+            const kmLabel = isPre ? 'PRE' : `Km ${row.km}`;
+            const isEmpty = !row.water && !row.gel && !row.cafGel && !row.salt;
+            if (isEmpty) return null;
 
-          return (
-            <div
-              key={i}
-              className="flex items-center gap-3 px-6 py-2.5 border-b last:border-0"
-              style={{ borderColor: 'var(--border)' }}
-            >
-              {/* Km label */}
-              <span
-                className="flex-shrink-0 w-14 text-right font-mono text-xs font-semibold"
-                style={{ color: isPre ? '#f59e0b' : 'var(--muted-foreground)' }}
+            return (
+              <div
+                key={i}
+                className="grid items-center px-4 py-2.5 border-b last:border-0"
+                style={{
+                  // Columnas: km | agua | gel regular | gel cafeína (opcional) | sal | tiempo
+                  gridTemplateColumns: hasCafCol
+                    ? '3.5rem 1fr 1fr 1fr 1fr 3rem'
+                    : '3.5rem 1fr 1fr 1fr 3rem',
+                  borderColor: 'var(--border)',
+                }}
               >
-                {kmLabel}
-              </span>
-
-              {/* Items en línea */}
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 flex-1 text-sm">
+                {/* Km */}
+                <span
+                  className="font-mono text-xs font-semibold text-right pr-2"
+                  style={{ color: isPre ? '#f59e0b' : 'var(--muted-foreground)' }}
+                >
+                  {kmLabel}
+                </span>
 
                 {/* Agua */}
-                {row.water && (
-                  <span className="flex items-center gap-1">
-                    <span className="text-sky-400 text-xs">💧</span>
-                    <span className="font-medium text-sky-300">{fmtVol(row.water.ml)}</span>
+                <span className="flex items-center gap-1 text-sm">
+                  {row.water ? (
+                    <>
+                      <span className="text-xs">💧</span>
+                      <span className="font-medium text-sky-300">{fmtVol(row.water.ml)}</span>
+                    </>
+                  ) : null}
+                </span>
+
+                {/* Gel sin cafeína */}
+                <span className="flex items-center gap-1 text-sm">
+                  {row.gel ? (
+                    <>
+                      <span className="text-xs">⚡</span>
+                      <span className="font-medium" style={{ color: 'var(--foreground)' }}>{row.gel}</span>
+                    </>
+                  ) : null}
+                </span>
+
+                {/* Gel con cafeína (columna solo si hay alguno) */}
+                {hasCafCol && (
+                  <span className="flex items-center gap-1 text-sm">
+                    {row.cafGel ? (
+                      <>
+                        <span className="text-xs">☕</span>
+                        <span className="font-medium" style={{ color: '#fbbf24' }}>{row.cafGel}</span>
+                      </>
+                    ) : null}
                   </span>
                 )}
 
-                {/* Separador visual si hay agua Y nutrición */}
-                {row.water && row.items.length > 0 && (
-                  <span className="text-[var(--border)] select-none">·</span>
-                )}
+                {/* Sal */}
+                <span className="flex items-center gap-1 text-sm">
+                  {row.salt ? (
+                    <>
+                      <span className="text-xs">🧂</span>
+                      <span className="font-medium" style={{ color: 'var(--foreground)' }}>{row.salt}</span>
+                    </>
+                  ) : null}
+                </span>
 
-                {/* Geles / pastillas */}
-                {row.items.map((item, j) => (
-                  <span key={j} className="flex items-center gap-1.5">
-                    <span className="text-xs">{item.icon}</span>
-                    <span className="font-medium" style={{ color: 'var(--foreground)' }}>
-                      {item.name}
-                    </span>
-                    {j < row.items.length - 1 && (
-                      <span className="text-[var(--border)] select-none">·</span>
-                    )}
-                  </span>
-                ))}
-              </div>
-
-              {/* Tiempo desde el inicio, alineado a la derecha */}
-              {row.minutes != null && (
+                {/* Tiempo */}
                 <span
-                  className="flex-shrink-0 text-xs tabular-nums"
+                  className="text-xs tabular-nums text-right"
                   style={{ color: 'var(--muted-foreground)' }}
                 >
-                  ~{row.minutes}min
+                  {row.minutes != null ? `~${row.minutes}min` : ''}
                 </span>
-              )}
-            </div>
-          );
-        })}
+              </div>
+            );
+          })}
+        </div>
       </CardContent>
     </Card>
   );
