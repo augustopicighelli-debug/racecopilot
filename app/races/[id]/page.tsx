@@ -5,7 +5,8 @@ import { supabase } from '@/lib/supabase-client';
 import { RacePlanClient } from '@/components/race-plan-client';
 import { RaceResult } from '@/components/race-result';
 import { WarmupPlan } from '@/components/warmup-plan';
-import type { TripleObjectivePlan } from '@/lib/engine/types';
+import type { TripleObjectivePlan, GpxPoint } from '@/lib/engine/types';
+import { parseGpx } from '@/lib/gpx/parser';
 import { useUnits } from '@/lib/units';
 import { UnitsToggle } from '@/components/units-toggle';
 import { useLang } from '@/lib/lang';
@@ -21,6 +22,7 @@ interface Race {
   elevation_loss: number | null;
   actual_time_s: number | null;
   goal_type: 'finish' | 'pr' | 'target' | null;
+  gpx_slug: string | null;
 }
 
 interface ReferenceRace {
@@ -92,6 +94,9 @@ function RacePage() {
 
   // --- resultado real de la carrera ---
   const [actualTimeS, setActualTimeS] = useState<number | null>(null);
+
+  // --- puntos GPX para el mapa (lat/lon/elev) ---
+  const [mapPoints, setMapPoints] = useState<GpxPoint[]>([]);
 
   // --- estado del link compartido ---
   const [shareUrl,      setShareUrl]      = useState<string | null>(null);
@@ -166,13 +171,26 @@ function RacePage() {
       // Cargar carrera
       const { data, error: err } = await supabase
         .from('races')
-        .select('id,name,distance_km,race_date,city,target_time_s,elevation_gain,elevation_loss,actual_time_s,goal_type')
+        .select('id,name,distance_km,race_date,city,target_time_s,elevation_gain,elevation_loss,actual_time_s,goal_type,gpx_slug')
         .eq('id', id)
         .maybeSingle();
 
       if (err || !data) { setError('Carrera no encontrada'); setLoading(false); return; }
       setRace(data);
       setActualTimeS(data.actual_time_s ?? null);
+
+      // Si la carrera tiene GPX del catálogo, cargar los puntos para el mapa
+      if (data.gpx_slug) {
+        try {
+          const gpxRes = await fetch(`/gpx/${data.gpx_slug}.gpx`);
+          if (gpxRes.ok) {
+            const xml = await gpxRes.text();
+            setMapPoints(parseGpx(xml));
+          }
+        } catch {
+          // Mapa opcional: si falla, simplemente no se muestra
+        }
+      }
 
       // Cargar runner
       const { data: runner } = await supabase
@@ -722,7 +740,7 @@ function RacePage() {
         {plan && !planLoading && (
           <RacePlanClient
             plan={plan}
-            mapPoints={[]}
+            mapPoints={mapPoints}
             distanceKm={race?.distance_km ?? 0}
           />
         )}

@@ -44,6 +44,7 @@ export default function EditRacePage() {
   const [elevGain, setElevGain]     = useState('');
   const [elevLoss, setElevLoss]     = useState('');
   const [goalType, setGoalType]     = useState<'finish' | 'pr' | 'target'>('pr');
+  const [gpxSlug, setGpxSlug]       = useState<string | null>(null);
 
   // Cargar datos actuales de la carrera
   useEffect(() => {
@@ -53,7 +54,7 @@ export default function EditRacePage() {
 
       const { data, error: err } = await supabase
         .from('races')
-        .select('name,distance_km,race_date,city,target_time_s,elevation_gain,elevation_loss,goal_type')
+        .select('name,distance_km,race_date,city,target_time_s,elevation_gain,elevation_loss,goal_type,gpx_slug')
         .eq('id', id)
         .maybeSingle();
 
@@ -73,13 +74,15 @@ export default function EditRacePage() {
       setElevGain(gainVal ? String(gainVal) : '');
       setElevLoss(lossVal ? String(lossVal) : '');
       setGoalType((data.goal_type as 'finish' | 'pr' | 'target') ?? 'pr');
+      setGpxSlug(data.gpx_slug ?? null);
       setLoading(false);
     };
     load();
   }, [id, router]);
 
-  // Aplicar una carrera del catálogo (actualiza nombre, distancia, ciudad, elevación)
+  // Aplicar una carrera del catálogo (actualiza nombre, distancia, ciudad, elevación, slug)
   const applyGpxMatch = (m: CatalogRace) => {
+    setGpxSlug(m.slug);
     setName(m.name);
     const distVal = imp ? (m.distance_km / 1.60934).toFixed(2) : m.distance_km.toString();
     setDistanceKm(distVal);
@@ -114,6 +117,7 @@ export default function EditRacePage() {
         elevation_gain: elevM,
         elevation_loss: elevLossM,
         goal_type:      goalType,
+        gpx_slug:       gpxSlug,
       }).eq('id', id);
 
       if (err) throw err;

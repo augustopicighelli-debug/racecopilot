@@ -25,6 +25,8 @@ export default function NewRacePage() {
   const [elevLoss, setElevLoss]     = useState('');
   const [goalType, setGoalType]     = useState<'finish' | 'pr' | 'target'>('pr');
   const [distPreset, setDistPreset] = useState<'10' | '21.1' | '42.195' | 'custom'>('custom');
+  // Slug del catálogo GPX si se eligió una carrera conocida
+  const [gpxSlug, setGpxSlug]       = useState<string | null>(null);
 
   // Controla si mostrar los campos del form (false = solo se ve el buscador)
   const [formVisible, setFormVisible] = useState(false);
@@ -42,6 +44,7 @@ export default function NewRacePage() {
 
   // Selección desde el catálogo: prellenar todo y mostrar form
   const handleCatalogSelect = (m: CatalogRace) => {
+    setGpxSlug(m.slug);   // guardar slug para el mapa
     setName(m.name);
     const distKm = m.distance_km;
     const dispDist = imp ? (distKm / 1.60934).toFixed(2) : distKm.toString();
@@ -57,6 +60,7 @@ export default function NewRacePage() {
 
   // "Mi carrera no figura": limpiar campos y mostrar form en blanco
   const handleManual = () => {
+    setGpxSlug(null);   // sin GPX
     setName('');
     setDistanceKm('');
     setRaceDate('');
@@ -102,6 +106,7 @@ export default function NewRacePage() {
         elevation_gain: elevM,
         elevation_loss: elevLossM,
         goal_type:      goalType,
+        gpx_slug:       gpxSlug,
       }).select('id').single();
       if (err) throw err;
       router.push(`/races/${newRace.id}`);
