@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateRacePlan } from '@/lib/engine/plan';
+import fs from 'fs';
+import path from 'path';
 
 // Cliente admin para guardar el clima sin depender del JWT del usuario
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
-import { buildFlatProfile } from '@/lib/engine/elevation';
+import { buildFlatProfile, buildElevationProfile } from '@/lib/engine/elevation';
+import { parseGpx } from '@/lib/gpx/parser';
 import { fetchWeather } from '@/lib/weather/open-meteo';
 import type { RunnerProfile, AggregatedWeather, PacingStrategyConfig } from '@/lib/engine/types';
 
@@ -53,7 +56,7 @@ export async function GET(
   // 1. Cargar la carrera
   const { data: race, error: raceErr } = await supabase
     .from('races')
-    .select('id,distance_km,race_date,target_time_s,elevation_gain,elevation_loss,runner_id,city,goal_type')
+    .select('id,distance_km,race_date,target_time_s,elevation_gain,elevation_loss,runner_id,city,goal_type,gpx_slug')
     .eq('id', raceId)
     .maybeSingle();
 
@@ -118,12 +121,21 @@ export async function GET(
     })),
   };
 
-  // 5. Perfil del recorrido (plano con desnivel manual si existe)
-  const course = buildFlatProfile(
-    race.distance_km,
-    race.elevation_gain ?? undefined,
-    race.elevation_loss ?? undefined
-  );
+  // 5. Perfil del recorrido — real desde GPX si existe, plano como fallback
+  let course;
+  if (race.gpx_slug) {
+    try {
+      const gpxPath = path.join(process.cwd(), 'public', 'gpx', `${race.gpx_slug}.gpx`);
+      const xml = fs.readFileSync(gpxPath, 'utf-8');
+      const points = parseGpx(xml);
+      course = buildElevationProfile(points, race.distance_km);
+    } catch {
+      // Si el archivo no existe o falla el parseo, usar perfil plano
+      course = buildFlatProfile(race.distance_km, race.elevation_gain ?? undefined, race.elevation_loss ?? undefined);
+    }
+  } else {
+    course = buildFlatProfile(race.distance_km, race.elevation_gain ?? undefined, race.elevation_loss ?? undefined);
+  }
 
   // 6. Clima real vía Open-Meteo (o neutral si no hay ciudad o falla la API)
   const daysUntilRace = Math.ceil(
