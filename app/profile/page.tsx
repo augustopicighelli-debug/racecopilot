@@ -183,6 +183,7 @@ export default function ProfilePage() {
   // --- Sección C: tiempos de referencia ---
   const [refRaces, setRefRaces]         = useState<ReferenceRace[]>([]);
   const [showRefForm, setShowRefForm]   = useState(false);
+  const [refCollapsed, setRefCollapsed] = useState(false); // colapsar sección de referencia
   const [refSaving, setRefSaving]       = useState(false);
   const [refError, setRefError]         = useState('');
   // campos modo carrera
@@ -663,11 +664,20 @@ export default function ProfilePage() {
             SECCIÓN C — Tiempos de referencia
         ================================================================ */}
         <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="font-semibold">{t.race.refTitle}</h2>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{t.race.refSubtitle}</p>
-          </div>
-          {!showRefForm && (
+          <button
+            onClick={() => setRefCollapsed(c => !c)}
+            className="flex items-center gap-2 text-left"
+          >
+            <span
+              className="text-xs transition-transform duration-200"
+              style={{ color: 'var(--muted-foreground)', display: 'inline-block', transform: refCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}
+            >▾</span>
+            <div>
+              <h2 className="font-semibold">{t.race.refTitle}</h2>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{t.race.refSubtitle}</p>
+            </div>
+          </button>
+          {!refCollapsed && !showRefForm && (
             <button
               onClick={() => { setShowRefForm(true); setRefError(''); }}
               className="px-3 py-1.5 rounded-lg text-xs font-semibold"
@@ -678,8 +688,8 @@ export default function ProfilePage() {
           )}
         </div>
 
-        {/* Lista de tiempos */}
-        <div className="rounded-xl border mb-4 overflow-hidden" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+        {/* Lista de tiempos (colapsable) */}
+        {!refCollapsed && <div className="rounded-xl border mb-4 overflow-hidden" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
           {refRaces.length === 0 && !showRefForm ? (
             <p className="px-5 py-4 text-sm" style={{ color: 'var(--muted-foreground)' }}>{t.race.refEmpty}</p>
           ) : (
@@ -704,10 +714,10 @@ export default function ProfilePage() {
               ))}
             </ul>
           )}
-        </div>
+        </div>}
 
         {/* Formulario inline de nuevo tiempo */}
-        {showRefForm && (
+        {!refCollapsed && showRefForm && (
           <div className="rounded-xl border p-5 mb-8" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             {/* Fila: tipo + fecha */}
             <div className="grid grid-cols-2 gap-3 mb-3">
