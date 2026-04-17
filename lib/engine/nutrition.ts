@@ -150,7 +150,7 @@ export function generateNutritionPlan(input: GenerateNutritionPlanInput): Nutrit
       const earlyIdx = gelSlots.reduce((bestIdx, m, idx) =>
         Math.abs(m - earlyTarget) < Math.abs(gelSlots[bestIdx] - earlyTarget) ? idx : bestIdx, 0);
       const gap = Math.abs(gelSlots[earlyIdx] - gelSlots[mainIdx]);
-      if (earlyIdx !== mainIdx && gap >= 60) caffeineSlotIdxs.add(earlyIdx);
+      if (earlyIdx !== mainIdx && gap >= 40) caffeineSlotIdxs.add(earlyIdx);
     }
   }
 
