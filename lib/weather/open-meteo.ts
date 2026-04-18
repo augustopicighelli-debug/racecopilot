@@ -162,7 +162,8 @@ function findHourIndex(times: string[], date: string, hour: number): number {
 export async function fetchWeather(
   city: string,
   raceDate: string,
-  daysUntilRace: number
+  daysUntilRace: number,
+  raceDurationSeconds?: number  // duración estimada para calcular hora de llegada
 ): Promise<AggregatedWeather> {
   const neutral: AggregatedWeather = { ...NEUTRAL_WEATHER, daysUntilRace };
 
@@ -228,10 +229,13 @@ export async function fetchWeather(
     const windSpeed = avgAtIndices(wind_speed_10m,       startIndices);
     const windDir   = avgAtIndices(wind_direction_10m,   startIndices);
 
-    // Temperatura al final: hora inicio + duración estimada (2h para corredores promedio)
-    const endHourEst = 7 + 2;
-    const endIdx     = findHourIndex(time, raceDate, endHourEst);
-    const tempEnd    = endIdx !== -1 ? temperature_2m[endIdx] : undefined;
+    // Temperatura al final: largada promedio a las 8h + duración real de la carrera.
+    // Sin duración conocida → fallback de 2h (carrera de ~10K/media).
+    const START_HOUR_EST = 8;
+    const durationHours  = raceDurationSeconds ? raceDurationSeconds / 3600 : 2;
+    const endHourEst     = Math.min(Math.round(START_HOUR_EST + durationHours), 23);
+    const endIdx         = findHourIndex(time, raceDate, endHourEst);
+    const tempEnd        = endIdx !== -1 ? temperature_2m[endIdx] : undefined;
 
     return {
       temperature:      Math.round(tempStart * 10) / 10,

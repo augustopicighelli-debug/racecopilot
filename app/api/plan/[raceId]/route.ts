@@ -163,8 +163,12 @@ export async function GET(
     temperature: 12, humidity: 50, windSpeedKmh: 0,
     windDirectionDeg: 0, sourcesCount: 0, sourceAgreement: 'low', daysUntilRace,
   };
+  // Estimación de duración para calcular la temperatura de llegada:
+  // usar target_time_s si existe, sino estimar a ~6 min/km (corredor promedio)
+  const estDurationS = race.target_time_s ?? Math.round(race.distance_km * 6 * 60);
+
   const weather: AggregatedWeather = cityForWeather
-    ? await fetchWeather(cityForWeather, race.race_date, daysUntilRace)
+    ? await fetchWeather(cityForWeather, race.race_date, daysUntilRace, estDurationS)
     : neutralWeather;
 
   // 7. Ritmo objetivo (si el usuario lo cargó en la carrera)
