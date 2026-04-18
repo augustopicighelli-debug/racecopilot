@@ -50,9 +50,18 @@ function computePosition(plan: TripleObjectivePlan, selected: Objective): number
 
   const selectedTime = times[selected] ?? times.forecast;
 
-  // Mapear [minTime, maxTime] → [15, 90]
+  // Spread máximo de referencia: 15 minutos = rango completo [15, 90].
+  // Si la diferencia entre planes es menor, el rango visible se comprime
+  // proporcionalmente → evita que 30 segundos muevan la aguja de extremo a extremo.
+  const MAX_SPREAD_S = 15 * 60; // 15 min
+  const CENTER = 55;             // posición neutra cuando los planes son casi iguales
+  const HALF_RANGE = 35;         // mitad del rango visible máximo → [20, 90]
+
+  const scale = Math.min(spread / MAX_SPREAD_S, 1); // 0..1 según qué tan grande es la diferencia
+  const scaledHalf = scale * HALF_RANGE;
+
   const raw = (selectedTime - minTime) / spread; // 0 (ambicioso) → 1 (conservador)
-  return Math.round(15 + raw * 75);
+  return Math.round((CENTER - scaledHalf) + raw * 2 * scaledHalf);
 }
 
 /** Etiqueta según la posición relativa */
