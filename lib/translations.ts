@@ -62,7 +62,7 @@ export const T = {
       features: [
         { icon: '🏃', title: 'Predictor de ritmo',      desc: 'Modelo de Riegel calibrado con tus tiempos reales. No usa promedios genéricos.' },
         { icon: '💧', title: 'Hidratación y nutrición', desc: 'Plan km a km según tu peso, sudoración y productos que ya usás.' },
-        { icon: '🌤', title: 'Clima del día',            desc: 'Pronóstico de Open-Meteo para la ciudad y la fecha exacta de tu carrera.' },
+        { icon: '🌤', title: 'Clima del día',            desc: 'Pronóstico de Visual Crossing para la ciudad y la fecha exacta de tu carrera.' },
       ],
       ctaSectionTitle:    '¿Listo para tu próxima carrera?',
       ctaSectionSubtitle: '7 días de prueba gratis. Cancelá cuando quieras.',
@@ -496,7 +496,7 @@ export const T = {
       features: [
         { icon: '🏃', title: 'Pace predictor',       desc: 'Riegel model calibrated with your real race times. No generic averages.' },
         { icon: '💧', title: 'Hydration & nutrition', desc: 'Per-km plan based on your weight, sweat rate and products you already use.' },
-        { icon: '🌤', title: 'Race-day weather',      desc: 'Open-Meteo forecast for your city on the exact date of your race.' },
+        { icon: '🌤', title: 'Race-day weather',      desc: 'Visual Crossing forecast for your city on the exact date of your race.' },
       ],
       ctaSectionTitle:    'Ready for your next race?',
       ctaSectionSubtitle: '7-day free trial. Cancel anytime.',

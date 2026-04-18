@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateRacePlan } from '@/lib/engine/plan';
 import { buildFlatProfile } from '@/lib/engine/elevation';
-import { fetchWeather } from '@/lib/weather/open-meteo';
+import { fetchWeather } from '@/lib/weather/visual-crossing';
 import type { RunnerProfile, AggregatedWeather } from '@/lib/engine/types';
 
 // Solo usamos el cliente admin porque esta ruta es pública (sin JWT de usuario)

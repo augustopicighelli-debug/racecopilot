@@ -4,7 +4,7 @@
 // Protegido con Authorization: Bearer {CRON_SECRET}
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { fetchWeather } from '@/lib/weather/open-meteo';
+import { fetchWeather } from '@/lib/weather/visual-crossing';
 import { sendWeatherAlertEmail } from '@/lib/email/resend';
 import type { AggregatedWeather } from '@/lib/engine/types';
 

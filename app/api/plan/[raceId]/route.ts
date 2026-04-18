@@ -11,7 +11,7 @@ const supabaseAdmin = createClient(
 );
 import { buildFlatProfile, buildElevationProfile } from '@/lib/engine/elevation';
 import { parseGpx } from '@/lib/gpx/parser';
-import { fetchWeather } from '@/lib/weather/open-meteo';
+import { fetchWeather } from '@/lib/weather/visual-crossing';
 import type { RunnerProfile, AggregatedWeather, PacingStrategyConfig } from '@/lib/engine/types';
 
 /**
