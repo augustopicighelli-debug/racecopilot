@@ -143,20 +143,22 @@ export async function GET(
     course = buildFlatProfile(race.distance_km, race.elevation_gain ?? undefined, race.elevation_loss ?? undefined);
   }
 
-  // 6. Clima real vía Open-Meteo
+  // 6. Clima
   const daysUntilRace = Math.ceil(
     (new Date(race.race_date + 'T12:00:00').getTime() - Date.now()) / 86400000
   );
 
-  // Resolver ciudad: usar la de la carrera, o la del catálogo GPX como fallback
+  // Resolver ciudad: usar la de la carrera, o la del catálogo GPX (archivo JSON local)
   let cityForWeather = race.city ?? null;
   if (!cityForWeather && race.gpx_slug) {
-    const { data: catalog } = await supabaseAdmin
-      .from('gpx_catalog')
-      .select('city')
-      .eq('slug', race.gpx_slug)
-      .maybeSingle();
-    if (catalog?.city) cityForWeather = catalog.city;
+    try {
+      const catalogPath = path.join(process.cwd(), 'public', 'gpx', 'catalog.json');
+      const catalog: Array<{ slug: string; city?: string }> = JSON.parse(fs.readFileSync(catalogPath, 'utf-8'));
+      const entry = catalog.find(e => e.slug === race.gpx_slug);
+      if (entry?.city) cityForWeather = entry.city;
+    } catch {
+      // Si falla la lectura del catálogo, continuar sin ciudad
+    }
   }
 
   const neutralWeather: AggregatedWeather = {

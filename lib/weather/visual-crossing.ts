@@ -13,7 +13,7 @@
 import type { AggregatedWeather } from '@/lib/engine/types';
 
 const BASE_URL      = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline';
-const MAX_FORECAST_DAYS = 15;
+const MAX_FORECAST_DAYS = 14; // VC no devuelve datos horarios para el día 15 exacto
 const HISTORICAL_YEARS  = 5;
 const START_HOURS       = [7, 8, 9, 10]; // ventana de largada típica
 const START_HOUR        = 8;             // hora de largada para calcular temperatureEnd
