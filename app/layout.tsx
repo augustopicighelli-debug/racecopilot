@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from './providers';
+// Pixels de analytics: GA4 + Meta Pixel + captura de UTMs
+// Se montan en todas las páginas de la app. Solo disparan si hay env vars configuradas.
+import { AnalyticsPixels } from '@/lib/analytics/pixels';
 
 export const metadata: Metadata = {
   title: {
@@ -42,6 +45,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" className="dark">
       <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased">
         <Providers>{children}</Providers>
+        {/* Pixels cargan after-interactive, no bloquean render */}
+        <AnalyticsPixels />
       </body>
     </html>
   );
