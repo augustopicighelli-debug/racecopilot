@@ -250,6 +250,8 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
       isoW, isoH: isoH, isoKmSegments, groundPath, curtainPath, isoMarkers, isoVerticals, isoStart, isoEnd,
       elevLabels,
       minElev: Math.round(minElev), maxElev: Math.round(maxElev),
+      startElev: Math.round(points[0].elevation),
+      endElev:   Math.round(points[points.length - 1].elevation),
     };
   }, [points, distanceKm, splits, avgPace]);
 
@@ -408,19 +410,25 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
               </g>
             ))}
 
-            {/* Start */}
+            {/* Start — label + elevación */}
             <g>
               <circle cx={data.isoStart.x} cy={data.isoStart.y} r="4" fill="oklch(0.75 0.17 160)" />
-              <text x={data.isoStart.x} y={data.isoStart.y - 8} textAnchor="middle" fill="oklch(0.75 0.17 160)" fontSize="8" fontWeight="bold" fontFamily="system-ui">
+              <text x={data.isoStart.x} y={data.isoStart.y - 16} textAnchor="middle" fill="oklch(0.75 0.17 160)" fontSize="8" fontWeight="bold" fontFamily="system-ui">
                 LARGADA
+              </text>
+              <text x={data.isoStart.x} y={data.isoStart.y - 7} textAnchor="middle" fill="oklch(0.75 0.17 160 / 0.75)" fontSize="7" fontFamily="system-ui">
+                {data.startElev}m
               </text>
             </g>
 
-            {/* End */}
+            {/* End — label + elevación */}
             <g>
               <circle cx={data.isoEnd.x} cy={data.isoEnd.y} r="4" fill="oklch(0.65 0.2 27)" />
-              <text x={data.isoEnd.x} y={data.isoEnd.y - 8} textAnchor="middle" fill="oklch(0.65 0.2 27)" fontSize="8" fontWeight="bold" fontFamily="system-ui">
+              <text x={data.isoEnd.x} y={data.isoEnd.y - 16} textAnchor="middle" fill="oklch(0.65 0.2 27)" fontSize="8" fontWeight="bold" fontFamily="system-ui">
                 META
+              </text>
+              <text x={data.isoEnd.x} y={data.isoEnd.y - 7} textAnchor="middle" fill="oklch(0.65 0.2 27 / 0.75)" fontSize="7" fontFamily="system-ui">
+                {data.endElev}m
               </text>
             </g>
 
