@@ -64,12 +64,22 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
       return { x: x * svgW, y: y * svgH, dist: p.distanceFromStart, elev: p.elevation };
     });
 
-    // Build pace-colored km segments
+    // Build pace-colored km segments.
+    // Extendemos cada segmento 1 punto en cada extremo para evitar gaps
+    // entre segmentos cuando ningún punto GPX cae exactamente en el límite del km.
     const kmSegments: { path: string; color: string; km: number }[] = [];
     for (const split of splits) {
       const kmStart = (split.km - 1) * 1000;
       const kmEnd = split.km * 1000;
-      const segPoints = projected.filter(p => p.dist >= kmStart && p.dist <= kmEnd);
+      const indices = projected.reduce<number[]>((acc, p, i) => {
+        if (p.dist >= kmStart && p.dist <= kmEnd) acc.push(i);
+        return acc;
+      }, []);
+      if (indices.length < 1) continue;
+      // Extender 1 punto en cada extremo para conectar con el segmento vecino
+      const first = Math.max(0, indices[0] - 1);
+      const last = Math.min(projected.length - 1, indices[indices.length - 1] + 1);
+      const segPoints = projected.slice(first, last + 1);
       if (segPoints.length < 2) continue;
 
       let d = `M ${segPoints[0].x.toFixed(1)} ${segPoints[0].y.toFixed(1)}`;
@@ -120,15 +130,19 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
       return { x: ix, y: iy, dist: p.dist, elev: points[i].elevation };
     });
 
-    // Iso km segments
+    // Iso km segments — mismo fix: extender 1 punto en cada extremo
     const isoKmSegments: { path: string; color: string; km: number }[] = [];
     for (const split of splits) {
       const kmStart = (split.km - 1) * 1000;
       const kmEnd = split.km * 1000;
-      const segPoints = isoProjected.filter((p, i) => {
-        const dist = projected[i].dist;
-        return dist >= kmStart && dist <= kmEnd;
-      });
+      const isoIndices = projected.reduce<number[]>((acc, p, i) => {
+        if (p.dist >= kmStart && p.dist <= kmEnd) acc.push(i);
+        return acc;
+      }, []);
+      if (isoIndices.length < 1) continue;
+      const isoFirst = Math.max(0, isoIndices[0] - 1);
+      const isoLast = Math.min(isoProjected.length - 1, isoIndices[isoIndices.length - 1] + 1);
+      const segPoints = isoProjected.slice(isoFirst, isoLast + 1);
       if (segPoints.length < 2) continue;
 
       let d = `M ${segPoints[0].x.toFixed(1)} ${segPoints[0].y.toFixed(1)}`;
