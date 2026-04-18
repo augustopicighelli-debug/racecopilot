@@ -229,23 +229,31 @@ export async function fetchWeather(
     const windSpeed = avgAtIndices(wind_speed_10m,       startIndices);
     const windDir   = avgAtIndices(wind_direction_10m,   startIndices);
 
-    // Temperatura al final: largada promedio a las 8h + duración real de la carrera.
-    // Sin duración conocida → fallback de 2h (carrera de ~10K/media).
-    const START_HOUR_EST = 8;
-    const durationHours  = raceDurationSeconds ? raceDurationSeconds / 3600 : 2;
-    const endHourEst     = Math.min(Math.round(START_HOUR_EST + durationHours), 23);
-    const endIdx         = findHourIndex(time, raceDate, endHourEst);
-    const tempEnd        = endIdx !== -1 ? temperature_2m[endIdx] : undefined;
+    // Temps horarios horas 6-22 del día de carrera — usados por cada plan para
+    // calcular su propio temperatureEnd según la duración real (largada fija a las 8h).
+    const hourlyTemps: { hour: number; tempC: number }[] = [];
+    for (let h = 6; h <= 22; h++) {
+      const idx = findHourIndex(time, raceDate, h);
+      if (idx !== -1) hourlyTemps.push({ hour: h, tempC: Math.round(temperature_2m[idx] * 10) / 10 });
+    }
+
+    // temperatureEnd por defecto: 8h + duración estimada (para el caso sin hourlyTemps)
+    const START_HOUR = 8;
+    const durationHours = raceDurationSeconds ? raceDurationSeconds / 3600 : 2;
+    const endHourEst    = Math.min(Math.round(START_HOUR + durationHours), 22);
+    const endEntry      = hourlyTemps.find(e => e.hour === endHourEst);
+    const tempEnd       = endEntry?.tempC;
 
     return {
       temperature:      Math.round(tempStart * 10) / 10,
-      temperatureEnd:   tempEnd !== undefined ? Math.round(tempEnd * 10) / 10 : undefined,
+      temperatureEnd:   tempEnd,
       humidity:         Math.round(humidity),
       windSpeedKmh:     Math.round(windSpeed * 10) / 10,
       windDirectionDeg: Math.round(windDir),
       sourcesCount:     1,
       sourceAgreement:  daysUntilRace <= 7 ? 'high' : 'medium',
       daysUntilRace,
+      hourlyTemps,
     };
   } catch (err) {
     console.error('[weather] error inesperado:', err);

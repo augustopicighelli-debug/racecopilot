@@ -95,7 +95,17 @@ function buildSinglePlan(
   pacingStrategy?: PacingStrategyConfig,
   aidStationKms?: number[]
 ): RacePlan {
-  const splits = generateSplits(prediction.timeSeconds, course, weather, pacingStrategy);
+  // Recalcular temperatureEnd con la duración real de ESTE plan.
+  // Largada fija a las 8h; llegada = 8h + duración del plan.
+  const START_HOUR = 8;
+  const durationHours = prediction.timeSeconds / 3600;
+  const endHour = Math.min(Math.round(START_HOUR + durationHours), 22);
+  const endEntry = weather.hourlyTemps?.find(e => e.hour === endHour);
+  const weatherForPlan: AggregatedWeather = endEntry
+    ? { ...weather, temperatureEnd: endEntry.tempC }
+    : weather;
+
+  const splits = generateSplits(prediction.timeSeconds, course, weatherForPlan, pacingStrategy);
 
   const hydration = generateHydrationPlan({
     weightKg: runner.weightKg,
@@ -103,7 +113,7 @@ function buildSinglePlan(
     sweatLevel: runner.sweatLevel,
     paceSecondsPerKm: prediction.paceSecondsPerKm,
     distanceKm: course.distanceKm,
-    weather,
+    weather: weatherForPlan,
     aidStationKms,
   });
 
@@ -129,7 +139,7 @@ function buildSinglePlan(
     nutrition,
     confidence,
     course,
-    weather,
+    weather: weatherForPlan,  // incluye temperatureEnd ajustado a la duración de este plan
   };
 }
 

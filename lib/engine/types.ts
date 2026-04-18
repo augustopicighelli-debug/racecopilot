@@ -91,6 +91,9 @@ export interface AggregatedWeather {
   sourcesCount: number;
   sourceAgreement: 'high' | 'medium' | 'low';
   daysUntilRace: number;
+  // Temps horarios del día de carrera (hora 0-23 → °C). Permite calcular
+  // temperatureEnd exacto para cada plan según su duración real.
+  hourlyTemps?: { hour: number; tempC: number }[];
 }
 
 // --- Pacing Strategy ---
