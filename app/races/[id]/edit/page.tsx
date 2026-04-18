@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { Flag, Zap, Target, TrendingDown, ArrowRight, TrendingUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase-client';
 import { useLang } from '@/lib/lang';
 import { useUnits } from '@/lib/units';
@@ -205,10 +206,10 @@ export default function EditRacePage() {
               <label className="block text-sm font-medium mb-2" style={labelStyle}>{t.goal.label}</label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { value: 'finish' as const, icon: '🏁', title: t.goal.finishTitle, desc: t.goal.finishDesc },
-                  { value: 'pr'     as const, icon: '⚡', title: t.goal.prTitle,     desc: t.goal.prDesc },
-                  { value: 'target' as const, icon: '🎯', title: t.goal.targetTitle, desc: t.goal.targetDesc },
-                ].map(({ value, icon, title, desc }) => (
+                  { value: 'finish' as const, Icon: Flag,   title: t.goal.finishTitle, desc: t.goal.finishDesc },
+                  { value: 'pr'     as const, Icon: Zap,    title: t.goal.prTitle,     desc: t.goal.prDesc },
+                  { value: 'target' as const, Icon: Target, title: t.goal.targetTitle, desc: t.goal.targetDesc },
+                ].map(({ value, Icon, title, desc }) => (
                   <button
                     key={value} type="button" onClick={() => setGoalType(value)}
                     className="py-3 px-2 rounded-xl text-left border transition-colors"
@@ -217,7 +218,7 @@ export default function EditRacePage() {
                       borderColor: goalType === value ? 'rgba(249,115,22,0.5)'  : 'var(--border)',
                     }}
                   >
-                    <p className="text-base text-center mb-1">{icon}</p>
+                    <div className="flex justify-center mb-1"><Icon size={16} style={{ color: goalType === value ? '#f97316' : 'var(--muted-foreground)' }} /></div>
                     <p className="text-xs font-semibold text-center" style={{ color: goalType === value ? '#f97316' : 'var(--foreground)' }}>
                       {title}
                     </p>
@@ -269,10 +270,10 @@ export default function EditRacePage() {
                 </label>
                 <div className="grid grid-cols-3 gap-3">
                   {([
-                    { val: 'negative', label: 'Negativo', icon: '📉', desc: 'Arrancá conservador, acelerá al final' },
-                    { val: 'even',     label: 'Neutro',   icon: '➡️',  desc: 'Ritmo parejo de principio a fin' },
-                    { val: 'positive', label: 'Positivo', icon: '📈', desc: 'Arrancá fuerte, administrá al final' },
-                  ] as const).map(opt => (
+                    { val: 'negative' as const, label: 'Negativo', Icon: TrendingDown, desc: 'Arrancá conservador, acelerá al final' },
+                    { val: 'even'     as const, label: 'Neutro',   Icon: ArrowRight,   desc: 'Ritmo parejo de principio a fin' },
+                    { val: 'positive' as const, label: 'Positivo', Icon: TrendingUp,   desc: 'Arrancá fuerte, administrá al final' },
+                  ]).map(opt => (
                     <button
                       key={opt.val}
                       type="button"
@@ -280,7 +281,7 @@ export default function EditRacePage() {
                       className={`rounded-xl border p-3 text-left transition-all ${splitType === opt.val ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : 'opacity-60 hover:opacity-90'}`}
                       style={{ background: 'var(--card)', borderColor: splitType === opt.val ? 'var(--primary)' : 'var(--border)' }}
                     >
-                      <p className="text-base mb-1">{opt.icon}</p>
+                      <div className="mb-1"><opt.Icon size={16} style={{ color: splitType === opt.val ? 'var(--primary)' : 'var(--muted-foreground)' }} /></div>
                       <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>{opt.label}</p>
                       <p className="text-xs mt-1 leading-tight" style={{ color: 'var(--foreground)' }}>{opt.desc}</p>
                     </button>

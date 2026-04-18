@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { Zap, Coffee, Pill, Lightbulb, CheckCircle2, PlusCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase-client';
 import { useLang } from '@/lib/lang';
 import { useUnits } from '@/lib/units';
@@ -78,28 +79,10 @@ function NutritionKitGuide({ hasGel, hasCafGel, hasSalt }: {
   // Kit completo → no mostrar guía
   if (hasGel && cafSatisfied && hasSalt) return null;
 
-  const items: { key: string; icon: string; label: string; desc: string; done: boolean }[] = [
-    {
-      key: 'gel',
-      icon: '⚡',
-      label: 'Gel sin cafeína',
-      desc: 'Carbos cada ~45 min desde km 7 hasta km 28',
-      done: hasGel,
-    },
-    ...(!noCaffeine ? [{
-      key: 'cafgel',
-      icon: '⚡☕',
-      label: 'Gel con cafeína',
-      desc: 'Guardarlo para km 30-32 — efecto máximo en la fatiga final',
-      done: hasCafGel,
-    }] : []),
-    {
-      key: 'salt',
-      icon: '🧂',
-      label: 'Pastilla de sal',
-      desc: 'Cada 60-90 min para retener fluidos y evitar calambres',
-      done: hasSalt,
-    },
+  const items: { key: string; Icon: typeof Zap; label: string; desc: string; done: boolean }[] = [
+    { key: 'gel',    Icon: Zap,     label: 'Gel sin cafeína',  desc: 'Carbos cada ~45 min desde km 7 hasta km 28',                     done: hasGel    },
+    ...(!noCaffeine ? [{ key: 'cafgel', Icon: Coffee, label: 'Gel con cafeína', desc: 'Guardarlo para km 30-32 — efecto máximo en la fatiga final', done: hasCafGel }] : []),
+    { key: 'salt',   Icon: Pill,    label: 'Pastilla de sal',  desc: 'Cada 60-90 min para retener fluidos y evitar calambres',         done: hasSalt   },
   ];
 
   return (
@@ -109,8 +92,8 @@ function NutritionKitGuide({ hasGel, hasCafGel, hasSalt }: {
     >
       {/* Encabezado + toggle cafeína */}
       <div className="flex items-center justify-between mb-3">
-        <p className="text-xs font-semibold" style={{ color: '#f97316' }}>
-          💡 Kit recomendado para maratón / media
+        <p className="text-xs font-semibold flex items-center gap-1.5" style={{ color: '#f97316' }}>
+          <Lightbulb size={12} /> Kit recomendado para maratón / media
         </p>
         {/* Toggle: no consumo cafeína */}
         <button
@@ -123,22 +106,23 @@ function NutritionKitGuide({ hasGel, hasCafGel, hasSalt }: {
             color:        noCaffeine ? '#818cf8'                : 'var(--muted-foreground)',
           }}
         >
-          ☕ {noCaffeine ? 'Sin cafeína' : 'Con cafeína'}
+          <Coffee size={11} /> {noCaffeine ? 'Sin cafeína' : 'Con cafeína'}
         </button>
       </div>
 
       <div className="space-y-2">
         {items.map((m) => (
           <div key={m.key} className={`flex items-start gap-2 ${m.done ? 'opacity-40' : ''}`}>
-            <span className="text-xs mt-0.5" style={{ color: m.done ? 'var(--muted-foreground)' : '#f97316' }}>
-              {m.done ? '✓' : '+'}
+            <span className="mt-0.5 shrink-0" style={{ color: m.done ? 'var(--muted-foreground)' : '#f97316' }}>
+              {m.done ? <CheckCircle2 size={13} /> : <PlusCircle size={13} />}
             </span>
             <div>
               <p
-                className={`text-xs font-medium ${m.done ? 'line-through' : ''}`}
+                className={`text-xs font-medium flex items-center gap-1 ${m.done ? 'line-through' : ''}`}
                 style={{ color: m.done ? 'var(--muted-foreground)' : 'var(--foreground)' }}
               >
-                {m.icon} {m.label}
+                <m.Icon size={11} style={{ color: m.done ? 'var(--muted-foreground)' : '#f97316', flexShrink: 0 }} />
+                {m.label}
               </p>
               {!m.done && (
                 <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{m.desc}</p>

@@ -220,9 +220,9 @@ export const T = {
       targetTitle:     'Tiempo exacto',
       targetDesc:      'Yo sé cuánto quiero hacer y lo ingreso',
       // Badge en la page de carrera
-      badgeFinish:     '🏁 Terminar',
-      badgePr:         '⚡ Mejorar marca',
-      badgeTarget:     '🎯 Tiempo exacto',
+      badgeFinish:     'Terminar',
+      badgePr:         'Mejorar marca',
+      badgeTarget:     'Tiempo exacto',
       // Label del campo tiempo objetivo
       timeRequired:    '(requerido)',
     },
@@ -230,8 +230,8 @@ export const T = {
     warmup: {
       title:           'Plan de calentamiento',
       subtitle:        (km: number, temp: number) => `Basado en ${km}km · ${temp}°C`,
-      alertHot:        '🔥 Mucho calor — calentamiento muy corto y buscá sombra.',
-      alertCold:       '🥶 Mucho frío — calentamiento más largo, no te desvistas hasta el último momento.',
+      alertHot:        'Mucho calor — calentamiento muy corto y buscá sombra.',
+      alertCold:       'Mucho frío — calentamiento más largo, no te desvistas hasta el último momento.',
       startLabel:      'Largada',
       // Pasos
       snackAction:     'Último snack ligero',
@@ -618,17 +618,17 @@ export const T = {
       prDesc:          'Engine calculates your goal from your real times',
       targetTitle:     'Specific time',
       targetDesc:      'I know my goal time and enter it myself',
-      badgeFinish:     '🏁 Finish',
-      badgePr:         '⚡ Personal record',
-      badgeTarget:     '🎯 Specific time',
+      badgeFinish:     'Finish',
+      badgePr:         'Personal record',
+      badgeTarget:     'Specific time',
       timeRequired:    '(required)',
     },
     // ── Warmup plan ───────────────────────────────────────
     warmup: {
       title:           'Warmup plan',
       subtitle:        (km: number, temp: number) => `Based on ${km}km · ${temp}°C`,
-      alertHot:        '🔥 Very hot — keep warmup short and find shade.',
-      alertCold:       '🥶 Very cold — warm up longer, keep layers on until the last moment.',
+      alertHot:        'Very hot — keep warmup short and find shade.',
+      alertCold:       'Very cold — warm up longer, keep layers on until the last moment.',
       startLabel:      'Start',
       snackAction:     'Last light snack',
       snackDetail:     'Banana or toast with jam. Nothing heavy or new.',

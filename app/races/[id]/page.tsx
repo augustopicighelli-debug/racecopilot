@@ -10,6 +10,7 @@ import { parseGpx } from '@/lib/gpx/parser';
 import { useUnits } from '@/lib/units';
 import { UnitsToggle } from '@/components/units-toggle';
 import { useLang } from '@/lib/lang';
+import { TrendingDown, ArrowRight, TrendingUp } from 'lucide-react';
 
 interface Race {
   id: string;
@@ -772,9 +773,9 @@ function RacePage() {
         {plan && !planLoading && (
           <div className="grid grid-cols-3 gap-3 mb-4 no-print">
             {([
-              { val: 'negative' as const, label: 'Negativo', icon: '📉', desc: 'Arrancá conservador, acelerá al final' },
-              { val: 'even'     as const, label: 'Neutro',   icon: '➡️',  desc: 'Ritmo parejo de principio a fin' },
-              { val: 'positive' as const, label: 'Positivo', icon: '📈', desc: 'Arrancá fuerte, administrá al final' },
+              { val: 'negative' as const, label: 'Negativo', Icon: TrendingDown, desc: 'Arrancá conservador, acelerá al final' },
+              { val: 'even'     as const, label: 'Neutro',   Icon: ArrowRight,   desc: 'Ritmo parejo de principio a fin' },
+              { val: 'positive' as const, label: 'Positivo', Icon: TrendingUp,   desc: 'Arrancá fuerte, administrá al final' },
             ]).map(opt => (
               <button
                 key={opt.val}
@@ -783,7 +784,7 @@ function RacePage() {
                 className={`rounded-xl border p-3 text-left transition-all ${splitType === opt.val ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : 'opacity-60 hover:opacity-90'}`}
                 style={{ background: 'var(--card)', borderColor: splitType === opt.val ? 'var(--primary)' : 'var(--border)' }}
               >
-                <p className="text-base mb-1">{opt.icon}</p>
+                <div className="mb-1"><opt.Icon size={16} style={{ color: splitType === opt.val ? 'var(--primary)' : 'var(--muted-foreground)' }} /></div>
                 <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>{opt.label}</p>
                 <p className="text-xs mt-1 leading-tight" style={{ color: 'var(--foreground)' }}>{opt.desc}</p>
               </button>
