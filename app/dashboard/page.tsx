@@ -150,35 +150,16 @@ function DashboardContent() {
           </a>
         )}
 
-        {/* Header */}
+        {/* Email del usuario */}
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-xl font-bold">
-              Race<span style={{ color: '#f97316' }}>Copilot</span>
-            </h1>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{email}</p>
-          </div>
-          {/* Acciones del header: unidades, perfil y salir */}
-          <div className="flex items-center gap-3">
-            <UnitsToggle />
-            <button
-              onClick={() => router.push('/season')}
-              className="text-xs"
-              style={{ color: 'var(--muted-foreground)' }}
-            >
-              {t.season.link}
-            </button>
-            <button
-              onClick={() => router.push('/profile')}
-              className="text-xs"
-              style={{ color: 'var(--muted-foreground)' }}
-            >
-              {n.profile}
-            </button>
-            <button onClick={handleLogout} className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
-              {n.logout}
-            </button>
-          </div>
+          <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{email}</p>
+          <button
+            onClick={() => router.push('/season')}
+            className="text-xs"
+            style={{ color: 'var(--muted-foreground)' }}
+          >
+            {t.season.link}
+          </button>
         </div>
 
         {/* Stats del runner */}

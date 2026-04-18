@@ -82,8 +82,8 @@ function buildWarmupSteps(distanceKm: number, weather: AggregatedWeather, w: War
   }
 
   // Ejercicios dinámicos
-  // Short: −22, Mid: −21 (para no solapar con snack en −20), Long: −15
-  steps.push({ minutesBefore: isShort ? 22 : isMid ? 21 : 15, iconName: 'dumbbell', action: w.dynamicAction, detail: w.dynamicDetail });
+  // Short: −22, Mid: −21 (para no solapar con snack en −20), Long: −18 (antes de corral en −15)
+  steps.push({ minutesBefore: isShort ? 22 : isMid ? 21 : 18, iconName: 'dumbbell', action: w.dynamicAction, detail: w.dynamicDetail });
 
   // Snack pre-carrera (banana / membrillo) — 20 min antes
   steps.push({ minutesBefore: 20, iconName: 'banana', action: w.snackAction, detail: w.snackDetail });
@@ -94,8 +94,8 @@ function buildWarmupSteps(distanceKm: number, weather: AggregatedWeather, w: War
     steps.push({ minutesBefore: isShort ? 14 : 12, iconName: 'zap', action: w.stridesAction(n), detail: w.stridesDetail });
   }
 
-  // Corral — maratón a −8 (consistente con dinámicos que terminan ~−8); resto a −10
-  steps.push({ minutesBefore: isLong ? 8 : 10, iconName: 'footprints', action: w.corralAction, detail: isCold ? w.corralCold : isHot ? w.corralHot : w.corralNormal });
+  // Corral — todos a −15min (el usuario quiere entrar al corral con margen)
+  steps.push({ minutesBefore: 15, iconName: 'footprints', action: w.corralAction, detail: isCold ? w.corralCold : isHot ? w.corralHot : w.corralNormal });
 
   // Último sorbo
   steps.push({ minutesBefore: 5, iconName: 'droplets', action: w.lastDrinkAction, detail: w.lastDrinkDetail });

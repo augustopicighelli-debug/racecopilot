@@ -19,6 +19,7 @@ export const T = {
     },
     // ── Nav / Auth ────────────────────────────────────────
     nav: {
+      dashboard: 'Dashboard',
       pricing:  'Precios',
       enter:    'Entrar',
       profile:  'Mi perfil',
@@ -414,6 +415,7 @@ export const T = {
       error:     'Connection error. Please try again.',
     },
     nav: {
+      dashboard: 'Dashboard',
       pricing:  'Pricing',
       enter:    'Sign in',
       profile:  'My profile',

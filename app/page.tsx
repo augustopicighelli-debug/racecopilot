@@ -12,19 +12,6 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
 
-      {/* ── Nav ─────────────────────────────────────────── */}
-      {/* pr-28 para dejar espacio al TopControls fijo (LangToggle + UnitsToggle) */}
-      <nav className="flex items-center justify-between px-6 py-4 pr-28 border-b" style={{ borderColor: 'var(--border)' }}>
-        <span className="text-lg font-bold tracking-tight">
-          Race<span style={{ color: '#f97316' }}>Copilot</span>
-        </span>
-        <div className="flex items-center gap-4">
-          <Link href="/pricing" className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{n.pricing}</Link>
-          <Link href="/login" className="text-sm px-4 py-2 rounded-lg font-semibold" style={{ background: 'var(--primary)', color: '#fff' }}>
-            {n.enter}
-          </Link>
-        </div>
-      </nav>
 
       {/* ── Hero con imagen de fondo ─────────────────────── */}
       <section className="relative flex flex-col items-center justify-center px-4 pt-24 pb-20 text-center overflow-hidden" style={{ minHeight: '85vh' }}>

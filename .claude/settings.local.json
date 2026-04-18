@@ -65,7 +65,12 @@
       "Bash(grep -n \"gpx_slug\\\\|mapPoints\\\\|parseGpx\\\\|GpxPoint\\\\|select.*race\\\\|from.*races\" C:/Users/augus/Claude/RaceCopilot/app/races/[id]/page.tsx)",
       "Bash(ls C:/Users/augus/Claude/RaceCopilot/public/gpx/*.gpx)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); h=d.get\\('hourly',{}\\); times=h.get\\('time',[]\\); print\\('times count:', len\\(times\\)\\); print\\('first 5:', times[:5]\\)\")",
-      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(len\\(d\\), 'races'\\); [print\\(r['country'], r['name']\\) for r in d[:8]]\")"
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(len\\(d\\), 'races'\\); [print\\(r['country'], r['name']\\) for r in d[:8]]\")",
+      "Bash(grep -n \"splitType\\\\|split_type\\\\|goalType\\\\|goal_type\\\\|elevLoss\\\\|elevation_loss\\\\|submit\\\\|type=\\\\\"submit\\\\\"\" C:/Users/augus/Claude/RaceCopilot/app/races/[id]/edit/page.tsx)",
+      "Bash(grep -n \"split_type\\\\|splitType\\\\|planKey\\\\|regen\\\\|fetchPlan\\\\|generatePlan\\\\|useEffect\\\\|useState\" C:/Users/augus/Claude/RaceCopilot/app/races/[id]/page.tsx)",
+      "Bash(grep -n \"fetchPlan\\\\|/api/plan\\\\|setPlan\\\\b\" C:/Users/augus/Claude/RaceCopilot/app/races/[id]/page.tsx)",
+      "Bash(grep -n \"select.*race\\\\b\\\\|\\\\.from.*races\" C:/Users/augus/Claude/RaceCopilot/app/races/[id]/page.tsx)",
+      "Bash(grep *)"
     ]
   }
 }
