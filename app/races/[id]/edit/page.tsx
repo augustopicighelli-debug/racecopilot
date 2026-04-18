@@ -42,6 +42,7 @@ export default function EditRacePage() {
   const [raceDate, setRaceDate]     = useState('');
   const [city, setCity]             = useState('');
   const [targetTime, setTargetTime] = useState('');
+  const [targetPace, setTargetPace] = useState('');
   const [elevGain, setElevGain]     = useState('');
   const [elevLoss, setElevLoss]     = useState('');
   const [goalType, setGoalType]     = useState<'finish' | 'pr' | 'target'>('pr');
@@ -70,6 +71,11 @@ export default function EditRacePage() {
       setRaceDate(data.race_date);
       setCity(data.city ?? '');
       setTargetTime(data.target_time_s ? fmtTime(data.target_time_s) : '');
+      if (data.target_time_s && data.distance_km) {
+        const paceS = data.target_time_s / data.distance_km;
+        const m = Math.floor(paceS / 60), s = Math.round(paceS % 60);
+        setTargetPace(`${m}:${String(s).padStart(2,'0')}`);
+      }
       // Elevación: convertir m → ft si imperial
       const gainVal = data.elevation_gain ? (imp ? Math.round(data.elevation_gain * 3.28084) : data.elevation_gain) : '';
       const lossVal = data.elevation_loss ? (imp ? Math.round(data.elevation_loss * 3.28084) : data.elevation_loss) : '';
@@ -92,6 +98,21 @@ export default function EditRacePage() {
     if (m.city) setCity(m.city);
     if (m.gain_m) setElevGain(imp ? Math.round(m.gain_m * 3.28084).toString() : m.gain_m.toString());
     if (m.loss_m) setElevLoss(imp ? Math.round(m.loss_m * 3.28084).toString() : m.loss_m.toString());
+  };
+
+  const secsToTime = (s: number) => { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60; return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; };
+  const parsePace  = (p: string) => { const pts=p.trim().split(':').map(Number); return pts.length===2&&!pts.some(isNaN)?pts[0]*60+pts[1]:null; };
+  const secsToMss  = (s: number) => { const m=Math.floor(s/60),sec=Math.round(s%60); return `${m}:${String(sec).padStart(2,'0')}`; };
+
+  const handleTimeChange = (val: string) => {
+    setTargetTime(val);
+    const secs = parseTime(val), dist = parseFloat(distanceKm);
+    if (secs && dist > 0) setTargetPace(secsToMss(secs / (imp ? dist*1.60934 : dist)));
+  };
+  const handlePaceChange = (val: string) => {
+    setTargetPace(val);
+    const paceS = parsePace(val), dist = parseFloat(distanceKm);
+    if (paceS && dist > 0) setTargetTime(secsToTime(Math.round(paceS * (imp ? dist*1.60934 : dist))));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -230,15 +251,31 @@ export default function EditRacePage() {
               </div>
             </div>
 
+            {/* Tiempo objetivo + Ritmo (se calculan mutuamente) */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium mb-1" style={labelStyle}>
                   {t.race.targetTime} <span style={{ color: 'var(--border)' }}>{goalType === 'target' ? t.goal.timeRequired : `(${t.common.optional})`}</span>
                 </label>
-                <input type="text" value={targetTime} onChange={(e) => setTargetTime(e.target.value)}
+                <input type="text" value={targetTime} onChange={(e) => handleTimeChange(e.target.value)}
                   placeholder="3:45:00"
                   className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} />
               </div>
+              <div>
+                <label className="block text-sm font-medium mb-1" style={labelStyle}>
+                  {t.raceForm.fieldPace} <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
+                </label>
+                <div className="relative">
+                  <input type="text" value={targetPace} onChange={(e) => handlePaceChange(e.target.value)}
+                    placeholder={imp ? '8:34' : '5:19'}
+                    className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-12" style={inputStyle} />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>/{distUnit}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Desnivel positivo + negativo */}
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium mb-1" style={labelStyle}>
                   {t.raceForm.fieldElevGain} <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>

@@ -22,6 +22,7 @@ export default function NewRacePage() {
   const [raceDate, setRaceDate]     = useState('');
   const [city, setCity]             = useState('');
   const [targetTime, setTargetTime] = useState('');
+  const [targetPace, setTargetPace] = useState(''); // mm:ss por km (o mi en imperial)
   const [elevGain, setElevGain]     = useState('');
   const [elevLoss, setElevLoss]     = useState('');
   const [goalType, setGoalType]     = useState<'finish' | 'pr' | 'target'>('pr');
@@ -80,6 +81,50 @@ export default function NewRacePage() {
     if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
     if (parts.length === 2) return parts[0] * 60 + parts[1];
     return null;
+  };
+
+  // Convierte segundos totales → "H:MM:SS"
+  const secsToTime = (s: number): string => {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  };
+
+  // Convierte ritmo "mm:ss" → segundos/km
+  const parsePace = (p: string): number | null => {
+    const parts = p.trim().split(':').map(Number);
+    if (parts.length === 2 && !parts.some(isNaN)) return parts[0] * 60 + parts[1];
+    return null;
+  };
+
+  // Convierte segundos/km → "m:ss"
+  const secsToMss = (s: number): string => {
+    const m = Math.floor(s / 60);
+    const sec = Math.round(s % 60);
+    return `${m}:${String(sec).padStart(2,'0')}`;
+  };
+
+  // Al cambiar tiempo: calcular ritmo si hay distancia
+  const handleTimeChange = (val: string) => {
+    setTargetTime(val);
+    const secs = parseTime(val);
+    const dist = parseFloat(distanceKm);
+    if (secs && dist > 0) {
+      const paceS = secs / (imp ? dist * 1.60934 : dist);
+      setTargetPace(secsToMss(paceS));
+    }
+  };
+
+  // Al cambiar ritmo: calcular tiempo si hay distancia
+  const handlePaceChange = (val: string) => {
+    setTargetPace(val);
+    const paceS = parsePace(val);
+    const dist = parseFloat(distanceKm);
+    if (paceS && dist > 0) {
+      const totalS = Math.round(paceS * (imp ? dist * 1.60934 : dist));
+      setTargetTime(secsToTime(totalS));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -240,13 +285,27 @@ export default function NewRacePage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                  {t.race.targetTime} <span style={{ color: 'var(--border)' }}>{goalType === 'target' ? t.goal.timeRequired : `(${t.common.optional})`}</span>
-                </label>
-                <input type="text" value={targetTime} onChange={(e) => setTargetTime(e.target.value)}
-                  placeholder="3:45:00"
-                  className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} />
+              {/* Tiempo y ritmo — se calculan mutuamente */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1" style={labelStyle}>
+                    {t.race.targetTime} <span style={{ color: 'var(--border)' }}>{goalType === 'target' ? t.goal.timeRequired : `(${t.common.optional})`}</span>
+                  </label>
+                  <input type="text" value={targetTime} onChange={(e) => handleTimeChange(e.target.value)}
+                    placeholder="3:45:00"
+                    className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1" style={labelStyle}>
+                    {t.raceForm.fieldPace} <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
+                  </label>
+                  <div className="relative">
+                    <input type="text" value={targetPace} onChange={(e) => handlePaceChange(e.target.value)}
+                      placeholder="5:20"
+                      className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none pr-12" style={inputStyle} />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>/{distUnit}</span>
+                  </div>
+                </div>
               </div>
 
               {/* Ascenso y descenso */}
