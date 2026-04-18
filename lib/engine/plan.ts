@@ -99,7 +99,7 @@ function buildSinglePlan(
   // Largada fija a las 8h; llegada = 8h + duración del plan.
   const START_HOUR = 8;
   const durationHours = prediction.timeSeconds / 3600;
-  const endHour = Math.min(Math.round(START_HOUR + durationHours), 22);
+  const endHour = Math.min(Math.round(START_HOUR + durationHours), 16);
   const endEntry = weather.hourlyTemps?.find(e => e.hour === endHour);
   const weatherForPlan: AggregatedWeather = endEntry
     ? { ...weather, temperatureEnd: endEntry.tempC }

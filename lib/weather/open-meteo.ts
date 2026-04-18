@@ -232,7 +232,7 @@ export async function fetchWeather(
     // Temps horarios horas 6-22 del día de carrera — usados por cada plan para
     // calcular su propio temperatureEnd según la duración real (largada fija a las 8h).
     const hourlyTemps: { hour: number; tempC: number }[] = [];
-    for (let h = 6; h <= 22; h++) {
+    for (let h = 5; h <= 16; h++) {
       const idx = findHourIndex(time, raceDate, h);
       if (idx !== -1) hourlyTemps.push({ hour: h, tempC: Math.round(temperature_2m[idx] * 10) / 10 });
     }
@@ -240,7 +240,7 @@ export async function fetchWeather(
     // temperatureEnd por defecto: 8h + duración estimada (para el caso sin hourlyTemps)
     const START_HOUR = 8;
     const durationHours = raceDurationSeconds ? raceDurationSeconds / 3600 : 2;
-    const endHourEst    = Math.min(Math.round(START_HOUR + durationHours), 22);
+    const endHourEst    = Math.min(Math.round(START_HOUR + durationHours), 16);
     const endEntry      = hourlyTemps.find(e => e.hour === endHourEst);
     const tempEnd       = endEntry?.tempC;
 
