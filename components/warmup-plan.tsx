@@ -1,6 +1,6 @@
 'use client';
 // Componente: Plan de calentamiento pre-carrera.
-import { Banana, Backpack, Droplets, Footprints, PersonStanding, Dumbbell, Zap, Flag, Flame, Snowflake } from 'lucide-react';
+import { Banana, Backpack, Droplets, Footprints, PersonStanding, Dumbbell, Zap, Flag, Flame, Snowflake, Utensils, DoorOpen } from 'lucide-react';
 import type { AggregatedWeather } from '@/lib/engine/types';
 import { useLang } from '@/lib/lang';
 import type { LucideProps } from 'lucide-react';
@@ -11,7 +11,7 @@ interface WarmupPlanProps {
   weather:    AggregatedWeather;
 }
 
-type IconName = 'banana' | 'backpack' | 'droplets' | 'footprints' | 'standing' | 'dumbbell' | 'zap' | 'flag';
+type IconName = 'banana' | 'backpack' | 'droplets' | 'footprints' | 'standing' | 'dumbbell' | 'zap' | 'flag' | 'utensils' | 'door';
 
 interface WarmupStep {
   minutesBefore: number;
@@ -22,21 +22,25 @@ interface WarmupStep {
 
 // Mapa de nombre → componente Lucide
 const ICONS: Record<IconName, FC<LucideProps>> = {
-  banana:   Banana,
-  backpack: Backpack,
-  droplets: Droplets,
+  banana:    Banana,
+  backpack:  Backpack,
+  droplets:  Droplets,
   footprints: Footprints,
-  standing: PersonStanding,
-  dumbbell: Dumbbell,
-  zap:      Zap,
-  flag:     Flag,
+  standing:  PersonStanding,
+  dumbbell:  Dumbbell,
+  zap:       Zap,
+  flag:      Flag,
+  utensils:  Utensils,
+  door:      DoorOpen,
 };
 
 type WarmupT = {
+  breakfastAction: string; breakfastDetail: string;
   snackAction: string; snackDetail: string;
   bagAction: string; bagDetail: string;
   hydrHotAction: string; hydrHotDetail: string;
   hydrAction: string; hydrDetail: string;
+  bathroomAction: string; bathroomDetail: string;
   trotAction: (min: number) => string; trotDetail: string; trotMidDetail: string;
   walkAction: (min: number) => string; walkDetail: string;
   dynamicAction: string; dynamicDetail: string;
@@ -53,29 +57,51 @@ function buildWarmupSteps(distanceKm: number, weather: AggregatedWeather, w: War
   const isLong  = distanceKm > 21.5;
 
   const steps: WarmupStep[] = [];
-  steps.push({ minutesBefore: 90, iconName: 'banana',   action: w.snackAction, detail: w.snackDetail });
-  steps.push({ minutesBefore: 60, iconName: 'backpack',  action: w.bagAction,   detail: w.bagDetail });
-  steps.push({ minutesBefore: 45, iconName: 'droplets',  action: isHot ? w.hydrHotAction : w.hydrAction, detail: isHot ? w.hydrHotDetail : w.hydrDetail });
 
+  // Desayuno habitual — 3 horas antes
+  steps.push({ minutesBefore: 180, iconName: 'utensils', action: w.breakfastAction, detail: w.breakfastDetail });
+
+  // Check-in y orientación — 1 hora antes
+  steps.push({ minutesBefore: 60, iconName: 'backpack', action: w.bagAction, detail: w.bagDetail });
+
+  // Hidratación — 45 min antes
+  steps.push({ minutesBefore: 45, iconName: 'droplets', action: isHot ? w.hydrHotAction : w.hydrAction, detail: isHot ? w.hydrHotDetail : w.hydrDetail });
+
+  // Baño — 30 min antes (para corta queda entre el trote y los dinámicos)
+  steps.push({ minutesBefore: 30, iconName: 'door', action: w.bathroomAction, detail: w.bathroomDetail });
+
+  // Calentamiento cardio según distancia
   if (isShort) {
     steps.push({ minutesBefore: 35, iconName: 'footprints', action: w.trotAction(isCold ? 15 : isHot ? 8 : 12), detail: w.trotDetail });
   } else if (isMid) {
-    steps.push({ minutesBefore: 30, iconName: 'footprints', action: w.trotAction(isCold ? 10 : isHot ? 5 : 8), detail: w.trotMidDetail });
+    // MID: trote arranca en −28 (dejando −30 libre para el baño)
+    steps.push({ minutesBefore: 28, iconName: 'footprints', action: w.trotAction(isCold ? 10 : isHot ? 5 : 8), detail: w.trotMidDetail });
   } else {
-    steps.push({ minutesBefore: 20, iconName: 'standing',   action: w.walkAction(isCold ? 8 : 5), detail: w.walkDetail });
+    // LONG: caminata en −20 (snack cae en −20 también, se resuelve por sort)
+    steps.push({ minutesBefore: 20, iconName: 'standing', action: w.walkAction(isCold ? 8 : 5), detail: w.walkDetail });
   }
 
-  steps.push({ minutesBefore: isShort ? 22 : isMid ? 20 : 12, iconName: 'dumbbell', action: w.dynamicAction, detail: w.dynamicDetail });
+  // Ejercicios dinámicos
+  // Short: −22, Mid: −21 (para no solapar con snack en −20), Long: −15
+  steps.push({ minutesBefore: isShort ? 22 : isMid ? 21 : 15, iconName: 'dumbbell', action: w.dynamicAction, detail: w.dynamicDetail });
 
+  // Snack pre-carrera (banana / membrillo) — 20 min antes
+  steps.push({ minutesBefore: 20, iconName: 'banana', action: w.snackAction, detail: w.snackDetail });
+
+  // Strides (solo corta/media)
   if (!isLong) {
     const n = isShort ? (isHot ? 4 : 6) : 3;
     steps.push({ minutesBefore: isShort ? 14 : 12, iconName: 'zap', action: w.stridesAction(n), detail: w.stridesDetail });
   }
 
-  steps.push({ minutesBefore: 10, iconName: 'footprints', action: w.corralAction, detail: isCold ? w.corralCold : isHot ? w.corralHot : w.corralNormal });
-  steps.push({ minutesBefore: 5,  iconName: 'droplets',   action: w.lastDrinkAction, detail: w.lastDrinkDetail });
+  // Corral — maratón a −8 (consistente con dinámicos que terminan ~−8); resto a −10
+  steps.push({ minutesBefore: isLong ? 8 : 10, iconName: 'footprints', action: w.corralAction, detail: isCold ? w.corralCold : isHot ? w.corralHot : w.corralNormal });
 
-  return steps;
+  // Último sorbo
+  steps.push({ minutesBefore: 5, iconName: 'droplets', action: w.lastDrinkAction, detail: w.lastDrinkDetail });
+
+  // Ordenar cronológicamente (mayor minutesBefore = más temprano en el tiempo)
+  return steps.sort((a, b) => b.minutesBefore - a.minutesBefore);
 }
 
 function fmtBefore(min: number): string {

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Fondo oscuro con esquinas redondeadas -->
+  <rect width="32" height="32" rx="7" fill="#111111"/>
+  <!-- R en naranja (color primario de RaceCopilot dark mode) -->
+  <text x="2" y="23" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="20" fill="#ea580c">R</text>
+  <!-- C en verde (color de ritmo rápido) -->
+  <text x="17" y="23" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="20" fill="#4ade80">C</text>
+</svg>
