@@ -262,6 +262,45 @@ export const T = {
       corralNormal:    'Entrá al corral y hacé pequeños movimientos para mantenerte activo.',
       lastDrinkAction: 'Último sorbo (100-150ml)',
       lastDrinkDetail: 'Solo si tenés sed. No fuerces líquido si no querés.',
+      // Checklist del día de carrera
+      checklistTitle: 'Lista del día de carrera',
+      checklistGroups: [
+        {
+          label: 'Noche anterior',
+          items: [
+            'Preparar la ropa y zapatillas de carrera',
+            'Cargar el reloj y la banda cardíaca',
+            'Colocar geles de distintos sabores/tipos en bolsillos distintos',
+            'Pastillas (sal, cafeína) en pastillero fácil de abrir',
+            'Chequear cómo llegar — los taxis se saturan, ir temprano',
+            'Preparar abrigo desechable si no hay guardarropas accesible',
+          ],
+        },
+        {
+          label: 'Mañana de carrera',
+          items: [
+            'Colocar el dorsal y el chip cronométrico',
+            'Aplicar vaselina en zonas de roce (muslos, axilas, pies)',
+            'Hombres: cinta o vaselina en las tetillas',
+            'Llevar pañuelitos de papel para el baño',
+            'Llevar agua/bebida para la previa (antes de la largada)',
+            'Softbottle o chaleco si la carrera no provee puntos de hidratación suficientes',
+          ],
+        },
+        {
+          label: 'Accesorios — chequear antes de salir',
+          items: [
+            'Gorra o visera (si hay sol o lluvia)',
+            'Gafas de sol',
+            'Auriculares (cargados)',
+            'Reloj GPS (cargado)',
+            'Banda cardíaca',
+            'Geles y pastillas contados',
+            'Pañuelos de papel',
+            'Ropa seca para cambiarse al finalizar',
+          ],
+        },
+      ] as { label: string; items: string[] }[],
     },
     // ── Pricing ───────────────────────────────────────────
     pricing: {
@@ -664,6 +703,44 @@ export const T = {
       corralNormal:    'Enter the corral and keep moving lightly to stay warm.',
       lastDrinkAction: 'Last sip (100-150ml)',
       lastDrinkDetail: 'Only if thirsty. Don\'t force fluids.',
+      checklistTitle: 'Race day checklist',
+      checklistGroups: [
+        {
+          label: 'The night before',
+          items: [
+            'Lay out race clothes and shoes',
+            'Charge watch and heart rate strap',
+            'Sort gels by type into separate pockets',
+            'Load pills (salt, caffeine) into easy-open pill holders',
+            'Check how to get there — taxis/rideshares fill up, leave early',
+            'Prepare a throwaway layer if no bag check is available',
+          ],
+        },
+        {
+          label: 'Race morning',
+          items: [
+            'Pin your bib and attach timing chip',
+            'Apply Vaseline on friction zones (thighs, armpits, feet)',
+            'Men: tape or Vaseline on nipples',
+            'Pack tissues / toilet paper',
+            'Bring water/drink for pre-race warmup',
+            'Soft flask or vest if the race doesn\'t provide enough aid stations',
+          ],
+        },
+        {
+          label: 'Gear check — before leaving',
+          items: [
+            'Cap or visor (sun or rain)',
+            'Sunglasses',
+            'Earphones (charged)',
+            'GPS watch (charged)',
+            'Heart rate strap',
+            'Gels and pills counted',
+            'Tissues',
+            'Dry clothes to change into after the finish',
+          ],
+        },
+      ] as { label: string; items: string[] }[],
     },
     // ── Race form (new + edit) ────────────────────────────────
     raceForm: {

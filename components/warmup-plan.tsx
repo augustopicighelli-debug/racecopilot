@@ -1,6 +1,7 @@
 'use client';
-// Componente: Plan de calentamiento pre-carrera.
-import { Banana, Backpack, Droplets, Footprints, PersonStanding, Dumbbell, Zap, Flag, Flame, Snowflake, Utensils, DoorOpen } from 'lucide-react';
+// Componente: Plan de calentamiento pre-carrera + checklist del día de carrera.
+import { useState } from 'react';
+import { Banana, Backpack, Droplets, Footprints, PersonStanding, Dumbbell, Zap, Flag, Flame, Snowflake, Utensils, DoorOpen, Square, SquareCheck, ChevronDown, ChevronUp } from 'lucide-react';
 import type { AggregatedWeather } from '@/lib/engine/types';
 import { useLang } from '@/lib/lang';
 import type { LucideProps } from 'lucide-react';
@@ -37,6 +38,8 @@ const ICONS: Record<IconName, FC<LucideProps>> = {
 type WarmupT = {
   breakfastAction: string; breakfastDetail: string;
   snackAction: string; snackDetail: string;
+  checklistTitle: string;
+  checklistGroups: { label: string; items: string[] }[];
   bagAction: string; bagDetail: string;
   hydrHotAction: string; hydrHotDetail: string;
   hydrAction: string; hydrDetail: string;
@@ -114,6 +117,17 @@ export function WarmupPlan({ distanceKm, weather }: WarmupPlanProps) {
   const w = t.warmup;
   const steps = buildWarmupSteps(distanceKm, weather, w);
 
+  // Estado del checklist: set de índices "item-groupIdx-itemIdx" marcados
+  const [checked, setChecked] = useState<Set<string>>(new Set());
+  const [checklistOpen, setChecklistOpen] = useState(false);
+
+  const toggle = (key: string) =>
+    setChecked(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+
   const weatherAlert =
     weather.temperature > 27 ? { text: w.alertHot,  Icon: Flame,     color: '#f97316' }
     : weather.temperature < 5 ? { text: w.alertCold, Icon: Snowflake, color: '#60a5fa' }
@@ -180,6 +194,59 @@ export function WarmupPlan({ distanceKm, weather }: WarmupPlanProps) {
             <p className="text-sm font-bold" style={{ color: '#f97316' }}>{w.startLabel}</p>
           </div>
         </div>
+      </div>
+      {/* ── Checklist del día de carrera ────────────────────── */}
+      <div className="mt-5 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+        {/* Header colapsable */}
+        <button
+          className="w-full flex items-center justify-between text-left"
+          onClick={() => setChecklistOpen(o => !o)}
+        >
+          <span className="text-sm font-semibold">{w.checklistTitle}</span>
+          {checklistOpen
+            ? <ChevronUp size={14} style={{ color: 'var(--muted-foreground)' }} />
+            : <ChevronDown size={14} style={{ color: 'var(--muted-foreground)' }} />
+          }
+        </button>
+
+        {checklistOpen && (
+          <div className="mt-3 space-y-4">
+            {w.checklistGroups.map((group, gi) => (
+              <div key={gi}>
+                <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--muted-foreground)' }}>
+                  {group.label}
+                </p>
+                <div className="space-y-1.5">
+                  {group.items.map((item, ii) => {
+                    const key = `${gi}-${ii}`;
+                    const done = checked.has(key);
+                    return (
+                      <button
+                        key={ii}
+                        onClick={() => toggle(key)}
+                        className="w-full flex items-start gap-2 text-left"
+                      >
+                        {done
+                          ? <SquareCheck size={14} className="shrink-0 mt-0.5" style={{ color: 'var(--primary)' }} />
+                          : <Square     size={14} className="shrink-0 mt-0.5" style={{ color: 'var(--border)' }} />
+                        }
+                        <span
+                          className="text-xs leading-snug"
+                          style={{
+                            color: done ? 'var(--muted-foreground)' : 'var(--foreground)',
+                            textDecoration: done ? 'line-through' : 'none',
+                          }}
+                        >
+                          {item}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
