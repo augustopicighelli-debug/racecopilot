@@ -150,31 +150,30 @@ export async function GET(
 
   // Resolver ciudad: usar la de la carrera, o la del catálogo GPX (archivo JSON local)
   let cityForWeather = race.city ?? null;
-  console.log(`[plan] race.city=${race.city}, gpx_slug=${race.gpx_slug}, cityForWeather=${cityForWeather}`);
   if (!cityForWeather && race.gpx_slug) {
     try {
       const catalogPath = path.join(process.cwd(), 'public', 'gpx', 'catalog.json');
       const catalog: Array<{ slug: string; city?: string }> = JSON.parse(fs.readFileSync(catalogPath, 'utf-8'));
       const entry = catalog.find(e => e.slug === race.gpx_slug);
-      console.log(`[plan] catalog lookup: slug=${race.gpx_slug}, found=${!!entry}, city=${entry?.city}`);
       if (entry?.city) cityForWeather = entry.city;
-    } catch (err) {
-      console.error(`[plan] catalog read error:`, err);
+    } catch {
+      // Si falla la lectura del catálogo, continuar sin ciudad
     }
   }
-  console.log(`[plan] final cityForWeather=${cityForWeather}`);
 
-  const neutralWeather: AggregatedWeather = {
-    temperature: 12, humidity: 50, windSpeedKmh: 0,
-    windDirectionDeg: 0, sourcesCount: 0, sourceAgreement: 'low', daysUntilRace,
-  };
+  // Sin ciudad, no hay pronóstico — avisar al cliente
+  if (!cityForWeather) {
+    return NextResponse.json(
+      { error: 'city_required', message: 'Agregá una ciudad a la carrera para generar el plan con clima real.' },
+      { status: 400 }
+    );
+  }
+
   // Estimación de duración para calcular la temperatura de llegada:
   // usar target_time_s si existe, sino estimar a ~6 min/km (corredor promedio)
   const estDurationS = race.target_time_s ?? Math.round(race.distance_km * 6 * 60);
 
-  const weather: AggregatedWeather = cityForWeather
-    ? await fetchWeather(cityForWeather, race.race_date, daysUntilRace, estDurationS)
-    : neutralWeather;
+  const weather: AggregatedWeather = await fetchWeather(cityForWeather, race.race_date, daysUntilRace, estDurationS);
 
   // 7. Ritmo objetivo (si el usuario lo cargó en la carrera)
   const targetPacePerKm = race.target_time_s

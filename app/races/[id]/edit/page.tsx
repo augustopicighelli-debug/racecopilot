@@ -215,11 +215,12 @@ export default function EditRacePage() {
 
             <div>
               <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                {t.raceForm.fieldCity} <span style={{ color: 'var(--border)' }}>{t.raceForm.fieldCityOptional}</span>
+                {t.raceForm.fieldCity}
               </label>
               <input type="text" value={city} onChange={(e) => setCity(e.target.value)}
                 placeholder="Mendoza"
-                className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} />
+                className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} required />
+              <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Necesaria para obtener el pronóstico de clima real.</p>
             </div>
 
             {/* Objetivo */}
