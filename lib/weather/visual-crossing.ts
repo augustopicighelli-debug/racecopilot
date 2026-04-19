@@ -62,7 +62,7 @@ async function fetchDayData(city: string, date: string, revalidate: number): Pro
   const url = `${BASE_URL}/${encodeURIComponent(city)}/${date}?${params}`;
 
   try {
-    const res = await fetch(url, { next: { revalidate } });
+    const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) {
       console.warn(`[weather] Visual Crossing HTTP ${res.status} para ${city} ${date}`);
       return null;
