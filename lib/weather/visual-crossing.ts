@@ -46,7 +46,7 @@ interface VCResponse {
  * revalidate: segundos de caché de Next.js (histórico se cachea más que forecast).
  */
 async function fetchDayData(city: string, date: string, revalidate: number): Promise<VCHour[] | null> {
-  const apiKey = process.env.VISUAL_CROSSING_API_KEY;
+  const apiKey = process.env.VISUAL_CROSSING_API_KEY?.trim(); // trim por si tiene \n al guardarse
   if (!apiKey) {
     console.error('[weather] VISUAL_CROSSING_API_KEY no configurada');
     return null;
