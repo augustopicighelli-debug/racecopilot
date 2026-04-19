@@ -1,5 +1,5 @@
-// Landing SEO pública en inglés: /races/[slug]
-// Espejo de /carreras/[slug] para mercado anglo (US/UK/CA/AU).
+// Landing SEO pública en inglés: /race/[slug]
+// Ruta EN en singular para no colisionar con /races/[id] (rutas de usuario).
 
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -8,16 +8,10 @@ import { RaceSEOLanding } from '@/components/race-seo-landing';
 
 type Props = { params: Promise<{ slug: string }> };
 
-/**
- * Pre-renderizar todas las landings EN en build time.
- */
 export async function generateStaticParams() {
   return getAllRaces().map((race) => ({ slug: race.slug_en }));
 }
 
-/**
- * Metadata dinámica EN con hreflang al ES.
- */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const race = getRaceBySlugEN(slug);
@@ -31,16 +25,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: `https://racecopilot.com/races/${race.slug_en}`,
+      canonical: `https://racecopilot.com/race/${race.slug_en}`,
       languages: {
-        en: `https://racecopilot.com/races/${race.slug_en}`,
+        en: `https://racecopilot.com/race/${race.slug_en}`,
         es: `https://racecopilot.com/carreras/${race.slug}`,
       },
     },
     openGraph: {
       title,
       description,
-      url: `https://racecopilot.com/races/${race.slug_en}`,
+      url: `https://racecopilot.com/race/${race.slug_en}`,
       locale: 'en_US',
       type: 'article',
     },
