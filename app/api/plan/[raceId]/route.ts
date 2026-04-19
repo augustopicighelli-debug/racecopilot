@@ -150,16 +150,19 @@ export async function GET(
 
   // Resolver ciudad: usar la de la carrera, o la del catálogo GPX (archivo JSON local)
   let cityForWeather = race.city ?? null;
+  console.log(`[plan] race.city=${race.city}, gpx_slug=${race.gpx_slug}, cityForWeather=${cityForWeather}`);
   if (!cityForWeather && race.gpx_slug) {
     try {
       const catalogPath = path.join(process.cwd(), 'public', 'gpx', 'catalog.json');
       const catalog: Array<{ slug: string; city?: string }> = JSON.parse(fs.readFileSync(catalogPath, 'utf-8'));
       const entry = catalog.find(e => e.slug === race.gpx_slug);
+      console.log(`[plan] catalog lookup: slug=${race.gpx_slug}, found=${!!entry}, city=${entry?.city}`);
       if (entry?.city) cityForWeather = entry.city;
-    } catch {
-      // Si falla la lectura del catálogo, continuar sin ciudad
+    } catch (err) {
+      console.error(`[plan] catalog read error:`, err);
     }
   }
+  console.log(`[plan] final cityForWeather=${cityForWeather}`);
 
   const neutralWeather: AggregatedWeather = {
     temperature: 12, humidity: 50, windSpeedKmh: 0,
