@@ -1,24 +1,21 @@
 import { NextResponse } from 'next/server';
+import { fetchWeather } from '@/lib/weather/visual-crossing';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const apiKey = process.env.VISUAL_CROSSING_API_KEY;
-  if (!apiKey) return NextResponse.json({ error: 'NO API KEY' });
+  const today = new Date();
+  const in14Days = new Date(today);
+  in14Days.setDate(today.getDate() + 14);
+  const raceDate = in14Days.toISOString().split('T')[0];
+  const daysUntilRace = 14;
 
-  const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Mendoza/2026-05-03?key=${apiKey}&include=hours&unitGroup=metric&elements=temp,humidity,windspeed,winddir`;
-  
-  try {
-    const res = await fetch(url, { cache: 'no-store' });
-    const data = await res.json();
-    return NextResponse.json({
-      status: res.status,
-      hasHours: !!data.days?.[0]?.hours,
-      hoursCount: data.days?.[0]?.hours?.length ?? 0,
-      sample: data.days?.[0]?.hours?.slice(0,2),
-      error: data.error,
-    });
-  } catch (err: any) {
-    return NextResponse.json({ fetchError: err.message });
-  }
+  const weather = await fetchWeather('Mendoza', raceDate, daysUntilRace, 12900);
+
+  return NextResponse.json({
+    raceDate,
+    daysUntilRace,
+    weather,
+    isNeutral: weather.sourcesCount === 0,
+  });
 }
