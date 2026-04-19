@@ -191,12 +191,12 @@ export async function fetchWeather(
     const windSpeed = avgAtHours(hours, START_HOURS, 'windspeed');
     const windDir   = avgAtHours(hours, START_HOURS, 'winddir');
 
-    // Temps horarios horas 5-16 para que el engine calcule temperatureEnd
+    // Temps horarios horas 5-23 para que el engine calcule temperatureEnd
     // según la duración real de cada plan (largada fija a las 8h).
     const hourlyTemps = hours
       .filter(h => {
         const hr = h.hour !== undefined ? h.hour : hourOf(h.datetime!);
-        return hr >= 5 && hr <= 16;
+        return hr >= 5 && hr <= 23;
       })
       .map(h => ({
         hour: h.hour !== undefined ? h.hour : hourOf(h.datetime!),
@@ -205,8 +205,11 @@ export async function fetchWeather(
 
     // temperatureEnd estimado con la duración de la carrera
     const durationHours = raceDurationSeconds ? raceDurationSeconds / 3600 : 2;
-    const endHour       = Math.min(Math.round(START_HOUR + durationHours), 16);
+    const endHour       = Math.min(Math.round(START_HOUR + durationHours), 23); // 0-23, no limitar a 16
     const endEntry      = hourlyTemps.find(e => e.hour === endHour);
+    if (!endEntry) {
+      console.warn(`[weather] endHour ${endHour} not in hourlyTemps:`, hourlyTemps.map(h => h.hour));
+    }
 
     return {
       temperature:      Math.round(tempStart * 10) / 10,
