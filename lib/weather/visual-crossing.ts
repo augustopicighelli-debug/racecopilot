@@ -29,11 +29,12 @@ const NEUTRAL_WEATHER: AggregatedWeather = {
 };
 
 interface VCHour {
-  datetime:  string; // "HH:MM:SS"
-  temp:      number;
-  humidity:  number;
-  windspeed: number;
-  winddir:   number;
+  datetime?:  string; // "HH:MM:SS" — opcional, puede no venir en histórico
+  hour?:      number; // índice 0-23 — agregado por fetchDayData
+  temp:       number;
+  humidity:   number;
+  windspeed:  number;
+  winddir:    number;
 }
 
 interface VCResponse {
@@ -67,7 +68,10 @@ async function fetchDayData(city: string, date: string, revalidate: number): Pro
       return null;
     }
     const data: VCResponse = await res.json();
-    return data.days?.[0]?.hours ?? null;
+    const hours = data.days?.[0]?.hours;
+    if (!hours) return null;
+    // Agregar índice de hora (0-23) ya que VC no lo incluye en horas
+    return hours.map((h, idx) => ({ ...h, hour: idx }));
   } catch (err) {
     console.warn(`[weather] fetchDayData error ${city} ${date}:`, err);
     return null;
@@ -76,14 +80,18 @@ async function fetchDayData(city: string, date: string, revalidate: number): Pro
 
 /**
  * Promedia un campo numérico de las horas que estén en targetHours.
+ * Nota: VCHour puede tener 'hour' (índice) o 'datetime' (timestamp).
  */
 function avgAtHours(
-  hours: VCHour[],
+  hours: (VCHour & { hour?: number })[],
   targetHours: number[],
   key: 'temp' | 'humidity' | 'windspeed' | 'winddir'
 ): number {
   const vals = hours
-    .filter(h => targetHours.includes(parseInt(h.datetime)))
+    .filter(h => {
+      const hourNum = h.hour !== undefined ? h.hour : parseInt(h.datetime);
+      return targetHours.includes(hourNum);
+    })
     .map(h => h[key])
     .filter((v): v is number => !isNaN(v));
   return vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : 0;
@@ -119,8 +127,11 @@ async function fetchHistoricalAvg(
   const validResults = results.filter(Boolean) as VCHour[][];
   if (validResults.length === 0) return null;
 
-  // Combinar horas de todos los años y promediar por franja de largada
-  const allHours   = validResults.flat();
+  // Combinar horas de todos los años y promediar por franja de largada.
+  // VC no devuelve datetime en hours[], solo temperatura/humedad por índice (0-23).
+  const allHours = validResults.flatMap((hrs, yearIdx) =>
+    hrs.map((h, idx) => ({ ...h, hour: idx })) // índice 0-23 = horas del día
+  );
   const tempStart  = avgAtHours(allHours, START_HOURS, 'temp');
   const humidity   = avgAtHours(allHours, START_HOURS, 'humidity');
 
@@ -128,7 +139,7 @@ async function fetchHistoricalAvg(
   const durationHours = raceDurationSeconds ? raceDurationSeconds / 3600 : 2;
   const endHour       = Math.min(Math.round(START_HOUR + durationHours), 16);
   const endTemps      = validResults
-    .map(hrs => hrs.find(h => hourOf(h.datetime) === endHour)?.temp)
+    .map(hrs => hrs[endHour]?.temp) // índice directo del array
     .filter((v): v is number => v !== undefined);
   const tempEnd = endTemps.length
     ? endTemps.reduce((s, v) => s + v, 0) / endTemps.length
@@ -183,8 +194,14 @@ export async function fetchWeather(
     // Temps horarios horas 5-16 para que el engine calcule temperatureEnd
     // según la duración real de cada plan (largada fija a las 8h).
     const hourlyTemps = hours
-      .filter(h => { const hr = hourOf(h.datetime); return hr >= 5 && hr <= 16; })
-      .map(h => ({ hour: hourOf(h.datetime), tempC: Math.round(h.temp * 10) / 10 }));
+      .filter(h => {
+        const hr = h.hour !== undefined ? h.hour : hourOf(h.datetime!);
+        return hr >= 5 && hr <= 16;
+      })
+      .map(h => ({
+        hour: h.hour !== undefined ? h.hour : hourOf(h.datetime!),
+        tempC: Math.round(h.temp * 10) / 10
+      }));
 
     // temperatureEnd estimado con la duración de la carrera
     const durationHours = raceDurationSeconds ? raceDurationSeconds / 3600 : 2;
