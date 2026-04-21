@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Remitente por defecto.
 // Usar onboarding@resend.dev para testing hasta verificar el dominio racecopilot.com
-const FROM = 'hola@racecopilot.com';
+const FROM = 'hello@racecopilot.com';
 
 // URL base de la app (para links en los emails)
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://racecopilot.com';
