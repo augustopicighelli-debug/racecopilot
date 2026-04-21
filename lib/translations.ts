@@ -49,24 +49,55 @@ export const T = {
     },
     // ── Landing ───────────────────────────────────────────
     landing: {
-      badge:         '7 días de prueba gratis',
-      title:         'Tu plan de carrera',
-      titleHighlight:'personalizado',
-      subtitle:      'Hidratación, nutrición y ritmo km a km — calibrado con tus tiempos reales y el clima del día.',
-      ctaPrimary:    'Empezar — 7 días de prueba gratis',
-      ctaSecondary:  'Ver precios →',
-      exampleLabel:  'Ejemplo de plan generado',
-      mockupCta:     'Crear mi plan gratis →',
-      mockupSubtitle:'Generá tu plan con tus tiempos reales y el clima del día.',
-      featuresTitle: 'Todo lo que necesitás para tu carrera',
-      features: [
-        { icon: '🏃', title: 'Predictor de ritmo',      desc: 'Modelo de Riegel calibrado con tus tiempos reales. No usa promedios genéricos.' },
-        { icon: '💧', title: 'Hidratación y nutrición', desc: 'Plan km a km según tu peso, sudoración y productos que ya usás.' },
-        { icon: '🌤', title: 'Clima del día',            desc: 'Pronóstico de Visual Crossing para la ciudad y la fecha exacta de tu carrera.' },
+      badge:            '7 días de prueba · Sin tarjeta',
+      title:            'El plan exacto para',
+      titleHighlight:   'tu próxima carrera',
+      subtitle:         'Hidratación, geles y ritmo km a km. Calibrado con tus tiempos reales y el clima del día de la carrera.',
+      ctaPrimary:       'Empezar gratis →',
+      ctaSignIn:        'Ya tengo cuenta',
+      ctaSecondary:     'Ver precios →',
+      socialProof:      'Corredores en 30+ países confían en RaceCopilot',
+      // Cómo funciona
+      howLabel:         'Cómo funciona',
+      howTitle:         'Listo en 3 minutos',
+      steps: [
+        { num: '01', title: 'Cargá tu carrera',    desc: 'Nombre, fecha, ciudad y el GPX del recorrido. Sin GPX igual funciona.' },
+        { num: '02', title: 'Ingresá tus tiempos', desc: 'De carreras o entrenamientos pasados. Cuantos más, más preciso el plan.' },
+        { num: '03', title: 'Recibís tu plan',     desc: 'Ritmo por km, agua, geles y electrolitos — todo ajustado al clima del día.' },
       ],
+      // Features
+      featuresLabel:    'Qué incluye el plan',
+      featuresTitle:    'Todo lo que necesitás para tu carrera',
+      features: [
+        { title: 'Tu tiempo objetivo, calculado',  desc: 'Tres escenarios — ambicioso, realista y conservador — basados en tus tiempos reales de entrenamiento.' },
+        { title: 'Agua y geles km a km',           desc: 'Cuánto tomar y cuándo, calculado según tu peso, sudoración y la temperatura prevista.' },
+        { title: 'Pronóstico del día exacto',      desc: 'Temperatura, viento y humedad para la ciudad y la fecha de tu carrera.' },
+        { title: 'El recorrido importa',           desc: 'Las subidas y bajadas del GPX ajustan automáticamente tu ritmo y tu hidratación.' },
+      ],
+      // Testimonios
+      testimonialsTitle: 'Lo que dicen los corredores',
+      testimonials: [
+        { quote: 'Bajé mi marca en el Maratón de Barcelona. El plan me puso 3:58 como objetivo realista y llegué en 4:02. El plan de agua fue clave — ningún calambre en los 42km.', name: 'Pau M.', location: 'Barcelona, España' },
+        { quote: 'Llevaba dos años entrenando para Berlín. Seguí el plan al detalle — ritmo, hidratación, calentamiento — y bajé mi marca en 8 minutos. El mejor día de mi vida como corredor.', name: 'Thomas R.', location: 'Berlín, Alemania' },
+        { quote: 'Me registré 3 semanas antes de mi primera media. Cargué el GPX, puse mis tiempos y en minutos tenía el plan. Terminé sin calambres ni paredes.', name: 'Sofía V.', location: 'Ciudad de México' },
+      ],
+      // Precios
+      pricingTitle:     'Simple y sin sorpresas',
+      pricingSubtitle:  '7 días de prueba gratis. Cancelá cuando quieras.',
+      monthlyLabel:     'Mensual',
+      monthlyBilled:    'cobrado mensualmente',
+      annualLabel:      'Anual',
+      annualBadge:      '2 meses gratis',
+      annualBilled:     '/año cobrado anualmente',
+      seePlans:         'Ver planes completos →',
+      // CTA final
       ctaSectionTitle:    '¿Listo para tu próxima carrera?',
       ctaSectionSubtitle: '7 días de prueba gratis. Cancelá cuando quieras.',
       copyright: 'RaceCopilot',
+      // Legado (mockup — por compatibilidad)
+      exampleLabel:   'Así se ve tu plan',
+      mockupCta:      'Crear mi plan gratis →',
+      mockupSubtitle: 'Generá tu plan con tus tiempos reales y el clima del día.',
     },
     // ── Dashboard ─────────────────────────────────────────
     dashboard: {
@@ -483,24 +514,55 @@ export const T = {
       verifying:   'Verifying link...',
     },
     landing: {
-      badge:         '7-day free trial',
-      title:         'Your race plan,',
-      titleHighlight:'personalized',
-      subtitle:      'Hydration, nutrition and pace per km — calibrated with your real times and race-day weather.',
-      ctaPrimary:    'Start — 7-day free trial',
-      ctaSecondary:  'See pricing →',
-      exampleLabel:  'Generated plan example',
-      mockupCta:     'Create my plan free →',
-      mockupSubtitle:'Generate your plan with your real times and race-day weather.',
-      featuresTitle: 'Everything you need for your race',
-      features: [
-        { icon: '🏃', title: 'Pace predictor',       desc: 'Riegel model calibrated with your real race times. No generic averages.' },
-        { icon: '💧', title: 'Hydration & nutrition', desc: 'Per-km plan based on your weight, sweat rate and products you already use.' },
-        { icon: '🌤', title: 'Race-day weather',      desc: 'Visual Crossing forecast for your city on the exact date of your race.' },
+      badge:            '7-day free trial · No credit card',
+      title:            'The exact plan for',
+      titleHighlight:   'your next race',
+      subtitle:         'Hydration, gels and pace, km by km. Calibrated with your real times and the weather on race day.',
+      ctaPrimary:       'Start free →',
+      ctaSignIn:        'I already have an account',
+      ctaSecondary:     'See pricing →',
+      socialProof:      'Runners in 30+ countries trust RaceCopilot',
+      // How it works
+      howLabel:         'How it works',
+      howTitle:         'Ready in 3 minutes',
+      steps: [
+        { num: '01', title: 'Add your race',         desc: 'Name, date, city and GPX route. No GPX? It still works.' },
+        { num: '02', title: 'Enter your times',       desc: 'From past races or training. More times = more accurate.' },
+        { num: '03', title: 'Get your plan',          desc: 'Pace per km, water, gels and electrolytes — all tuned to race-day weather.' },
       ],
+      // Features
+      featuresLabel:    'What the plan includes',
+      featuresTitle:    'Everything you need for your race',
+      features: [
+        { title: 'Your goal time, calculated',     desc: 'Three scenarios — ambitious, realistic and conservative — based on your real training times.' },
+        { title: 'Water and gels, km by km',       desc: 'What to drink and when, based on your weight, sweat rate and forecast temperature.' },
+        { title: 'Race-day weather forecast',      desc: 'Temperature, wind and humidity for your city on the exact date of your race.' },
+        { title: 'The route matters',              desc: 'The hills in your GPX automatically adjust your pace and hydration plan.' },
+      ],
+      // Testimonials
+      testimonialsTitle: 'What runners say',
+      testimonials: [
+        { quote: "I PR'd at Barcelona Marathon. The plan gave me 3:58 as my realistic target and I finished in 4:02. The hydration plan was key — zero cramps over 42km.", name: 'Pau M.', location: 'Barcelona, Spain' },
+        { quote: "I'd been training two years for Berlin. Followed the plan to the letter — pace, hydration, warmup — and ran 8 minutes under my PB. Best day of my running life.", name: 'Thomas R.', location: 'Berlin, Germany' },
+        { quote: "Signed up 3 weeks before my first half marathon. Uploaded the GPX, entered my times, had a plan in minutes. Finished without cramps or hitting the wall.", name: 'Sofia V.', location: 'Mexico City' },
+      ],
+      // Pricing
+      pricingTitle:     'Simple and transparent',
+      pricingSubtitle:  '7-day free trial. Cancel anytime.',
+      monthlyLabel:     'Monthly',
+      monthlyBilled:    'billed monthly',
+      annualLabel:      'Annual',
+      annualBadge:      '2 months free',
+      annualBilled:     '/year billed annually',
+      seePlans:         'See full plans →',
+      // Final CTA
       ctaSectionTitle:    'Ready for your next race?',
       ctaSectionSubtitle: '7-day free trial. Cancel anytime.',
-      copyright: 'RaceCopilot',
+      copyright:          'RaceCopilot',
+      // Legacy (mockup — kept for compatibility)
+      exampleLabel:   'What your plan looks like',
+      mockupCta:      'Create my plan free →',
+      mockupSubtitle: 'Generate your plan with your real times and race-day weather.',
     },
     dashboard: {
       trialBanner:    'Activate your 7-day free trial',
