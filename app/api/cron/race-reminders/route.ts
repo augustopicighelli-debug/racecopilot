@@ -55,19 +55,20 @@ export async function GET(req: NextRequest) {
   }
 
   // Mapa runner_id → email
-  const { data: runners } = await supabaseAdmin.from('runners').select('id, user_id');
-  const runnerEmailMap: Record<string, string> = {};
+  const { data: runners } = await supabaseAdmin.from('runners').select('id, user_id, language');
+  const runnerMap: Record<string, { email: string; language: string }> = {};
   for (const runner of runners ?? []) {
     const user = users.find(u => u.id === runner.user_id);
-    if (user?.email) runnerEmailMap[runner.id] = user.email;
+    if (user?.email) runnerMap[runner.id] = { email: user.email, language: runner.language ?? 'es' };
   }
 
   let sent = 0;
   const errors: string[] = [];
 
   for (const race of races) {
-    const email = runnerEmailMap[race.runner_id];
-    if (!email) continue;
+    const runner = runnerMap[race.runner_id];
+    if (!runner) continue;
+    const { email, language } = runner;
 
     // Calcular días exactos comparando fechas en string (evita bugs por hora/timezone)
     const today = new Date(todayStr + 'T00:00:00Z');

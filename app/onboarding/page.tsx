@@ -107,6 +107,9 @@ export default function OnboardingPage() {
       const heightVal = imp ? parseFloat(heightCm) * 2.54    : parseFloat(heightCm);
       const weeklyVal = weeklyKm ? (imp ? parseFloat(weeklyKm) * 1.60934 : parseFloat(weeklyKm)) : null;
 
+      // Detectar idioma del browser: 'en' si empieza con 'en', 'es' en cualquier otro caso
+      const lang = navigator.language?.startsWith('en') ? 'en' : 'es';
+
       const { data: newRunner, error: err } = await supabase
         .from('runners')
         .insert({
@@ -117,6 +120,7 @@ export default function OnboardingPage() {
           max_hr:      maxHr     ? parseInt(maxHr)     : null,
           resting_hr:  restingHr ? parseInt(restingHr) : null,
           weekly_km:   weeklyVal,
+          language:    lang,
         })
         .select('id')
         .single();
