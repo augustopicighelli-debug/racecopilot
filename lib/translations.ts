@@ -90,6 +90,9 @@ export const T = {
       annualBadge:      '6 meses gratis',
       annualBilled:     '/año cobrado anualmente',
       seePlans:         'Ver planes completos →',
+      // Sección showcase
+      showcaseTagline:    'Un copiloto que te acompaña el día de la carrera para que no improvises nada',
+      showcaseLabel:      'El plan en tu bolsillo',
       // CTA final
       ctaSectionTitle:    '¿Listo para tu próxima carrera?',
       ctaSectionSubtitle: '7 días de prueba gratis. Cancelá cuando quieras.',
@@ -555,6 +558,9 @@ export const T = {
       annualBadge:      '6 months free',
       annualBilled:     '/year billed annually',
       seePlans:         'See full plans →',
+      // Showcase section
+      showcaseTagline:    'A co-pilot that guides you on race day so nothing is left to chance',
+      showcaseLabel:      'The plan in your pocket',
       // Final CTA
       ctaSectionTitle:    'Ready for your next race?',
       ctaSectionSubtitle: '7-day free trial. Cancel anytime.',
