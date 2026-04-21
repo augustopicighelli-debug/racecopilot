@@ -87,7 +87,7 @@ export const T = {
       monthlyLabel:     'Mensual',
       monthlyBilled:    'cobrado mensualmente',
       annualLabel:      'Anual',
-      annualBadge:      '2 meses gratis',
+      annualBadge:      '6 meses gratis',
       annualBilled:     '/año cobrado anualmente',
       seePlans:         'Ver planes completos →',
       // CTA final
@@ -552,7 +552,7 @@ export const T = {
       monthlyLabel:     'Monthly',
       monthlyBilled:    'billed monthly',
       annualLabel:      'Annual',
-      annualBadge:      '2 months free',
+      annualBadge:      '6 months free',
       annualBilled:     '/year billed annually',
       seePlans:         'See full plans →',
       // Final CTA

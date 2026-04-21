@@ -156,7 +156,7 @@ export default function PricingPage() {
                 className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold px-3 py-1 rounded-full"
                 style={{ background: '#f97316', color: '#fff' }}
               >
-                2 meses gratis
+                6 meses gratis
               </span>
 
               <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--muted-foreground)' }}>
