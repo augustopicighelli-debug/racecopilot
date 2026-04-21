@@ -30,6 +30,8 @@ export default function NewRacePage() {
   const [distPreset, setDistPreset] = useState<'10' | '21.1' | '42.195' | 'custom'>('custom');
   // Slug del catálogo GPX si se eligió una carrera conocida
   const [gpxSlug, setGpxSlug]       = useState<string | null>(null);
+  // GPX personal subido por el usuario
+  const [gpxFile, setGpxFile]       = useState<File | null>(null);
 
   // Controla si mostrar los campos del form (false = solo se ve el buscador)
   const [formVisible, setFormVisible] = useState(false);
@@ -143,6 +145,9 @@ export default function NewRacePage() {
       const elevM     = elevGain ? (imp ? parseFloat(elevGain) / 3.28084 : parseFloat(elevGain)) : null;
       const elevLossM = elevLoss ? (imp ? parseFloat(elevLoss) / 3.28084 : parseFloat(elevLoss)) : null;
 
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user.id;
+
       const { data: newRace, error: err } = await supabase.from('races').insert({
         runner_id:      runnerId,
         name:           name.trim(),
@@ -157,6 +162,32 @@ export default function NewRacePage() {
         gpx_slug:       gpxSlug,
       }).select('id').single();
       if (err) throw err;
+
+      // Si el usuario subió un GPX personal, guardarlo en Storage
+      if (gpxFile && userId) {
+        const path = `${userId}/${newRace.id}.gpx`;
+        const { error: uploadErr } = await supabase.storage
+          .from('user-gpx')
+          .upload(path, gpxFile, { contentType: 'application/gpx+xml', upsert: true });
+        if (!uploadErr) {
+          await supabase.from('races').update({ gpx_url: path }).eq('id', newRace.id);
+        }
+      }
+
+      // Email de confirmación (no-await: no bloquea si falla)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.access_token) {
+          fetch('/api/email/race-created', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ raceId: newRace.id }),
+          }).catch(() => {});
+        }
+      });
+
       router.push(`/races/${newRace.id}`);
     } catch (err: any) {
       setError(err.message);
@@ -333,6 +364,26 @@ export default function NewRacePage() {
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted-foreground)' }}>{imp ? 'ft' : 'm'}</span>
                   </div>
                 </div>
+              </div>
+
+              {/* GPX personal — opcional, mejora el perfil de elevación */}
+              <div>
+                <label className="block text-sm font-medium mb-1" style={labelStyle}>
+                  Recorrido GPX <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
+                </label>
+                <input
+                  type="file"
+                  accept=".gpx,application/gpx+xml,application/xml,text/xml"
+                  onChange={(e) => setGpxFile(e.target.files?.[0] ?? null)}
+                  className="w-full px-3 py-2 rounded-lg border text-sm"
+                  style={inputStyle}
+                />
+                {gpxFile && (
+                  <p className="text-xs mt-1" style={{ color: '#4ade80' }}>✓ {gpxFile.name}</p>
+                )}
+                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
+                  Subí el GPX de tu carrera para un análisis de elevación real.
+                </p>
               </div>
 
               {/* Selector de estrategia de split — estilo ObjectiveCards */}

@@ -11,8 +11,8 @@ const FROM = 'onboarding@resend.dev';
 // URL base de la app (para links en los emails)
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://racecopilot.com';
 
-// Días válidos para enviar recordatorio
-const REMINDER_DAYS = [30, 14, 7, 3, 1];
+// Días válidos para enviar recordatorio (incluye día 0 = race day)
+const REMINDER_DAYS = [30, 14, 10, 7, 5, 4, 3, 2, 1, 0];
 
 // =============================================================================
 // sendWelcomeEmail
@@ -103,28 +103,21 @@ export async function sendWelcomeEmail(to: string, name?: string): Promise<void>
 }
 
 // =============================================================================
-// sendRaceReminderEmail
-// Envía recordatorio de carrera — SOLO si daysUntil es 30, 14, 7, 3 o 1
+// sendRaceCreatedEmail
+// Confirma que la carrera fue creada y lleva al usuario a generar el plan
 // =============================================================================
-export async function sendRaceReminderEmail(
+export async function sendRaceCreatedEmail(
   to: string,
   raceName: string,
-  daysUntil: number,
   raceDate: string,
   raceId: string,
+  distanceKm: number,
+  city?: string | null,
 ): Promise<void> {
-  // Validar que es un día de recordatorio válido; si no, no enviamos
-  if (!REMINDER_DAYS.includes(daysUntil)) return;
-
-  // Texto descriptivo según los días que faltan
-  const urgencyLabel =
-    daysUntil === 1 ? '¡Mañana es el día!' :
-    daysUntil === 3 ? '¡En 3 días!' :
-    `Faltan ${daysUntil} días`;
-
-  // Formatear la fecha para mostrarla en el email (ej: "15 de mayo de 2025")
   const formattedDate = new Date(raceDate + 'T12:00:00')
     .toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const distLabel = `${distanceKm % 1 === 0 ? distanceKm : distanceKm.toFixed(1)} km`;
+  const cityLine = city ? `<p style="margin:4px 0 0;font-size:13px;color:#a1a1aa;">${city}</p>` : '';
 
   const html = `
 <!DOCTYPE html>
@@ -132,7 +125,7 @@ export async function sendRaceReminderEmail(
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${daysUntil} días para ${raceName}</title>
+  <title>Carrera guardada — ${raceName}</title>
 </head>
 <body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
@@ -140,67 +133,51 @@ export async function sendRaceReminderEmail(
       <td align="center">
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
 
-          <!-- Logo -->
-          <tr>
-            <td style="padding-bottom:32px;">
-              <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">
-                Race<span style="color:#f97316;">Copilot</span>
-              </h1>
-            </td>
-          </tr>
+          <tr><td style="padding-bottom:32px;">
+            <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1>
+          </td></tr>
 
-          <!-- Cuenta regresiva visual -->
-          <tr>
-            <td style="padding-bottom:24px;text-align:center;">
-              <div style="display:inline-block;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:24px 40px;">
-                <p style="margin:0 0 4px 0;font-size:56px;font-weight:700;color:#f97316;line-height:1;">
-                  ${daysUntil}
-                </p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;text-transform:uppercase;letter-spacing:0.08em;">
-                  ${daysUntil === 1 ? 'día' : 'días'}
-                </p>
-              </div>
-            </td>
-          </tr>
+          <tr><td style="padding-bottom:8px;">
+            <p style="margin:0;font-size:13px;font-weight:600;color:#f97316;text-transform:uppercase;letter-spacing:0.06em;">✓ Carrera guardada</p>
+          </td></tr>
+          <tr><td style="padding-bottom:24px;">
+            <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">${raceName}</h2>
+          </td></tr>
 
-          <!-- Info de la carrera -->
-          <tr>
-            <td style="padding-bottom:8px;text-align:center;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
-                ${urgencyLabel}
-              </h2>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding-bottom:32px;text-align:center;">
-              <p style="margin:0;font-size:15px;color:#f97316;font-weight:500;">
-                ${raceName}
-              </p>
-              <p style="margin:4px 0 0 0;font-size:13px;color:#a1a1aa;">
-                ${formattedDate}
-              </p>
-            </td>
-          </tr>
+          <!-- Detalles de la carrera -->
+          <tr><td style="padding-bottom:32px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border-radius:10px;padding:20px;">
+              <tr>
+                <td style="padding-bottom:12px;">
+                  <p style="margin:0;font-size:12px;color:#52525b;text-transform:uppercase;letter-spacing:0.06em;">Fecha</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#ffffff;font-weight:500;">${formattedDate}</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p style="margin:0;font-size:12px;color:#52525b;text-transform:uppercase;letter-spacing:0.06em;">Distancia</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#ffffff;font-weight:500;">${distLabel}</p>
+                  ${cityLine}
+                </td>
+              </tr>
+            </table>
+          </td></tr>
 
-          <!-- Botón CTA -->
-          <tr>
-            <td style="padding-bottom:32px;text-align:center;">
-              <a href="${APP_URL}/races/${raceId}"
-                 style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;
-                        font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">
-                Ver mi plan →
-              </a>
-            </td>
-          </tr>
+          <tr><td style="padding-bottom:16px;">
+            <p style="margin:0;font-size:14px;color:#a1a1aa;">El plan se genera con clima real 24hs antes. Podés verlo en cualquier momento.</p>
+          </td></tr>
 
-          <!-- Footer -->
-          <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
-              <p style="margin:0;font-size:12px;color:#52525b;">
-                RaceCopilot · Recordatorio automático de carrera.
-              </p>
-            </td>
-          </tr>
+          <tr><td style="padding-bottom:32px;">
+            <a href="${APP_URL}/races/${raceId}"
+               style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;
+                      font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">
+              Ver mi carrera →
+            </a>
+          </td></tr>
+
+          <tr><td style="border-top:1px solid #222222;padding-top:24px;">
+            <p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Confirmación de carrera.</p>
+          </td></tr>
 
         </table>
       </td>
@@ -212,7 +189,203 @@ export async function sendRaceReminderEmail(
   const { error } = await resend.emails.send({
     from: FROM,
     to,
-    subject: `${daysUntil} días para ${raceName}`,
+    subject: `✓ ${raceName} guardada — ${formattedDate}`,
+    html,
+  });
+
+  if (error) throw new Error(`[Resend] sendRaceCreatedEmail: ${error.message}`);
+}
+
+// =============================================================================
+// sendRaceDayEmail
+// Se manda el día de la carrera (~5am hora local vía cron 8am UTC)
+// =============================================================================
+export async function sendRaceDayEmail(
+  to: string,
+  raceName: string,
+  raceId: string,
+): Promise<void> {
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¡Hoy corrés! — ${raceName}</title>
+</head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #f97316;padding:40px 32px;">
+
+          <tr><td style="padding-bottom:32px;">
+            <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1>
+          </td></tr>
+
+          <!-- Countdown cero -->
+          <tr><td style="padding-bottom:24px;text-align:center;">
+            <div style="display:inline-block;background:#1a1a1a;border:1px solid #f97316;border-radius:12px;padding:24px 48px;">
+              <p style="margin:0 0 4px;font-size:14px;color:#f97316;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">HOY</p>
+              <p style="margin:0;font-size:48px;font-weight:700;color:#ffffff;line-height:1;">🏁</p>
+            </div>
+          </td></tr>
+
+          <tr><td style="padding-bottom:8px;text-align:center;">
+            <h2 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">¡Es el día de ${raceName}!</h2>
+          </td></tr>
+          <tr><td style="padding-bottom:32px;text-align:center;">
+            <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              Meses de entrenamiento para este momento. Confiá en tu preparación.
+            </p>
+          </td></tr>
+
+          <!-- Tips rápidos -->
+          <tr><td style="padding-bottom:24px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border-radius:10px;padding:20px;">
+              <tr><td style="padding-bottom:12px;">
+                <p style="margin:0;font-size:13px;font-weight:600;color:#f97316;">Recordatorios de último momento</p>
+              </td></tr>
+              <tr><td style="padding-bottom:8px;">
+                <p style="margin:0;font-size:13px;color:#a1a1aa;">💧 Hidratate bien antes de salir</p>
+              </td></tr>
+              <tr><td style="padding-bottom:8px;">
+                <p style="margin:0;font-size:13px;color:#a1a1aa;">🍌 Desayuno liviano 2-3 horas antes</p>
+              </td></tr>
+              <tr><td style="padding-bottom:8px;">
+                <p style="margin:0;font-size:13px;color:#a1a1aa;">👟 Entrá despacio — el ritmo llega solo</p>
+              </td></tr>
+              <tr><td>
+                <p style="margin:0;font-size:13px;color:#a1a1aa;">📋 Revisá tu plan con el clima de hoy</p>
+              </td></tr>
+            </table>
+          </td></tr>
+
+          <tr><td style="padding-bottom:32px;text-align:center;">
+            <a href="${APP_URL}/races/${raceId}"
+               style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;
+                      font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">
+              Ver mi plan de hoy →
+            </a>
+          </td></tr>
+
+          <tr><td style="border-top:1px solid #222222;padding-top:24px;">
+            <p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · ¡Buena carrera!</p>
+          </td></tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `🏁 Hoy corrés — ${raceName}`,
+    html,
+  });
+
+  if (error) throw new Error(`[Resend] sendRaceDayEmail: ${error.message}`);
+}
+
+// =============================================================================
+// sendRaceReminderEmail
+// Envía recordatorio de carrera — días 30, 14, 10, 7, 5, 4, 3, 2, 1
+// El día 0 (race day) se maneja por sendRaceDayEmail
+// =============================================================================
+export async function sendRaceReminderEmail(
+  to: string,
+  raceName: string,
+  daysUntil: number,
+  raceDate: string,
+  raceId: string,
+): Promise<void> {
+  if (!REMINDER_DAYS.includes(daysUntil) || daysUntil === 0) return;
+
+  const formattedDate = new Date(raceDate + 'T12:00:00')
+    .toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Copy específico según el día
+  const copy: Record<number, { label: string; tip: string }> = {
+    30: { label: 'Tenés 30 días para prepararte', tip: 'Es el momento ideal para ajustar el volumen de entrenamiento y asegurarte de tener el equipo listo.' },
+    14: { label: '2 semanas — afinando detalles', tip: 'Empezá a reducir el volumen. El tapering te va a llevar a la largada en tu mejor versión.' },
+    10: { label: '10 días — recta final', tip: 'Últimas tiradas largas. A partir de ahora, el descanso es entrenamiento.' },
+    7:  { label: '1 semana — modo carrera', tip: 'Preparate la ropa, la mochila y el plan de nutrición. Nada de cosas nuevas en el entrenamiento.' },
+    5:  { label: '5 días — casi ahí', tip: 'Entrenamiento suave. Tu cuerpo ya tiene todo lo que necesita para el día de la carrera.' },
+    4:  { label: '4 días — bajá la intensidad', tip: 'Caminatas, elongación suave. Guardá energía para el domingo.' },
+    3:  { label: '3 días — ya falta poco', tip: 'Descansá bien, tomá agua y evitá comidas pesadas. El cuerpo se está cargando.' },
+    2:  { label: '2 días — preparate mentalmente', tip: 'Preparate la indumentaria, los geles y todo lo que necesitás. Mañana es el día previo.' },
+    1:  { label: 'Mañana es el día', tip: 'Dormí temprano, cená liviano y confiá en todo lo que entrenaste. Mañana sos protagonista.' },
+  };
+
+  const { label, tip } = copy[daysUntil] ?? { label: `${daysUntil} días para ${raceName}`, tip: 'Revisá tu plan.' };
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${label} — ${raceName}</title>
+</head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+
+          <tr><td style="padding-bottom:32px;">
+            <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1>
+          </td></tr>
+
+          <!-- Cuenta regresiva -->
+          <tr><td style="padding-bottom:24px;text-align:center;">
+            <div style="display:inline-block;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:20px 40px;">
+              <p style="margin:0 0 4px;font-size:52px;font-weight:700;color:#f97316;line-height:1;">${daysUntil}</p>
+              <p style="margin:0;font-size:13px;color:#a1a1aa;text-transform:uppercase;letter-spacing:0.08em;">${daysUntil === 1 ? 'día' : 'días'}</p>
+            </div>
+          </td></tr>
+
+          <tr><td style="padding-bottom:8px;text-align:center;">
+            <h2 style="margin:0;font-size:19px;font-weight:600;color:#ffffff;">${label}</h2>
+          </td></tr>
+          <tr><td style="padding-bottom:8px;text-align:center;">
+            <p style="margin:0;font-size:15px;color:#f97316;font-weight:500;">${raceName}</p>
+            <p style="margin:4px 0 0;font-size:13px;color:#a1a1aa;">${formattedDate}</p>
+          </td></tr>
+
+          <!-- Tip del día -->
+          <tr><td style="padding:24px 0;">
+            <div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
+              <p style="margin:0;font-size:13px;line-height:1.6;color:#a1a1aa;">${tip}</p>
+            </div>
+          </td></tr>
+
+          <tr><td style="padding-bottom:32px;text-align:center;">
+            <a href="${APP_URL}/races/${raceId}"
+               style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;
+                      font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">
+              Ver mi plan →
+            </a>
+          </td></tr>
+
+          <tr><td style="border-top:1px solid #222222;padding-top:24px;">
+            <p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Recordatorio automático de carrera.</p>
+          </td></tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `${daysUntil === 1 ? 'Mañana corrés' : `${daysUntil} días`} — ${raceName}`,
     html,
   });
 
