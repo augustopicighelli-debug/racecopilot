@@ -28,7 +28,7 @@ interface Runner {
   weekly_km: number | null;
   is_premium: boolean | null;
   premium_until: string | null;
-  stripe_subscription_id: string | null;
+  lemon_subscription_id: string | null;
 }
 
 interface ReferenceRace {
@@ -205,7 +205,7 @@ export default function ProfilePage() {
       // Cargar perfil del corredor
       const { data: r } = await supabase
         .from('runners')
-        .select('id,weight_kg,height_cm,sweat_level,max_hr,resting_hr,weekly_km,is_premium,premium_until,stripe_subscription_id')
+        .select('id,weight_kg,height_cm,sweat_level,max_hr,resting_hr,weekly_km,is_premium,premium_until,lemon_subscription_id')
         .eq('user_id', session.user.id)
         .maybeSingle();
 
@@ -221,7 +221,7 @@ export default function ProfilePage() {
       setWeeklyKm(r.weekly_km ? String(r.weekly_km) : '');
       setIsPremium(!!r.is_premium);
       setPremiumUntil(r.premium_until ?? null);
-      setHasSub(!!r.stripe_subscription_id);
+      setHasSub(!!r.lemon_subscription_id);
 
       // Cargar tiempos de referencia del runner
       const { data: refs } = await supabase
@@ -396,7 +396,7 @@ export default function ProfilePage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const res = await fetch('/api/stripe/portal', {
+      const res = await fetch('/api/lemonsqueezy/portal', {
         method: 'POST',
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
@@ -420,7 +420,7 @@ export default function ProfilePage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const res = await fetch('/api/stripe/cancel', {
+      const res = await fetch('/api/lemonsqueezy/cancel', {
         method: 'POST',
         headers: { Authorization: `Bearer ${session.access_token}` },
       });

@@ -37,7 +37,7 @@ export default function PricingPage() {
     if (!session) { router.push('/login'); return; }
 
     try {
-      const res = await fetch('/api/stripe/checkout', {
+      const res = await fetch('/api/lemonsqueezy/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ export default function PricingPage() {
             <p>
               Mensual: <strong style={{ color: 'var(--foreground)' }}>USD 8/mes</strong> ·
               Anual: <strong style={{ color: 'var(--foreground)' }}>USD 48/año</strong> (equivale a USD 4/mes).
-              El cobro es automático vía Stripe al finalizar la prueba y se renueva cada período hasta que canceles.
+              El cobro es automático al finalizar la prueba y se renueva cada período hasta que canceles.
             </p>
             <p>
               Al continuar aceptás nuestros{' '}

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Email Preview — RaceCopilot</title>
+  <style>
+    body { background: #1a1a1a; font-family: system-ui, sans-serif; padding: 24px; margin: 0; }
+    h1 { color: #fff; font-size: 18px; margin-bottom: 32px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(540px, 1fr)); gap: 48px; }
+    .email-card { }
+    .label { color: #f97316; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .subject { color: #a1a1aa; font-size: 13px; margin-bottom: 12px; }
+    iframe { width: 100%; height: 500px; border: none; border-radius: 12px; }
+    .domain-banner { background: #111; border: 1px solid #f97316; border-radius: 10px; padding: 16px 20px; margin-bottom: 40px; color: #a1a1aa; font-size: 13px; line-height: 1.6; }
+    .domain-banner strong { color: #f97316; }
+  </style>
+</head>
+<body>
+
+<h1>RaceCopilot — Preview de emails</h1>
+
+<div class="domain-banner">
+  <strong>Dominio actual:</strong> <code>onboarding@resend.dev</code> (dominio de testing de Resend)<br>
+  <strong>Antes de lanzar:</strong> verificar <code>racecopilot.com</code> en el dashboard de Resend →
+  cambia <code>FROM</code> en <code>lib/email/resend.ts</code> y <code>lib/email/sequences.ts</code>
+  a algo como <code>hola@racecopilot.com</code> o <code>no-reply@racecopilot.com</code>
+</div>
+
+<div class="grid">
+
+  <!-- ONBOARDING DÍA 1 -->
+  <div class="email-card">
+    <div class="label">Onboarding — Día 1</div>
+    <div class="subject">Subject: "Tu primera carrera en RaceCopilot"</div>
+    <iframe srcdoc='<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/></head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <tr><td style="padding-bottom:32px;"><h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1></td></tr>
+        <tr><td style="padding-bottom:16px;"><h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">Hola Augusto</h2></td></tr>
+        <tr><td style="padding-bottom:32px;">
+          <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#a1a1aa;">Queremos ayudarte a entrenar más inteligente. Lo primero es cargar tu próxima carrera.</p>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">En 3 minutos generarás un plan personalizado basado en el recorrido, tu nivel y el clima del día.</p>
+        </td></tr>
+        <tr><td style="padding-bottom:32px;"><a href="#" style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">Cargar mi primera carrera →</a></td></tr>
+        <tr><td style="border-top:1px solid #222222;padding-top:24px;"><p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Email del día 1 de tu prueba.</p></td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>'></iframe>
+  </div>
+
+  <!-- ONBOARDING DÍA 3 -->
+  <div class="email-card">
+    <div class="label">Onboarding — Día 3</div>
+    <div class="subject">Subject: "Cómo funciona tu plan en RaceCopilot"</div>
+    <iframe srcdoc='<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <tr><td style="padding-bottom:32px;"><h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1></td></tr>
+        <tr><td style="padding-bottom:24px;"><h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">Cómo funciona tu plan</h2></td></tr>
+        <tr><td style="padding-bottom:20px;"><div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;"><p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#f97316;">Ritmo personalizado</p><p style="margin:0;font-size:13px;color:#a1a1aa;">Basado en tu perfil, el GPX del recorrido y ajustes por clima.</p></div></td></tr>
+        <tr><td style="padding-bottom:20px;"><div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;"><p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#f97316;">Splits y segmentos</p><p style="margin:0;font-size:13px;color:#a1a1aa;">Qué ritmo correr en cada kilómetro para llegar óptimo al final.</p></div></td></tr>
+        <tr><td style="padding-bottom:20px;"><div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;"><p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#f97316;">Hidratación y nutrición</p><p style="margin:0;font-size:13px;color:#a1a1aa;">Cuándo y cuánto tomar según la duración y condiciones.</p></div></td></tr>
+        <tr><td style="padding-bottom:32px;"><div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;"><p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#f97316;">Ajustes por clima</p><p style="margin:0;font-size:13px;color:#a1a1aa;">Tu plan se actualiza si cambian las condiciones del día.</p></div></td></tr>
+        <tr><td style="padding-bottom:32px;text-align:center;"><a href="#" style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">Crear mi carrera →</a></td></tr>
+        <tr><td style="border-top:1px solid #222222;padding-top:24px;"><p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Email del día 3 de tu prueba.</p></td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>'></iframe>
+  </div>
+
+  <!-- ONBOARDING DÍA 5 -->
+  <div class="email-card">
+    <div class="label">Onboarding — Día 5</div>
+    <div class="subject">Subject: "Guía rápida: cómo leer tu plan"</div>
+    <iframe srcdoc='<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <tr><td style="padding-bottom:32px;"><h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1></td></tr>
+        <tr><td style="padding-bottom:24px;"><h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">Guía rápida: cómo leer tu plan</h2></td></tr>
+        <tr><td style="padding-bottom:20px;"><div style="background:#1a1a1a;border-radius:10px;padding:16px;"><p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#ffffff;">1. Los segmentos son tu GPS</p><p style="margin:0;font-size:13px;color:#a1a1aa;">Cada fila es un kilómetro. El ritmo mostrado es lo que deberías correr en ese tramo considerando la elevación.</p></div></td></tr>
+        <tr><td style="padding-bottom:20px;"><div style="background:#1a1a1a;border-radius:10px;padding:16px;"><p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#ffffff;">2. El color indica cómo vas</p><p style="margin:0;font-size:13px;color:#a1a1aa;">Verde: dentro del plan. Amarillo: un poco rápido. Rojo: demasiado rápido para tu meta.</p></div></td></tr>
+        <tr><td style="padding-bottom:20px;"><div style="background:#1a1a1a;border-radius:10px;padding:16px;"><p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#ffffff;">3. Ajustes por clima</p><p style="margin:0;font-size:13px;color:#a1a1aa;">Si hay mucho calor, el ritmo se relaja automáticamente. Si lluvia fuerte, más cuidado en descensos.</p></div></td></tr>
+        <tr><td style="padding-bottom:32px;"><p style="margin:0 0 16px;font-size:14px;color:#a1a1aa;">¿Dudas? Nos falta 1 día de prueba. Carga una carrera ahora y practica.</p><a href="#" style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">Crear carrera →</a></td></tr>
+        <tr><td style="border-top:1px solid #222222;padding-top:24px;"><p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Email del día 5 de tu prueba. Quedan 2 días.</p></td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>'></iframe>
+  </div>
+
+  <!-- ONBOARDING DÍA 7 -->
+  <div class="email-card">
+    <div class="label">Onboarding — Día 7 (último)</div>
+    <div class="subject">Subject: "Último día — Activá tu plan"</div>
+    <iframe srcdoc='<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <tr><td style="padding-bottom:32px;"><h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1></td></tr>
+        <tr><td style="padding-bottom:16px;"><h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">Hoy termina tu prueba, Augusto</h2></td></tr>
+        <tr><td style="padding-bottom:32px;"><p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">Si activas tu plan hoy, continuarás sin interrupciones. Si no, pierdes acceso a todo lo que generaste.</p></td></tr>
+        <tr><td style="padding-bottom:24px;">
+          <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#ffffff;">Lo que perderías:</p>
+          <ul style="margin:0;padding:0 0 0 20px;font-size:13px;color:#a1a1aa;">
+            <li style="margin-bottom:8px;">Tu plan detallado con splits por kilómetro</li>
+            <li style="margin-bottom:8px;">Ajustes de clima en tiempo real (24hs antes de carrera)</li>
+            <li style="margin-bottom:8px;">Plan de hidratación personalizado</li>
+            <li style="margin-bottom:8px;">Descarga en PDF para llevar offline</li>
+            <li>Seguimiento post-carrera: comparación real vs plan</li>
+          </ul>
+        </td></tr>
+        <tr><td style="padding-bottom:32px;"><a href="#" style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">Activar mi plan ahora →</a></td></tr>
+        <tr><td style="padding-bottom:32px;"><p style="margin:0;font-size:13px;color:#a1a1aa;">¿Preguntas? Respondemos en el dashboard. Todo es muy fácil.</p></td></tr>
+        <tr><td style="border-top:1px solid #222222;padding-top:24px;"><p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Tu último email de prueba.</p></td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>'></iframe>
+  </div>
+
+  <!-- REACTIVACIÓN DÍA 3 -->
+  <div class="email-card">
+    <div class="label">Reactivación — Día 3 post-cancelación</div>
+    <div class="subject">Subject: "¿Qué pasó con tu suscripción?"</div>
+    <iframe srcdoc='<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <tr><td style="padding-bottom:32px;"><h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1></td></tr>
+        <tr><td style="padding-bottom:24px;"><h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">Te echamos de menos, Augusto</h2></td></tr>
+        <tr><td style="padding-bottom:32px;">
+          <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#a1a1aa;">Vimos que cancelaste tu suscripción. Nos gustaría saber por qué.</p>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">¿Fue caro? ¿Algo no funcionó? ¿Necesitás más features? Tu feedback nos ayuda a mejorar.</p>
+        </td></tr>
+        <tr><td style="padding-bottom:32px;"><a href="mailto:hola@racecopilot.com" style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">Contarnos qué pasó →</a></td></tr>
+        <tr><td style="border-top:1px solid #222222;padding-top:24px;"><p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Email de reactivación — día 3.</p></td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>'></iframe>
+  </div>
+
+  <!-- UPSELL POST-CARRERA -->
+  <div class="email-card">
+    <div class="label">Upsell post-carrera (usuarios free)</div>
+    <div class="subject">Subject: "¿Qué te perdiste en Maratón de Buenos Aires?"</div>
+    <iframe srcdoc='<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <tr><td style="padding-bottom:32px;"><h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1></td></tr>
+        <tr><td style="padding-bottom:24px;"><h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">¡Felicitaciones por Maratón de Buenos Aires!</h2></td></tr>
+        <tr><td style="padding-bottom:24px;"><p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">Correr una carrera es una victoria. Ahora, imagina hacerla con un plan.</p></td></tr>
+        <tr><td style="padding-bottom:24px;">
+          <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#ffffff;">Esto es lo que te perdiste:</p>
+          <ul style="margin:0;padding:0 0 0 20px;font-size:13px;color:#a1a1aa;">
+            <li style="margin-bottom:8px;">Plan detallado con ritmo para cada kilómetro</li>
+            <li style="margin-bottom:8px;">Ajustes de clima real 24hs antes de la carrera</li>
+            <li style="margin-bottom:8px;">Plan de hidratación personalizado para tu tiempo</li>
+            <li style="margin-bottom:8px;">Splits para gastar energía de forma inteligente</li>
+            <li>Comparador post-carrera: qué tal vs el plan</li>
+          </ul>
+        </td></tr>
+        <tr><td style="padding-bottom:32px;"><p style="margin:0 0 16px;font-size:14px;color:#a1a1aa;">Para tu próxima carrera, vamos a hacerla diferente.</p><a href="#" style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">Activar plan premium →</a></td></tr>
+        <tr><td style="border-top:1px solid #222222;padding-top:24px;"><p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Email post-carrera.</p></td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>'></iframe>
+  </div>
+
+</div>
+
+<p style="color:#52525b;font-size:12px;margin-top:48px;">
+  También hay: Reactivación día 14 (30% off) · Reactivación día 45 (último recordatorio) · Newsletter mensual ES+EN · Versión EN de todos los anteriores
+</p>
+
+</body>
+</html>

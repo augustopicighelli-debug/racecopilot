@@ -19,6 +19,12 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
+try:
+    from playwright.sync_api import sync_playwright
+    HAS_PLAYWRIGHT = True
+except ImportError:
+    HAS_PLAYWRIGHT = False
+
 BASE_URL = "https://www.goandrace.com/en/"
 INDEX_URL = BASE_URL + "past-running-race-events.php"
 USER_AGENT = "RaceCopilot-GPX-Scraper/1.0"
@@ -405,33 +411,151 @@ def load_known_slugs() -> set[str]:
     return set()
 
 
+# ---------------------------------------------------------------------------
+# DondeCorrer.com scraping (Argentina)
+# ---------------------------------------------------------------------------
+
+def scrape_dondecorrer(known_slugs: set[str], dry_run: bool) -> int:
+    """Scrape races from ar.dondecorrer.com usando Playwright."""
+    if not HAS_PLAYWRIGHT:
+        print("  [DondeCorrer] Playwright no instalado — install con: pip install playwright")
+        return 0
+
+    new = 0
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto("https://ar.dondecorrer.com/", wait_until="networkidle", timeout=30000)
+            time.sleep(2)  # Esperar a que Angular renderice
+
+            # Buscar enlaces de carreras — structure puede variar
+            race_links = page.query_selector_all("a[href*='carrera'], a[href*='race'], a[href*='evento']")
+            print(f"  Found {len(race_links)} potential race links")
+
+            for link in race_links[:50]:  # Limitar para no saturar
+                try:
+                    href = link.get_attribute("href")
+                    text = link.inner_text()
+                    if not href or not text:
+                        continue
+
+                    # Parse race info from page
+                    page.goto(f"https://ar.dondecorrer.com{href}", wait_until="networkidle", timeout=20000)
+
+                    # Look for GPX download link
+                    gpx_button = page.query_selector("a[href*='.gpx'], button[data-gpx], [data-download-gpx]")
+                    if not gpx_button:
+                        continue
+
+                    gpx_href = gpx_button.get_attribute("href") or gpx_button.get_attribute("data-gpx")
+                    if not gpx_href:
+                        continue
+
+                    # Extract race details
+                    name = text.strip()
+                    slug = make_gpx_slug(name, 2026, "42.2km", 0)
+
+                    if slug in known_slugs:
+                        print(f"    Already in DB: {slug}")
+                        continue
+
+                    if dry_run:
+                        print(f"    [DRY RUN] Would process: {gpx_href} -> {slug}")
+                        new += 1
+                        continue
+
+                    # Download GPX
+                    full_gpx_url = urljoin("https://ar.dondecorrer.com/", gpx_href)
+                    try:
+                        delay()
+                        gpx_resp = SESSION.get(full_gpx_url, timeout=60)
+                        gpx_resp.raise_for_status()
+                        xml = gpx_resp.text
+                    except requests.RequestException as e:
+                        print(f"    SKIP download: {e}")
+                        continue
+
+                    # Process elevation
+                    profile = build_elevation_profile(xml)
+                    if not profile:
+                        print(f"    SKIP: GPX sin datos de elevación")
+                        continue
+
+                    entry = {
+                        "slug": slug,
+                        "name": name,
+                        "year": 2026,
+                        "country": "Argentina",
+                        "city": "Buenos Aires",
+                        "distance_km": profile["distance_km"],
+                        "gain_m": profile["gain_m"],
+                        "loss_m": profile["loss_m"],
+                        "elevation_profile": profile["points"],
+                    }
+
+                    try:
+                        ok = supabase_upsert(entry)
+                    except Exception as e:
+                        print(f"    FAIL upsert exception: {e}")
+                        ok = False
+
+                    if ok:
+                        known_slugs.add(slug)
+                        print(f"    OK Uploaded: {slug} | +{profile['gain_m']}m -{profile['loss_m']}m")
+                        new += 1
+                    else:
+                        print(f"    FAIL upsert: {slug}")
+
+                except Exception as e:
+                    print(f"    Error processing race link: {e}")
+                    continue
+
+            browser.close()
+
+    except Exception as e:
+        print(f"  [DondeCorrer] Scraping error: {e}")
+
+    return new
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Scrape GPX from GoAndRace → Supabase")
+    parser = argparse.ArgumentParser(description="Scrape GPX from multiple sources → Supabase")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--countries", nargs="+", help="e.g. --countries AR BR CL")
+    parser.add_argument("--source", choices=["goandrace", "dondecorrer", "all"], default="all", help="Which source to scrape")
     args = parser.parse_args()
 
-    countries = [c.upper() for c in args.countries] if args.countries else COUNTRIES
     known_slugs = load_known_slugs()
     print(f"DB actual: {len(known_slugs)} carreras")
-    print(f"Scanning {len(countries)} países x {len(RACE_TYPES)} tipos...\n")
 
     total_new = 0
-    for country in countries:
-        for race_type in RACE_TYPES:
-            type_name = list(race_type.keys())[0].replace("ok_", "")
-            print(f"\n[{country} / {type_name}]")
-            try:
-                index_html = fetch_index(country, race_type)
-            except requests.RequestException as e:
-                print(f"  SKIP: {e}")
-                continue
 
-            races = dedup_latest(parse_index_page(index_html))
-            print(f"  {len(races)} carreras (última edición)")
+    # GoAndRace scraper
+    if args.source in ("all", "goandrace"):
+        countries = [c.upper() for c in args.countries] if args.countries else COUNTRIES
+        print(f"[GoAndRace] Scanning {len(countries)} países x {len(RACE_TYPES)} tipos...\n")
 
-            for race in races:
-                total_new += scrape_race(race, known_slugs, args.dry_run)
+        for country in countries:
+            for race_type in RACE_TYPES:
+                type_name = list(race_type.keys())[0].replace("ok_", "")
+                print(f"\n[{country} / {type_name}]")
+                try:
+                    index_html = fetch_index(country, race_type)
+                except requests.RequestException as e:
+                    print(f"  SKIP: {e}")
+                    continue
+
+                races = dedup_latest(parse_index_page(index_html))
+                print(f"  {len(races)} carreras (última edición)")
+
+                for race in races:
+                    total_new += scrape_race(race, known_slugs, args.dry_run)
+
+    # DondeCorrer scraper
+    if args.source in ("all", "dondecorrer"):
+        print(f"\n[DondeCorrer - Argentina]")
+        total_new += scrape_dondecorrer(known_slugs, args.dry_run)
 
     action = "procesaría" if args.dry_run else "subidas"
     print(f"\nDone! {total_new} nuevas {action}. DB total: {len(known_slugs)}")

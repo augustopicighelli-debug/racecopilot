@@ -32,11 +32,19 @@ export default function NewRacePage() {
   const [gpxSlug, setGpxSlug]       = useState<string | null>(null);
   // GPX personal subido por el usuario
   const [gpxFile, setGpxFile]       = useState<File | null>(null);
+  // Timezone IANA para el email de race day (auto-detectado del browser)
+  const [timezone, setTimezone]     = useState<string>('America/Argentina/Buenos_Aires');
 
   // Controla si mostrar los campos del form (false = solo se ve el buscador)
   const [formVisible, setFormVisible] = useState(false);
 
   useEffect(() => {
+    // Auto-detectar timezone del browser
+    try {
+      const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (detected) setTimezone(detected);
+    } catch {}
+
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push('/login'); return; }
@@ -160,6 +168,7 @@ export default function NewRacePage() {
         goal_type:      goalType,
         split_type:     splitType,
         gpx_slug:       gpxSlug,
+        timezone:       timezone,
       }).select('id').single();
       if (err) throw err;
 
@@ -286,6 +295,31 @@ export default function NewRacePage() {
                   placeholder="Mendoza"
                   className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} required />
                 <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Necesaria para obtener el pronóstico de clima real.</p>
+              </div>
+
+              {/* Zona horaria — para el email de race day a las 5am local */}
+              <div>
+                <label className="block text-sm font-medium mb-1" style={labelStyle}>Zona horaria</label>
+                <select value={timezone} onChange={e => setTimezone(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle}>
+                  <option value="America/Argentina/Buenos_Aires">Argentina (UTC-3)</option>
+                  <option value="America/Sao_Paulo">Brasil — São Paulo (UTC-3)</option>
+                  <option value="America/Santiago">Chile — Santiago (UTC-3/-4)</option>
+                  <option value="America/Lima">Perú / Colombia (UTC-5)</option>
+                  <option value="America/Mexico_City">México — Ciudad de México (UTC-6)</option>
+                  <option value="America/Bogota">Colombia (UTC-5)</option>
+                  <option value="America/New_York">EE.UU. — Este (UTC-5/-4)</option>
+                  <option value="America/Chicago">EE.UU. — Centro (UTC-6/-5)</option>
+                  <option value="America/Denver">EE.UU. — Montaña (UTC-7/-6)</option>
+                  <option value="America/Los_Angeles">EE.UU. — Pacífico (UTC-8/-7)</option>
+                  <option value="Europe/Madrid">España (UTC+1/+2)</option>
+                  <option value="Europe/Lisbon">Portugal (UTC+0/+1)</option>
+                  <option value="Europe/London">Reino Unido (UTC+0/+1)</option>
+                  <option value="Europe/Paris">Francia / Alemania (UTC+1/+2)</option>
+                  <option value="Europe/Rome">Italia (UTC+1/+2)</option>
+                  <option value="UTC">UTC</option>
+                </select>
+                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Para enviarte el email de race day a las 5am hora local.</p>
               </div>
 
               {/* Objetivo de la carrera */}

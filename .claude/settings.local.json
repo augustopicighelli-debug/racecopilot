@@ -82,7 +82,8 @@
       "Bash(python3 *)",
       "Bash(npm run *)",
       "Bash(mkdir -p \"app/race/[slug]\")",
-      "Bash(cp \"app/races/[slug]/page.tsx\" \"app/race/[slug]/page.tsx\")"
+      "Bash(cp \"app/races/[slug]/page.tsx\" \"app/race/[slug]/page.tsx\")",
+      "Bash(playwright install *)"
     ]
   }
 }

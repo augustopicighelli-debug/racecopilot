@@ -62,7 +62,7 @@ export async function GET(
   // 1. Cargar la carrera
   const { data: race, error: raceErr } = await supabase
     .from('races')
-    .select('id,distance_km,race_date,target_time_s,elevation_gain,elevation_loss,runner_id,city,goal_type,split_type,gpx_slug')
+    .select('id,distance_km,race_date,target_time_s,elevation_gain,elevation_loss,runner_id,city,goal_type,split_type,gpx_slug,gpx_url')
     .eq('id', raceId)
     .maybeSingle();
 
@@ -127,7 +127,7 @@ export async function GET(
     })),
   };
 
-  // 5. Perfil del recorrido — real desde GPX si existe, plano como fallback
+  // 5. Perfil del recorrido — catálogo > GPX personal > plano
   let course;
   if (race.gpx_slug) {
     try {
@@ -136,7 +136,19 @@ export async function GET(
       const points = parseGpx(xml);
       course = buildElevationProfile(points, race.distance_km);
     } catch {
-      // Si el archivo no existe o falla el parseo, usar perfil plano
+      course = buildFlatProfile(race.distance_km, race.elevation_gain ?? undefined, race.elevation_loss ?? undefined);
+    }
+  } else if (race.gpx_url) {
+    // GPX subido por el usuario — solo si no hay slug del catálogo
+    try {
+      const { data: gpxBlob, error: dlErr } = await supabaseAdmin.storage
+        .from('user-gpx')
+        .download(race.gpx_url);
+      if (dlErr || !gpxBlob) throw dlErr;
+      const xml = await gpxBlob.text();
+      const points = parseGpx(xml);
+      course = buildElevationProfile(points, race.distance_km);
+    } catch {
       course = buildFlatProfile(race.distance_km, race.elevation_gain ?? undefined, race.elevation_loss ?? undefined);
     }
   } else {

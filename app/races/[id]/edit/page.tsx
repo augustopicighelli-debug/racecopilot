@@ -48,6 +48,9 @@ export default function EditRacePage() {
   const [goalType, setGoalType]     = useState<'finish' | 'pr' | 'target'>('pr');
   const [splitType, setSplitType]   = useState<'positive' | 'even' | 'negative'>('negative');
   const [gpxSlug, setGpxSlug]       = useState<string | null>(null);
+  const [gpxFile, setGpxFile]       = useState<File | null>(null);
+  const [gpxUrl, setGpxUrl]         = useState<string | null>(null); // path en Storage si ya existe
+  const [timezone, setTimezone]     = useState<string>('America/Argentina/Buenos_Aires');
 
   // Cargar datos actuales de la carrera
   useEffect(() => {
@@ -57,7 +60,7 @@ export default function EditRacePage() {
 
       const { data, error: err } = await supabase
         .from('races')
-        .select('name,distance_km,race_date,city,target_time_s,elevation_gain,elevation_loss,goal_type,split_type,gpx_slug')
+        .select('name,distance_km,race_date,city,target_time_s,elevation_gain,elevation_loss,goal_type,split_type,gpx_slug,gpx_url,timezone')
         .eq('id', id)
         .maybeSingle();
 
@@ -84,6 +87,8 @@ export default function EditRacePage() {
       setGoalType((data.goal_type as 'finish' | 'pr' | 'target') ?? 'pr');
       setSplitType((data.split_type as 'positive' | 'even' | 'negative') ?? 'negative');
       setGpxSlug(data.gpx_slug ?? null);
+      setGpxUrl((data as any).gpx_url ?? null);
+      if ((data as any).timezone) setTimezone((data as any).timezone);
       setLoading(false);
     };
     load();
@@ -132,6 +137,20 @@ export default function EditRacePage() {
       const elevM    = elevGain ? (imp ? parseFloat(elevGain) / 3.28084 : parseFloat(elevGain)) : null;
       const elevLossM = elevLoss ? (imp ? parseFloat(elevLoss) / 3.28084 : parseFloat(elevLoss)) : null;
 
+      // Si el usuario subió un GPX nuevo, subirlo primero
+      let newGpxUrl = gpxUrl;
+      if (gpxFile) {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user.id;
+        if (userId) {
+          const path = `${userId}/${id}.gpx`;
+          const { error: uploadErr } = await supabase.storage
+            .from('user-gpx')
+            .upload(path, gpxFile, { contentType: 'application/gpx+xml', upsert: true });
+          if (!uploadErr) newGpxUrl = path;
+        }
+      }
+
       const { error: err } = await supabase.from('races').update({
         name:           name.trim(),
         distance_km:    distKm,
@@ -143,10 +162,11 @@ export default function EditRacePage() {
         goal_type:      goalType,
         split_type:     splitType,
         gpx_slug:       gpxSlug,
+        gpx_url:        newGpxUrl,
+        timezone:       timezone,
       }).eq('id', id);
 
       if (err) throw err;
-      // Pasar ?updated=1 para que la página de carrera regenere el plan
       router.push(`/races/${id}?updated=1`);
     } catch (err: any) {
       setError(err.message);
@@ -221,6 +241,31 @@ export default function EditRacePage() {
                 placeholder="Mendoza"
                 className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle} required />
               <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Necesaria para obtener el pronóstico de clima real.</p>
+            </div>
+
+            {/* Zona horaria */}
+            <div>
+              <label className="block text-sm font-medium mb-1" style={labelStyle}>Zona horaria</label>
+              <select value={timezone} onChange={e => setTimezone(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle}>
+                <option value="America/Argentina/Buenos_Aires">Argentina (UTC-3)</option>
+                <option value="America/Sao_Paulo">Brasil — São Paulo (UTC-3)</option>
+                <option value="America/Santiago">Chile — Santiago (UTC-3/-4)</option>
+                <option value="America/Lima">Perú / Colombia (UTC-5)</option>
+                <option value="America/Mexico_City">México — Ciudad de México (UTC-6)</option>
+                <option value="America/Bogota">Colombia (UTC-5)</option>
+                <option value="America/New_York">EE.UU. — Este (UTC-5/-4)</option>
+                <option value="America/Chicago">EE.UU. — Centro (UTC-6/-5)</option>
+                <option value="America/Denver">EE.UU. — Montaña (UTC-7/-6)</option>
+                <option value="America/Los_Angeles">EE.UU. — Pacífico (UTC-8/-7)</option>
+                <option value="Europe/Madrid">España (UTC+1/+2)</option>
+                <option value="Europe/Lisbon">Portugal (UTC+0/+1)</option>
+                <option value="Europe/London">Reino Unido (UTC+0/+1)</option>
+                <option value="Europe/Paris">Francia / Alemania (UTC+1/+2)</option>
+                <option value="Europe/Rome">Italia (UTC+1/+2)</option>
+                <option value="UTC">UTC</option>
+              </select>
+              <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Para enviarte el email de race day a las 5am hora local.</p>
             </div>
 
             {/* Objetivo */}
@@ -300,6 +345,25 @@ export default function EditRacePage() {
                 </div>
               </div>
             </div>
+
+              {/* GPX personal */}
+              <div>
+                <label className="block text-sm font-medium mb-1" style={labelStyle}>
+                  Recorrido GPX <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
+                </label>
+                <input
+                  type="file"
+                  accept=".gpx,application/gpx+xml,application/xml,text/xml"
+                  onChange={(e) => setGpxFile(e.target.files?.[0] ?? null)}
+                  className="w-full px-3 py-2 rounded-lg border text-sm"
+                  style={inputStyle}
+                />
+                {gpxFile && <p className="text-xs mt-1" style={{ color: '#4ade80' }}>✓ {gpxFile.name}</p>}
+                {!gpxFile && gpxUrl && <p className="text-xs mt-1" style={{ color: '#4ade80' }}>✓ GPX guardado</p>}
+                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
+                  Subí el GPX de tu carrera para un análisis de elevación real.
+                </p>
+              </div>
 
               {/* Selector de estrategia de split — estilo ObjectiveCards */}
               <div>

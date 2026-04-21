@@ -4,7 +4,7 @@
 // Protegido con Authorization: Bearer {CRON_SECRET}
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendRaceReminderEmail, sendRaceDayEmail } from '@/lib/email/resend';
+import { sendRaceReminderEmail } from '@/lib/email/resend';
 
 // Días en los que se manda reminder (sin contar día 0 = race day)
 const REMINDER_DAYS = [30, 14, 10, 7, 5, 4, 3, 2, 1];
@@ -75,12 +75,7 @@ export async function GET(req: NextRequest) {
     const daysUntil = Math.round((raceDay.getTime() - today.getTime()) / 86400000);
 
     try {
-      if (daysUntil === 0) {
-        // Día de carrera — email especial
-        await sendRaceDayEmail(email, race.name, race.id);
-        sent++;
-      } else if (REMINDER_DAYS.includes(daysUntil)) {
-        // Reminder de countdown
+      if (REMINDER_DAYS.includes(daysUntil)) {
         await sendRaceReminderEmail(email, race.name, daysUntil, race.race_date, race.id);
         sent++;
       }
