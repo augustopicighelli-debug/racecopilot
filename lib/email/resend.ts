@@ -393,6 +393,180 @@ export async function sendRaceReminderEmail(
 }
 
 // =============================================================================
+// sendRaceReminderEmailEn — English version
+// =============================================================================
+export async function sendRaceReminderEmailEn(
+  to: string,
+  raceName: string,
+  daysUntil: number,
+  raceDate: string,
+  raceId: string,
+): Promise<void> {
+  if (!REMINDER_DAYS.includes(daysUntil) || daysUntil === 0) return;
+
+  const formattedDate = new Date(raceDate + 'T12:00:00')
+    .toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const copy: Record<number, { label: string; tip: string }> = {
+    30: { label: '30 days to go — time to prepare', tip: 'Perfect time to fine-tune your training volume and make sure your gear is ready.' },
+    14: { label: '2 weeks out — sharpening up', tip: 'Start reducing your volume. The taper will get you to the start line feeling your best.' },
+    10: { label: '10 days — final stretch', tip: 'Last long runs. From here on, rest IS training.' },
+    7:  { label: '1 week — race mode on', tip: 'Prep your kit, your bag, and your nutrition plan. Nothing new in training from here.' },
+    5:  { label: '5 days — almost there', tip: 'Easy sessions only. Your body already has everything it needs for race day.' },
+    4:  { label: '4 days — dial it back', tip: 'Light walks and stretching. Save your energy for the race.' },
+    3:  { label: '3 days — the countdown is real', tip: 'Rest well, stay hydrated, avoid heavy meals. Your body is loading up.' },
+    2:  { label: '2 days — get ready mentally', tip: 'Lay out your kit, pack your gels. Tomorrow is the day before.' },
+    1:  { label: 'Tomorrow is race day', tip: 'Sleep early, eat light, trust your training. Tomorrow you race.' },
+  };
+
+  const { label, tip } = copy[daysUntil] ?? { label: `${daysUntil} days to ${raceName}`, tip: 'Check your plan.' };
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${label} — ${raceName}</title>
+</head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+
+        <tr><td style="padding-bottom:32px;">
+          <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1>
+        </td></tr>
+
+        <tr><td style="padding-bottom:24px;text-align:center;">
+          <div style="display:inline-block;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:20px 40px;">
+            <p style="margin:0 0 4px;font-size:52px;font-weight:700;color:#f97316;line-height:1;">${daysUntil}</p>
+            <p style="margin:0;font-size:13px;color:#a1a1aa;text-transform:uppercase;letter-spacing:0.08em;">${daysUntil === 1 ? 'day' : 'days'}</p>
+          </div>
+        </td></tr>
+
+        <tr><td style="padding-bottom:8px;text-align:center;">
+          <h2 style="margin:0;font-size:19px;font-weight:600;color:#ffffff;">${label}</h2>
+        </td></tr>
+        <tr><td style="padding-bottom:8px;text-align:center;">
+          <p style="margin:0;font-size:15px;color:#f97316;font-weight:500;">${raceName}</p>
+          <p style="margin:4px 0 0;font-size:13px;color:#a1a1aa;">${formattedDate}</p>
+        </td></tr>
+
+        <tr><td style="padding:24px 0;">
+          <div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
+            <p style="margin:0;font-size:13px;line-height:1.6;color:#a1a1aa;">${tip}</p>
+          </div>
+        </td></tr>
+
+        <tr><td style="padding-bottom:32px;text-align:center;">
+          <a href="${APP_URL}/races/${raceId}"
+             style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;
+                    font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">
+            View my plan →
+          </a>
+        </td></tr>
+
+        <tr><td style="border-top:1px solid #222222;padding-top:24px;">
+          <p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Automatic race reminder.</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `${daysUntil === 1 ? 'Race day tomorrow' : `${daysUntil} days`} — ${raceName}`,
+    html,
+  });
+
+  if (error) throw new Error(`[Resend] sendRaceReminderEmailEn: ${error.message}`);
+}
+
+// =============================================================================
+// sendRaceDayEmailEn — English version
+// =============================================================================
+export async function sendRaceDayEmailEn(
+  to: string,
+  raceName: string,
+  raceId: string,
+): Promise<void> {
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Race day! — ${raceName}</title>
+</head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #f97316;padding:40px 32px;">
+
+        <tr><td style="padding-bottom:32px;">
+          <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1>
+        </td></tr>
+
+        <tr><td style="padding-bottom:24px;text-align:center;">
+          <div style="display:inline-block;background:#1a1a1a;border:1px solid #f97316;border-radius:12px;padding:24px 48px;">
+            <p style="margin:0 0 4px;font-size:14px;color:#f97316;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">TODAY</p>
+            <p style="margin:0;font-size:48px;font-weight:700;color:#ffffff;line-height:1;">🏁</p>
+          </div>
+        </td></tr>
+
+        <tr><td style="padding-bottom:8px;text-align:center;">
+          <h2 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">It's ${raceName} day!</h2>
+        </td></tr>
+        <tr><td style="padding-bottom:32px;text-align:center;">
+          <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">Months of training for this moment. Trust your preparation.</p>
+        </td></tr>
+
+        <tr><td style="padding-bottom:24px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border-radius:10px;padding:20px;">
+            <tr><td style="padding-bottom:12px;">
+              <p style="margin:0;font-size:13px;font-weight:600;color:#f97316;">Last-minute reminders</p>
+            </td></tr>
+            <tr><td style="padding-bottom:8px;"><p style="margin:0;font-size:13px;color:#a1a1aa;">💧 Hydrate well before heading out</p></td></tr>
+            <tr><td style="padding-bottom:8px;"><p style="margin:0;font-size:13px;color:#a1a1aa;">🍌 Light breakfast 2-3 hours before</p></td></tr>
+            <tr><td style="padding-bottom:8px;"><p style="margin:0;font-size:13px;color:#a1a1aa;">👟 Start easy — your pace will come</p></td></tr>
+            <tr><td><p style="margin:0;font-size:13px;color:#a1a1aa;">📋 Check your plan with today's weather</p></td></tr>
+          </table>
+        </td></tr>
+
+        <tr><td style="padding-bottom:32px;text-align:center;">
+          <a href="${APP_URL}/races/${raceId}"
+             style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;
+                    font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">
+            View today's plan →
+          </a>
+        </td></tr>
+
+        <tr><td style="border-top:1px solid #222222;padding-top:24px;">
+          <p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Good luck out there!</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `🏁 Race day — ${raceName}`,
+    html,
+  });
+
+  if (error) throw new Error(`[Resend] sendRaceDayEmailEn: ${error.message}`);
+}
+
+// =============================================================================
 // sendWeatherAlertEmail
 // Avisa que el clima cambió significativamente respecto al plan generado
 // =============================================================================

@@ -3,7 +3,7 @@
 // Protegido con CRON_SECRET
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendRaceDayEmail } from '@/lib/email/resend';
+import { sendRaceDayEmail, sendRaceDayEmailEn } from '@/lib/email/resend';
 
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -32,11 +32,11 @@ export async function GET(req: NextRequest) {
 
   // Emails de usuarios
   const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-  const { data: runners } = await supabase.from('runners').select('id, user_id');
-  const runnerEmailMap: Record<string, string> = {};
+  const { data: runners } = await supabase.from('runners').select('id, user_id, language');
+  const runnerMap: Record<string, { email: string; language: string }> = {};
   for (const runner of runners ?? []) {
     const user = users?.find(u => u.id === runner.user_id);
-    if (user?.email) runnerEmailMap[runner.id] = user.email;
+    if (user?.email) runnerMap[runner.id] = { email: user.email, language: runner.language ?? 'es' };
   }
 
   let sent = 0;
@@ -60,11 +60,13 @@ export async function GET(req: NextRequest) {
     // Solo enviar si son las 5am en la timezone de la carrera
     if (localHour !== 5) continue;
 
-    const email = runnerEmailMap[race.runner_id];
-    if (!email) continue;
+    const runner = runnerMap[race.runner_id];
+    if (!runner) continue;
+    const { email, language } = runner;
 
     try {
-      await sendRaceDayEmail(email, race.name, race.id);
+      const en = language === 'en';
+      await (en ? sendRaceDayEmailEn : sendRaceDayEmail)(email, race.name, race.id);
       // Marcar como enviado para no reenviar en la próxima hora
       await supabase.from('races').update({ raceday_email_sent: true }).eq('id', race.id);
       sent++;
