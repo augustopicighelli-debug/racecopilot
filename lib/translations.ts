@@ -49,7 +49,7 @@ export const T = {
     },
     // ── Landing ───────────────────────────────────────────
     landing: {
-      badge:            '7 días de prueba · Sin tarjeta',
+      badge:            '7 días de prueba gratis',
       title:            'El plan exacto para',
       titleHighlight:   'tu próxima carrera',
       subtitle:         'Hidratación, geles y ritmo km a km. Calibrado con tus tiempos reales y el clima del día de la carrera.',
@@ -514,7 +514,7 @@ export const T = {
       verifying:   'Verifying link...',
     },
     landing: {
-      badge:            '7-day free trial · No credit card',
+      badge:            '7-day free trial',
       title:            'The exact plan for',
       titleHighlight:   'your next race',
       subtitle:         'Hydration, gels and pace, km by km. Calibrated with your real times and the weather on race day.',
