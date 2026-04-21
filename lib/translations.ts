@@ -61,9 +61,9 @@ export const T = {
       howLabel:         'Cómo funciona',
       howTitle:         'Listo en 3 minutos',
       steps: [
-        { num: '01', title: 'Cargá tu carrera',    desc: 'Nombre, fecha, ciudad y el GPX del recorrido. Sin GPX igual funciona.' },
+        { num: '01', title: 'Cargá tu carrera',    desc: 'Elegí entre las 500 carreras más importantes del mundo, subí tu propio GPX, o cargala sin GPX y igual funciona.' },
         { num: '02', title: 'Ingresá tus tiempos', desc: 'De carreras o entrenamientos pasados. Cuantos más, más preciso el plan.' },
-        { num: '03', title: 'Recibís tu plan',     desc: 'Ritmo por km, agua, geles y electrolitos — todo ajustado al clima del día.' },
+        { num: '03', title: 'Recibís tu plan',     desc: 'Ritmo por km, agua, geles y electrolitos — todo ajustado al clima del día y tu contextura.' },
       ],
       // Features
       featuresLabel:    'Qué incluye el plan',
@@ -526,9 +526,9 @@ export const T = {
       howLabel:         'How it works',
       howTitle:         'Ready in 3 minutes',
       steps: [
-        { num: '01', title: 'Add your race',         desc: 'Name, date, city and GPX route. No GPX? It still works.' },
+        { num: '01', title: 'Add your race',         desc: 'Choose from 500+ top races worldwide, upload your own GPX, or add it without GPX — it still works.' },
         { num: '02', title: 'Enter your times',       desc: 'From past races or training. More times = more accurate.' },
-        { num: '03', title: 'Get your plan',          desc: 'Pace per km, water, gels and electrolytes — all tuned to race-day weather.' },
+        { num: '03', title: 'Get your plan',          desc: 'Pace per km, water, gels and electrolytes — all tuned to the weather and your body.' },
       ],
       // Features
       featuresLabel:    'What the plan includes',
