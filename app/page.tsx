@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useLang } from '@/lib/lang';
+import { ShowcaseMockup } from '@/components/showcase-mockup';
 
 // ── Íconos inline para las features ──────────────────────────────────────────
 
@@ -194,70 +195,7 @@ export default function LandingPage() {
             {l.showcaseTagline}
           </h2>
 
-          {/* Contenedor de screenshots — desktop atrás, mobile encima a la derecha */}
-          <div className="relative flex justify-center">
-
-            {/* Desktop frame */}
-            <div
-              className="w-full max-w-3xl rounded-2xl overflow-hidden"
-              style={{
-                border: '1px solid rgba(255,255,255,0.1)',
-                boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
-              }}
-            >
-              {/* Barra del navegador */}
-              <div
-                className="flex items-center gap-2 px-4 py-3"
-                style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
-              >
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full" style={{ background: '#ef4444' }} />
-                  <div className="w-3 h-3 rounded-full" style={{ background: '#f59e0b' }} />
-                  <div className="w-3 h-3 rounded-full" style={{ background: '#22c55e' }} />
-                </div>
-                <div
-                  className="flex-1 rounded-md px-3 py-1 text-xs"
-                  style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--muted-foreground)' }}
-                >
-                  racecopilot.com/races/my-race
-                </div>
-              </div>
-              {/* Screenshot desktop */}
-              <div className="relative w-full" style={{ aspectRatio: '16/9', background: '#0f0f0f' }}>
-                <Image
-                  src="/screenshot-desktop.jpg"
-                  alt="Plan km a km en desktop"
-                  fill
-                  className="object-cover object-top"
-                />
-              </div>
-            </div>
-
-            {/* Mobile frame — superpuesto abajo a la derecha */}
-            <div
-              className="absolute -bottom-4 -right-2 sm:right-4 w-36 sm:w-44 rounded-3xl overflow-hidden"
-              style={{
-                border: '8px solid #1a1a1a',
-                boxShadow: '0 24px 60px rgba(0,0,0,0.7)',
-                outline: '1px solid rgba(255,255,255,0.08)',
-              }}
-            >
-              {/* Notch */}
-              <div className="flex justify-center pt-2 pb-1" style={{ background: '#1a1a1a' }}>
-                <div className="w-12 h-1 rounded-full" style={{ background: '#333' }} />
-              </div>
-              {/* Screenshot mobile */}
-              <div className="relative w-full" style={{ aspectRatio: '9/19.5', background: '#0f0f0f' }}>
-                <Image
-                  src="/screenshot-mobile.jpg"
-                  alt="Plan km a km en mobile"
-                  fill
-                  className="object-cover object-top"
-                />
-              </div>
-            </div>
-
-          </div>
+          <ShowcaseMockup />
         </div>
       </section>
 
