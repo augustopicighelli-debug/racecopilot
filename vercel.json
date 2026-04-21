@@ -14,7 +14,7 @@
     },
     {
       "path": "/api/cron/race-day",
-      "schedule": "0 * * * *"
+      "schedule": "0 8 * * *"
     }
   ]
 }
