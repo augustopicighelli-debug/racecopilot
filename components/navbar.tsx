@@ -52,23 +52,24 @@ export function Navbar() {
       </Link>
 
       {/* Acciones — dependen del estado de auth */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
 
         {/* === Logueado === */}
         {authed === true && (
           <>
-            <Link href="/dashboard" className="text-xs transition-opacity hover:opacity-100 opacity-70" style={{ color: 'var(--foreground)' }}>
+            {/* Links de nav — ocultos en mobile, visibles en sm+ */}
+            <Link href="/dashboard" className="hidden sm:inline text-xs transition-opacity hover:opacity-100 opacity-70" style={{ color: 'var(--foreground)' }}>
               {n.dashboard}
             </Link>
-            <Link href="/profile" className="text-xs transition-opacity hover:opacity-100 opacity-70" style={{ color: 'var(--foreground)' }}>
+            <Link href="/profile" className="hidden sm:inline text-xs transition-opacity hover:opacity-100 opacity-70" style={{ color: 'var(--foreground)' }}>
               {n.profile}
             </Link>
             <button
               onClick={handleLogout}
               title={n.logout}
-              className="opacity-50 hover:opacity-90 transition-opacity ml-0.5"
+              className="opacity-50 hover:opacity-90 transition-opacity"
             >
-              <LogOut size={14} style={{ color: 'var(--foreground)' }} />
+              <LogOut size={15} style={{ color: 'var(--foreground)' }} />
             </button>
           </>
         )}
@@ -76,7 +77,7 @@ export function Navbar() {
         {/* === No logueado === */}
         {authed === false && (
           <>
-            <Link href="/pricing" className="text-xs transition-opacity hover:opacity-100 opacity-70" style={{ color: 'var(--foreground)' }}>
+            <Link href="/pricing" className="hidden sm:inline text-xs transition-opacity hover:opacity-100 opacity-70" style={{ color: 'var(--foreground)' }}>
               {n.pricing}
             </Link>
             <Link
@@ -90,7 +91,7 @@ export function Navbar() {
         )}
 
         {/* Toggles siempre visibles */}
-        <div className="flex items-center gap-1.5 ml-1">
+        <div className="flex items-center gap-1 sm:gap-1.5 sm:ml-1">
           <LangToggle />
           <UnitsToggle />
         </div>

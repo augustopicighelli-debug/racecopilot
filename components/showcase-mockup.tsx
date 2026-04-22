@@ -199,52 +199,72 @@ export function ShowcaseMockup() {
   const MOBILE_W     = 240;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, maxWidth: 900, margin: '0 auto' }}>
+    <>
+      {/* ── Layout desktop: lado a lado (visible en sm+) ── */}
+      <div className="hidden sm:flex" style={{ alignItems: 'flex-start', gap: 12, maxWidth: 900, margin: '0 auto' }}>
 
-      {/* ── Desktop ── */}
-      <div style={{
-        flex: 1, minWidth: 0,
-        borderRadius: 14, overflow: 'hidden',
-        border: '1px solid rgba(255,255,255,.09)',
-        boxShadow: '0 28px 70px rgba(0,0,0,.65)',
-        height: FRAME_HEIGHT,
-        display: 'flex', flexDirection: 'column',
-      }}>
-        {/* Chrome del browser */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 14px', background: 'rgba(255,255,255,.04)', borderBottom: `1px solid ${BORDER}`, flexShrink: 0 }}>
-          <div style={{ display: 'flex', gap: 5 }}>
-            <div style={{ width: 11, height: 11, borderRadius: '50%', background: '#ef4444' }} />
-            <div style={{ width: 11, height: 11, borderRadius: '50%', background: AMBER }} />
-            <div style={{ width: 11, height: 11, borderRadius: '50%', background: '#22c55e' }} />
+        {/* Desktop frame */}
+        <div style={{
+          flex: 1, minWidth: 0,
+          borderRadius: 14, overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,.09)',
+          boxShadow: '0 28px 70px rgba(0,0,0,.65)',
+          height: FRAME_HEIGHT,
+          display: 'flex', flexDirection: 'column',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 14px', background: 'rgba(255,255,255,.04)', borderBottom: `1px solid ${BORDER}`, flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: 5 }}>
+              <div style={{ width: 11, height: 11, borderRadius: '50%', background: '#ef4444' }} />
+              <div style={{ width: 11, height: 11, borderRadius: '50%', background: AMBER }} />
+              <div style={{ width: 11, height: 11, borderRadius: '50%', background: '#22c55e' }} />
+            </div>
+            <div style={{ flex: 1, background: 'rgba(255,255,255,.055)', borderRadius: 6, padding: '4px 10px', fontSize: 11, color: MUTED }}>
+              racecopilot.com/races/maraton-ba-2026
+            </div>
           </div>
-          <div style={{ flex: 1, background: 'rgba(255,255,255,.055)', borderRadius: 6, padding: '4px 10px', fontSize: 11, color: MUTED }}>
-            racecopilot.com/races/maraton-ba-2026
+          <div style={{ flex: 1, overflowY: 'hidden' }}>
+            <Desktop />
           </div>
         </div>
-        <div style={{ flex: 1, overflowY: 'hidden' }}>
-          <Desktop />
+
+        {/* Mobile frame */}
+        <div style={{
+          width: MOBILE_W, flexShrink: 0,
+          borderRadius: 44, overflow: 'hidden',
+          border: '9px solid #1c1c1c',
+          boxShadow: '0 28px 70px rgba(0,0,0,.75)',
+          outline: '1px solid rgba(255,255,255,.06)',
+          height: FRAME_HEIGHT,
+          display: 'flex', flexDirection: 'column',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 8px', background: BG, flexShrink: 0 }}>
+            <div style={{ width: 90, height: 26, borderRadius: 20, background: '#000', boxShadow: '0 0 0 1px rgba(255,255,255,.08)' }} />
+          </div>
+          <div style={{ flex: 1, overflowY: 'hidden' }}>
+            <Mobile />
+          </div>
         </div>
       </div>
 
-      {/* ── Mobile ── */}
-      <div style={{
-        width: MOBILE_W, flexShrink: 0,
-        borderRadius: 44, overflow: 'hidden',
-        border: '9px solid #1c1c1c',
-        boxShadow: '0 28px 70px rgba(0,0,0,.75)',
-        outline: '1px solid rgba(255,255,255,.06)',
-        height: FRAME_HEIGHT,
-        display: 'flex', flexDirection: 'column',
-      }}>
-        {/* Dynamic Island */}
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 8px', background: BG, flexShrink: 0 }}>
-          <div style={{ width: 90, height: 26, borderRadius: 20, background: '#000', boxShadow: '0 0 0 1px rgba(255,255,255,.08)' }} />
-        </div>
-        <div style={{ flex: 1, overflowY: 'hidden' }}>
-          <Mobile />
+      {/* ── Layout mobile: solo el teléfono centrado (visible en <sm) ── */}
+      <div className="flex sm:hidden justify-center">
+        <div style={{
+          width: 260, flexShrink: 0,
+          borderRadius: 44, overflow: 'hidden',
+          border: '9px solid #1c1c1c',
+          boxShadow: '0 20px 50px rgba(0,0,0,.8)',
+          outline: '1px solid rgba(255,255,255,.06)',
+          height: 480,
+          display: 'flex', flexDirection: 'column',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 8px', background: BG, flexShrink: 0 }}>
+            <div style={{ width: 90, height: 26, borderRadius: 20, background: '#000', boxShadow: '0 0 0 1px rgba(255,255,255,.08)' }} />
+          </div>
+          <div style={{ flex: 1, overflowY: 'hidden' }}>
+            <Mobile />
+          </div>
         </div>
       </div>
-
-    </div>
+    </>
   );
 }

@@ -372,24 +372,24 @@ function RacePage() {
           <button onClick={() => router.push('/dashboard')} className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
             {t.common.backDash}
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <UnitsToggle />
-            {/* Botón compartir plan (solo visible si ya hay plan generado) */}
+            {/* Compartir — solo si hay plan */}
             {plan && !planLoading && (
               <button
                 onClick={handleShare}
                 disabled={shareLoading}
-                className="text-xs px-3 py-1.5 rounded-lg border font-semibold disabled:opacity-50"
+                className="text-xs px-2.5 py-1.5 rounded-lg border font-semibold disabled:opacity-50"
                 style={{ borderColor: 'var(--border)', color: shareCopied ? '#22c55e' : 'var(--foreground)' }}
               >
-                {shareLoading ? t.race.shareGenerating : shareCopied ? t.race.shareCopied : t.race.shareBtn}
+                {shareLoading ? '...' : shareCopied ? '✓' : t.race.shareBtn}
               </button>
             )}
-            {/* Botón exportar PDF (solo visible si hay plan) */}
+            {/* PDF — oculto en mobile */}
             {plan && !planLoading && (
               <button
                 onClick={() => window.print()}
-                className="text-xs px-3 py-1.5 rounded-lg border"
+                className="hidden sm:inline text-xs px-2.5 py-1.5 rounded-lg border"
                 style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
               >
                 {t.race.exportPdf}
@@ -397,12 +397,11 @@ function RacePage() {
             )}
             <button
               onClick={async () => {
-                // Pedir confirmación antes de borrar
                 if (!confirm(t.race.deleteConfirm(race?.name ?? ''))) return;
                 await supabase.from('races').delete().eq('id', id);
                 router.push('/dashboard');
               }}
-              className="text-xs px-3 py-1.5 rounded-lg border"
+              className="text-xs px-2.5 py-1.5 rounded-lg border"
               style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
             >
               {t.race.deleteRace}
@@ -410,9 +409,9 @@ function RacePage() {
           </div>
         </div>
 
-        <div className="mb-6 flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">{race?.name}</h1>
+        <div className="mb-6 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold leading-tight">{race?.name}</h1>
             <p className="text-sm mt-1 capitalize" style={{ color: 'var(--muted-foreground)' }}>
               {race ? fmtDate(race.race_date) : ''}{race?.city ? ` · ${race.city}` : ''}
             </p>
