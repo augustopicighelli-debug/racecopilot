@@ -5,7 +5,7 @@
 
 import Link from 'next/link';
 import type { Race } from '@/lib/races/catalog';
-import { cleanName, distanceLabel } from '@/lib/races/catalog';
+import { cleanName, distanceLabel } from '@/lib/races/utils';
 import { useLang } from '@/lib/lang';
 
 type Props = { race: Race };

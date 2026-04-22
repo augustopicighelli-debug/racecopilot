@@ -23,15 +23,8 @@ export type Race = {
 
 const SELECT = 'id, slug, name, year, country, city, distance_km, gain_m, loss_m';
 
-/** Elimina el año (20XX) del slug para URLs limpias. */
-export function cleanSlug(slug: string): string {
-  return slug.replace(/-20\d\d/g, '');
-}
-
-/** Elimina el año del nombre para display. */
-export function cleanName(name: string): string {
-  return name.replace(/\s+20\d\d\b/g, '').trim();
-}
+// Re-exportar desde utils para que los server components puedan importar todo desde acá
+export { cleanSlug, cleanName, distanceLabel } from './utils';
 
 /** Todas las carreras ordenadas por nombre. */
 export async function getAllRaces(): Promise<Race[]> {
@@ -52,11 +45,3 @@ export async function getRaceByCleanSlug(slug: string): Promise<Race | undefined
   return all.find((r) => cleanSlug(r.slug) === slug);
 }
 
-/** Distancia en texto legible. */
-export function distanceLabel(km: number, locale: 'es' | 'en'): string {
-  if (Math.abs(km - 42.195) < 0.5) return locale === 'es' ? 'Maratón' : 'Marathon';
-  if (Math.abs(km - 21.1)   < 0.3) return locale === 'es' ? 'Media Maratón' : 'Half Marathon';
-  if (Math.abs(km - 10)     < 0.3) return '10K';
-  if (Math.abs(km - 5)      < 0.3) return '5K';
-  return `${km} km`;
-}
