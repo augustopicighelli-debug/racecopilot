@@ -389,7 +389,7 @@ export default function ProfilePage() {
   };
 
   // ---------------------------------------------------------------------------
-  // Abrir portal de Stripe (cambiar tarjeta, ver facturas, cancelar)
+  // Abrir portal de Lemon Squeezy (cambiar tarjeta, ver facturas, cancelar)
   // ---------------------------------------------------------------------------
   const handleOpenPortal = async () => {
     setPortalLoading(true);
@@ -602,7 +602,7 @@ export default function ProfilePage() {
                     </p>
                   )}
                 </div>
-                {/* Portal de Stripe: cambiar tarjeta, ver facturas, cancelar */}
+                {/* Portal de Lemon Squeezy: cambiar tarjeta, ver facturas, cancelar */}
                 <div className="flex gap-2">
                   <button
                     onClick={handleOpenPortal}

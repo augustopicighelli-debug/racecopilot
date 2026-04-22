@@ -62,7 +62,7 @@ export default function PrivacyPage() {
             <p>
               Podés solicitar acceso, corrección o eliminación de tus datos en cualquier momento
               escribiéndonos a{' '}
-              <a href="mailto:hola@racecopilot.app" style={{ color: '#f97316' }}>hola@racecopilot.app</a>.
+              <a href="mailto:hello@racecopilot.com" style={{ color: '#f97316' }}>hello@racecopilot.com</a>.
               Respondemos en un plazo máximo de 30 días.
             </p>
           </section>
@@ -103,7 +103,7 @@ export default function PrivacyPage() {
             <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>9. Contacto</h2>
             <p>
               Para cualquier consulta sobre privacidad contactanos en{' '}
-              <a href="mailto:hola@racecopilot.app" style={{ color: '#f97316' }}>hola@racecopilot.app</a>.
+              <a href="mailto:hello@racecopilot.com" style={{ color: '#f97316' }}>hello@racecopilot.com</a>.
             </p>
           </section>
 

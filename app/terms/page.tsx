@@ -64,7 +64,7 @@ export default function TermsPage() {
               RaceCopilot está dirigido a personas de <strong style={{ color: 'var(--foreground)' }}>16 años o más</strong>.
               Al registrarte confirmás que cumplís con este requisito. Si tenés conocimiento de que un menor ha creado
               una cuenta, contactanos en{' '}
-              <a href="mailto:hola@racecopilot.app" style={{ color: '#f97316' }}>hola@racecopilot.app</a>{' '}
+              <a href="mailto:hello@racecopilot.com" style={{ color: '#f97316' }}>hello@racecopilot.com</a>{' '}
               para proceder con la eliminación.
             </p>
           </section>
@@ -109,7 +109,7 @@ export default function TermsPage() {
             <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--foreground)' }}>10. Contacto</h2>
             <p>
               Para consultas sobre estos términos escribinos a{' '}
-              <a href="mailto:hola@racecopilot.app" style={{ color: '#f97316' }}>hola@racecopilot.app</a>.
+              <a href="mailto:hello@racecopilot.com" style={{ color: '#f97316' }}>hello@racecopilot.com</a>.
             </p>
           </section>
 

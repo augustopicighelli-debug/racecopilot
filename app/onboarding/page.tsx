@@ -46,6 +46,7 @@ export default function OnboardingPage() {
   // ── Paso 1: datos del corredor ──────────────────────────────────────────
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState('');
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [weightKg, setWeightKg]   = useState('');
   const [heightCm, setHeightCm]   = useState('');
   const [sweat, setSweat]         = useState<'low'|'medium'|'high'>('medium');
@@ -96,6 +97,10 @@ export default function OnboardingPage() {
   // ── Paso 1: guardar perfil y avanzar al paso 2 ──────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!ageConfirmed) {
+      setError(t.onboarding.ageConfirmRequired);
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -340,6 +345,23 @@ export default function OnboardingPage() {
                   <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>{t.onboarding.fieldWeeklyKmHint}</p>
                 </div>
               </div>
+
+              {/* Confirmación de edad — COPPA/GDPR */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={ageConfirmed}
+                  onChange={e => setAgeConfirmed(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border accent-orange-500"
+                />
+                <span className="text-sm" style={{ color: 'var(--foreground)' }}>
+                  {t.onboarding.ageConfirm}
+                </span>
+              </label>
+
+              {!ageConfirmed && error === t.onboarding.ageConfirmRequired && (
+                <p className="text-xs" style={{ color: '#ef4444' }}>{t.onboarding.ageConfirmRequired}</p>
+              )}
 
               <button type="submit" disabled={loading}
                 className="w-full py-3 rounded-xl text-sm font-bold disabled:opacity-50"

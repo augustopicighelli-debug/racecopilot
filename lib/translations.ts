@@ -28,6 +28,7 @@ export const T = {
       privacy:  'Privacidad',
       help:        'Ayuda',
       helpSubject: 'Necesito ayuda con RaceCopilot',
+      helpDesc:    'Escribinos a:',
     },
     auth: {
       title:       'Tu plan de carrera inteligente',
@@ -430,6 +431,8 @@ export const T = {
       fieldWeeklyKm:      'Km / semana',
       fieldWeeklyKmHint:  'Volumen semanal promedio en las últimas 8 semanas',
       submit:             'Continuar →',
+      ageConfirm:         'Confirmo que tengo 16 años o más',
+      ageConfirmRequired: 'Debés confirmar que tenés 16 años o más para continuar.',
       noSession:          'Sin sesión',
     },
     // ── Temporada ─────────────────────────────────────────────
@@ -513,6 +516,7 @@ export const T = {
       privacy:  'Privacy',
       help:        'Help',
       helpSubject: 'I need help with RaceCopilot',
+      helpDesc:    'Write to us at:',
     },
     auth: {
       title:       'Your intelligent race plan',
@@ -897,6 +901,8 @@ export const T = {
       fieldWeeklyKm:      'Km / week',
       fieldWeeklyKmHint:  'Average weekly volume over the last 8 weeks',
       submit:             'Continue →',
+      ageConfirm:         'I confirm I am 16 years of age or older',
+      ageConfirmRequired: 'You must confirm you are 16 or older to continue.',
       noSession:          'No session',
     },
     // ── Season ───────────────────────────────────────────────

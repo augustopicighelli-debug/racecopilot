@@ -93,7 +93,7 @@ export async function sendOnboardingDay1Es(to: string, firstName?: string): Prom
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendOnboardingDay1Es: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendOnboardingDay1Es: ${error.message}`);
 }
 
 /**
@@ -179,7 +179,7 @@ export async function sendOnboardingDay1En(to: string, firstName?: string): Prom
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendOnboardingDay1En: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendOnboardingDay1En: ${error.message}`);
 }
 
 /**
@@ -293,7 +293,7 @@ export async function sendOnboardingDay3Es(to: string, firstName?: string, hasRa
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendOnboardingDay3Es: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendOnboardingDay3Es: ${error.message}`);
 }
 
 /**
@@ -406,7 +406,7 @@ export async function sendOnboardingDay3En(to: string, firstName?: string, hasRa
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendOnboardingDay3En: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendOnboardingDay3En: ${error.message}`);
 }
 
 /**
@@ -513,7 +513,7 @@ export async function sendOnboardingDay5Es(to: string, firstName?: string): Prom
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendOnboardingDay5Es: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendOnboardingDay5Es: ${error.message}`);
 }
 
 /**
@@ -619,7 +619,7 @@ export async function sendOnboardingDay5En(to: string, firstName?: string): Prom
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendOnboardingDay5En: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendOnboardingDay5En: ${error.message}`);
 }
 
 /**
@@ -725,7 +725,7 @@ export async function sendOnboardingDay7Es(to: string, firstName?: string): Prom
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendOnboardingDay7Es: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendOnboardingDay7Es: ${error.message}`);
 }
 
 /**
@@ -830,7 +830,7 @@ export async function sendOnboardingDay7En(to: string, firstName?: string): Prom
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendOnboardingDay7En: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendOnboardingDay7En: ${error.message}`);
 }
 
 // =============================================================================
@@ -889,7 +889,7 @@ export async function sendReactivationDay3Es(to: string, firstName?: string): Pr
           <!-- CTA -->
           <tr>
             <td style="padding-bottom:32px;">
-              <a href="mailto:hola@racecopilot.com?subject=Feedback%20sobre%20mi%20cancelación"
+              <a href="mailto:hello@racecopilot.com?subject=Feedback%20sobre%20mi%20cancelación"
                  style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;
                         font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">
                 Contar qué pasó →
@@ -920,7 +920,7 @@ export async function sendReactivationDay3Es(to: string, firstName?: string): Pr
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendReactivationDay3Es: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendReactivationDay3Es: ${error.message}`);
 }
 
 /**
@@ -974,7 +974,7 @@ export async function sendReactivationDay3En(to: string, firstName?: string): Pr
           <!-- CTA -->
           <tr>
             <td style="padding-bottom:32px;">
-              <a href="mailto:hola@racecopilot.com?subject=Feedback%20about%20my%20cancellation"
+              <a href="mailto:hello@racecopilot.com?subject=Feedback%20about%20my%20cancellation"
                  style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;
                         font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">
                 Tell us what happened →
@@ -1005,7 +1005,7 @@ export async function sendReactivationDay3En(to: string, firstName?: string): Pr
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendReactivationDay3En: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendReactivationDay3En: ${error.message}`);
 }
 
 /**
@@ -1114,7 +1114,7 @@ export async function sendReactivationDay14Es(
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendReactivationDay14Es: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendReactivationDay14Es: ${error.message}`);
 }
 
 /**
@@ -1222,7 +1222,7 @@ export async function sendReactivationDay14En(
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendReactivationDay14En: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendReactivationDay14En: ${error.message}`);
 }
 
 /**
@@ -1312,7 +1312,7 @@ export async function sendReactivationDay45Es(to: string, firstName?: string): P
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendReactivationDay45Es: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendReactivationDay45Es: ${error.message}`);
 }
 
 /**
@@ -1402,7 +1402,7 @@ export async function sendReactivationDay45En(to: string, firstName?: string): P
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendReactivationDay45En: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendReactivationDay45En: ${error.message}`);
 }
 
 // =============================================================================
@@ -1511,7 +1511,7 @@ export async function sendPostRaceUpsellEs(
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendPostRaceUpsellEs: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendPostRaceUpsellEs: ${error.message}`);
 }
 
 /**
@@ -1615,7 +1615,7 @@ export async function sendPostRaceUpsellEn(
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendPostRaceUpsellEn: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendPostRaceUpsellEn: ${error.message}`);
 }
 
 // =============================================================================
@@ -1765,11 +1765,11 @@ export async function sendMonthlyNewsletterEs(
   const { error } = await resend.emails.send({
     from: FROM,
     to,
-    subject: `RaceCopilot Newsletter — \${month}`,
+    subject: `RaceCopilot Newsletter — ${month}`,
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendMonthlyNewsletterEs: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendMonthlyNewsletterEs: ${error.message}`);
 }
 
 /**
@@ -1914,9 +1914,9 @@ export async function sendMonthlyNewsletterEn(
   const { error } = await resend.emails.send({
     from: FROM,
     to,
-    subject: `RaceCopilot Newsletter — \${month}`,
+    subject: `RaceCopilot Newsletter — ${month}`,
     html,
   });
 
-  if (error) throw new Error(`[Resend] sendMonthlyNewsletterEn: \${error.message}`);
+  if (error) throw new Error(`[Resend] sendMonthlyNewsletterEn: ${error.message}`);
 }

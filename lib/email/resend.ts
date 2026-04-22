@@ -693,3 +693,80 @@ export async function sendWeatherAlertEmail(
 
   if (error) throw new Error(`[Resend] sendWeatherAlertEmail: ${error.message}`);
 }
+
+// =============================================================================
+// sendWelcomeEmailEn — English version
+// =============================================================================
+export async function sendWelcomeEmailEn(to: string, name?: string): Promise<void> {
+  const displayName = name ?? 'runner';
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to RaceCopilot</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
+
+          <tr>
+            <td style="padding-bottom:32px;">
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding-bottom:16px;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
+                Welcome, ${displayName}!
+              </h2>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding-bottom:32px;">
+              <p style="margin:0;font-size:15px;line-height:1.6;color:#6b7280;">
+                Your account is ready. Add your first race and get your personalized training plan.
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding-bottom:32px;">
+              <a href="${APP_URL}/dashboard"
+                 style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;
+                        font-size:14px;font-weight:600;padding:12px 28px;border-radius:8px;">
+                Go to dashboard →
+              </a>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
+              <p style="margin:0;font-size:12px;color:#52525b;">
+                RaceCopilot · You received this because you created an account.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to,
+    subject: 'Welcome to RaceCopilot',
+    html,
+  });
+
+  if (error) throw new Error(`[Resend] sendWelcomeEmailEn: ${error.message}`);
+}

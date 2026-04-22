@@ -2,7 +2,7 @@
 // Llamado desde onboarding/page.tsx después de guardar el perfil
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendWelcomeEmail } from '@/lib/email/resend';
+import { sendWelcomeEmail, sendWelcomeEmailEn } from '@/lib/email/resend';
 
 // =============================================================================
 // POST /api/email/welcome
@@ -36,9 +36,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Sesión inválida' }, { status: 401 });
   }
 
+  // Obtener idioma del runner para elegir versión del email
+  const { data: runner } = await supabase
+    .from('runners')
+    .select('language')
+    .eq('user_id', user.id)
+    .single();
+  const lang = runner?.language ?? 'es';
+
   try {
-    // Enviar email de bienvenida al email del usuario
-    await sendWelcomeEmail(user.email);
+    // Enviar email de bienvenida en el idioma del usuario
+    const sendFn = lang === 'en' ? sendWelcomeEmailEn : sendWelcomeEmail;
+    await sendFn(user.email);
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     // Loguear el error pero no bloqueamos el onboarding si el email falla
