@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Remitente por defecto.
 // Usar onboarding@resend.dev para testing hasta verificar el dominio racecopilot.com
-const FROM = 'hello@racecopilot.com';
+const FROM = 'RaceCopilot <racecopilot@racecopilot.com>';
 
 // URL base de la app (para links en los emails)
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://racecopilot.com';
@@ -40,9 +40,14 @@ export async function sendWelcomeEmail(to: string, name?: string): Promise<void>
           <!-- Logo / título -->
           <tr>
             <td style="padding-bottom:32px;">
-              <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">
-                Race<span style="color:#f97316;">Copilot</span>
-              </h1>
+              <table cellpadding="0" cellspacing="0"><tr>
+                <td style="vertical-align:middle;">
+                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
+                </td>
+                <td style="padding-left:10px;vertical-align:middle;">
+                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                </td>
+              </tr></table>
             </td>
           </tr>
 
