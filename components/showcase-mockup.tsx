@@ -143,48 +143,48 @@ function Desktop() {
 // ── Mobile ─────────────────────────────────────────────────────────────────────
 function Mobile() {
   return (
-    <div style={{ background: BG, fontFamily: 'system-ui,sans-serif', color: '#fff', fontSize: 11 }}>
+    <div style={{ background: BG, fontFamily: 'system-ui,sans-serif', color: '#fff', fontSize: 12 }}>
 
       {/* Consensus destacado */}
-      <div style={{ padding: '10px 12px', borderBottom: `1px solid ${BORDER}` }}>
-        <p style={{ margin: '0 0 2px', fontSize: 9, fontWeight: 700, letterSpacing: '.08em', color: MUTED }}>CONSENSUS</p>
-        <p style={{ margin: 0, fontSize: 24, fontWeight: 800, letterSpacing: '-.02em' }}>3:28:15</p>
-        <p style={{ margin: '1px 0 0', fontSize: 12, fontWeight: 700, color: BLUE }}>4:54 /km</p>
+      <div style={{ padding: '12px 16px', borderBottom: `1px solid ${BORDER}` }}>
+        <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 700, letterSpacing: '.08em', color: MUTED }}>CONSENSUS</p>
+        <p style={{ margin: 0, fontSize: 30, fontWeight: 800, letterSpacing: '-.02em' }}>3:28:15</p>
+        <p style={{ margin: '2px 0 0', fontSize: 14, fontWeight: 700, color: BLUE }}>4:54 /km</p>
       </div>
 
       {/* Clima compacto */}
-      <div style={{ padding: '8px 12px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span>🌤</span>
+      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 18 }}>🌤</span>
           <div>
-            <p style={{ margin: 0, fontSize: 11, fontWeight: 700 }}>9.5°→13.3°C</p>
-            <p style={{ margin: 0, fontSize: 9, color: MUTED }}>52% hum · 4.4 km/h</p>
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700 }}>9.5° → 13.3°C</p>
+            <p style={{ margin: 0, fontSize: 10, color: MUTED }}>52% hum · 4.4 km/h</p>
           </div>
         </div>
-        <span style={{ fontSize: 9, fontWeight: 700, background: 'rgba(245,158,11,0.15)', color: AMBER, padding: '2px 6px', borderRadius: 6 }}>12d</span>
+        <span style={{ fontSize: 10, fontWeight: 700, background: 'rgba(245,158,11,0.15)', color: AMBER, padding: '3px 8px', borderRadius: 6 }}>12 días</span>
       </div>
 
       {/* Hydration & Fuel timeline */}
-      <div style={{ padding: '8px 12px' }}>
-        <p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: MUTED }}>Hydration & Fuel</p>
-        <p style={{ margin: '0 0 8px', fontSize: 8, color: MUTED }}>Sweat rate: 1744 ml/h · 260g carbs</p>
+      <div style={{ padding: '10px 16px' }}>
+        <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: MUTED }}>Hydration & Fuel</p>
+        <p style={{ margin: '0 0 10px', fontSize: 9, color: MUTED }}>Sweat rate: 1744 ml/h · 260g carbs</p>
 
         {/* PRE-RACE */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-          <span style={{ fontSize: 9, fontWeight: 700, color: ORANGE, width: 28 }}>PRE</span>
-          <span style={{ flex: 1, fontSize: 9, color: '#fff' }}>⚡ Banana o membrillo</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: ORANGE, width: 32 }}>PRE</span>
+          <span style={{ flex: 1, fontSize: 10, color: '#fff' }}>⚡ Banana o membrillo</span>
         </div>
 
         {/* Filas km */}
         {MOBILE_ROWS.map((r, i) => (
           <div key={i} style={{
-            display: 'flex', alignItems: 'center', gap: 4, padding: '4px 0',
+            display: 'flex', alignItems: 'center', gap: 6, padding: '5px 0',
             borderTop: `1px solid ${BORDER}`,
           }}>
-            <span style={{ width: 28, fontSize: 9, color: MUTED, flexShrink: 0 }}>Km {r.km}</span>
-            <span style={{ flex: 1, fontSize: 9, fontWeight: 600, color: BLUE }}>{r.icon} {r.water}</span>
-            <span style={{ fontSize: 9, color: TEAL }}>{r.nutr}</span>
-            <span style={{ fontSize: 8, color: MUTED, width: 26, textAlign: 'right' }}>{r.time}</span>
+            <span style={{ width: 32, fontSize: 10, color: MUTED, flexShrink: 0 }}>Km {r.km}</span>
+            <span style={{ flex: 1, fontSize: 10, fontWeight: 600, color: BLUE }}>{r.icon} {r.water}</span>
+            <span style={{ fontSize: 10, color: TEAL }}>{r.nutr}</span>
+            <span style={{ fontSize: 9, color: MUTED, width: 30, textAlign: 'right' }}>{r.time}</span>
           </div>
         ))}
       </div>
@@ -195,7 +195,8 @@ function Mobile() {
 // ── Componente exportado ───────────────────────────────────────────────────────
 export function ShowcaseMockup() {
   const FRAME_HEIGHT = 520;
-  const MOBILE_W     = 172;
+  // iPhone 16: 393×852 → ratio 0.461 → 520×0.461 ≈ 240px
+  const MOBILE_W     = 240;
 
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, maxWidth: 900, margin: '0 auto' }}>
@@ -228,16 +229,16 @@ export function ShowcaseMockup() {
       {/* ── Mobile ── */}
       <div style={{
         width: MOBILE_W, flexShrink: 0,
-        borderRadius: 28, overflow: 'hidden',
-        border: '7px solid #1c1c1c',
+        borderRadius: 44, overflow: 'hidden',
+        border: '9px solid #1c1c1c',
         boxShadow: '0 28px 70px rgba(0,0,0,.75)',
         outline: '1px solid rgba(255,255,255,.06)',
         height: FRAME_HEIGHT,
         display: 'flex', flexDirection: 'column',
       }}>
-        {/* Notch */}
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '7px 0 5px', background: '#1c1c1c', flexShrink: 0 }}>
-          <div style={{ width: 38, height: 4, borderRadius: 4, background: '#2e2e2e' }} />
+        {/* Dynamic Island */}
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 8px', background: BG, flexShrink: 0 }}>
+          <div style={{ width: 90, height: 26, borderRadius: 20, background: '#000', boxShadow: '0 0 0 1px rgba(255,255,255,.08)' }} />
         </div>
         <div style={{ flex: 1, overflowY: 'hidden' }}>
           <Mobile />
