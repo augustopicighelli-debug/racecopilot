@@ -14,7 +14,7 @@ export type Race = {
   slug:         string;
   name:         string;
   year:         number;
-  country:      string;   // nombre completo, ej: "Argentina"
+  country:      string;
   city:         string;
   distance_km:  number;
   gain_m:       number | null;
@@ -22,6 +22,16 @@ export type Race = {
 };
 
 const SELECT = 'id, slug, name, year, country, city, distance_km, gain_m, loss_m';
+
+/** Elimina el año (20XX) del slug para URLs limpias. */
+export function cleanSlug(slug: string): string {
+  return slug.replace(/-20\d\d/g, '');
+}
+
+/** Elimina el año del nombre para display. */
+export function cleanName(name: string): string {
+  return name.replace(/\s+20\d\d\b/g, '').trim();
+}
 
 /** Todas las carreras ordenadas por nombre. */
 export async function getAllRaces(): Promise<Race[]> {
@@ -33,15 +43,13 @@ export async function getAllRaces(): Promise<Race[]> {
   return (data ?? []) as Race[];
 }
 
-/** Busca por slug. Devuelve undefined si no existe. */
-export async function getRaceBySlug(slug: string): Promise<Race | undefined> {
-  const { data, error } = await supabase
-    .from('gpx_catalog')
-    .select(SELECT)
-    .eq('slug', slug)
-    .single();
-  if (error || !data) return undefined;
-  return data as Race;
+/**
+ * Busca por clean slug (sin año).
+ * Carga todas y filtra en memoria — evita consulta compleja en Supabase.
+ */
+export async function getRaceByCleanSlug(slug: string): Promise<Race | undefined> {
+  const all = await getAllRaces();
+  return all.find((r) => cleanSlug(r.slug) === slug);
 }
 
 /** Distancia en texto legible. */

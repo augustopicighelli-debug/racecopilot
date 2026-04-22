@@ -1,9 +1,9 @@
 // Landing SEO pública en inglés: /race/[slug]
-// ISR: se genera al primer request y se cachea 24h.
+// ISR 24h — nuevas carreras en Supabase aparecen solas sin rebuild.
 
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getAllRaces, getRaceBySlug, distanceLabel } from '@/lib/races/catalog';
+import { getAllRaces, getRaceByCleanSlug, cleanSlug, cleanName, distanceLabel } from '@/lib/races/catalog';
 import { RaceSEOLanding } from '@/components/race-seo-landing';
 
 export const revalidate = 86400;
@@ -13,35 +13,34 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
   const races = await getAllRaces();
-  return races.map((r) => ({ slug: r.slug }));
+  return races.map((r) => ({ slug: cleanSlug(r.slug) }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const race = await getRaceBySlug(slug);
+  const race = await getRaceByCleanSlug(slug);
   if (!race) return {};
 
+  const name  = cleanName(race.name);
   const dist  = distanceLabel(race.distance_km, 'en');
-  const title = `${race.name} Pacing Plan — Splits, Hydration & Nutrition`;
+  const title = `${name} Pacing Plan — Splits, Hydration & Nutrition`;
   const desc  = `Personalized pacing plan for the ${race.city} ${dist}. Km-by-km splits, hydration and nutrition calibrated to the actual course. 7 days free.`;
+  const url   = `https://racecopilot.com/race/${slug}`;
 
   return {
     title,
     description: desc,
     alternates: {
-      canonical: `https://racecopilot.com/race/${race.slug}`,
-      languages: {
-        en: `https://racecopilot.com/race/${race.slug}`,
-        es: `https://racecopilot.com/carreras/${race.slug}`,
-      },
+      canonical: url,
+      languages: { en: url, es: `https://racecopilot.com/carreras/${slug}` },
     },
-    openGraph: { title, description: desc, url: `https://racecopilot.com/race/${race.slug}`, locale: 'en_US', type: 'article' },
+    openGraph: { title, description: desc, url, locale: 'en_US', type: 'article' },
   };
 }
 
 export default async function Page({ params }: Props) {
   const { slug } = await params;
-  const race = await getRaceBySlug(slug);
+  const race = await getRaceByCleanSlug(slug);
   if (!race) notFound();
-  return <RaceSEOLanding race={race} locale="en" />;
+  return <RaceSEOLanding race={race} />;
 }
