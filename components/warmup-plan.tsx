@@ -119,7 +119,7 @@ export function WarmupPlan({ distanceKm, weather }: WarmupPlanProps) {
 
   // Estado del checklist: set de índices "item-groupIdx-itemIdx" marcados
   const [checked, setChecked] = useState<Set<string>>(new Set());
-  const [checklistOpen, setChecklistOpen] = useState(false);
+  const [checklistOpen, setChecklistOpen] = useState(true);
 
   const toggle = (key: string) =>
     setChecked(prev => {
