@@ -99,7 +99,7 @@ export const T = {
       faq: [
         { q: '¿Necesito saber mi ritmo para generar el plan?',        a: 'No. Con un tiempo de referencia (aunque sea de un entrenamiento) el motor calcula tu ritmo objetivo. Si no tenés ninguno, podés usar el objetivo "Terminar" y te generamos un plan conservador.' },
         { q: '¿El plan funciona sin GPX?',                            a: 'Sí. Si no tenés el GPX del recorrido igual generamos el plan con hidratación y ritmo. El GPX mejora la precisión ajustando por subidas y bajadas, pero no es obligatorio.' },
-        { q: '¿Para qué distancias funciona?',                        a: '5K, 10K, media maratón, maratón y trail. El motor adapta los cálculos de hidratación y nutrición según la distancia y duración estimada.' },
+        { q: '¿Para qué distancias funciona?',                        a: '5K, 10K, media maratón, maratón, trail y cualquier distancia personalizada. Ingresás los kilómetros que sean y el motor adapta los cálculos de hidratación y nutrición.' },
         { q: '¿Puedo cancelar el trial antes de que me cobren?',      a: 'Sí, cancelás en cualquier momento desde tu perfil. Si cancelás antes del día 8 no se te cobra nada.' },
         { q: '¿Los planes son realmente personalizados?',             a: 'Sí. Usamos tus tiempos de referencia, tu peso, tu nivel de sudoración y el pronóstico del clima del día de tu carrera. No es un plan genérico.' },
       ],
@@ -580,7 +580,7 @@ export const T = {
       faq: [
         { q: 'Do I need to know my pace to generate a plan?',      a: 'No. With any reference time (even from a training run) the engine calculates your target pace. If you have none, choose the "Finish" goal and we generate a conservative plan.' },
         { q: 'Does the plan work without a GPX file?',             a: 'Yes. Without a GPX we still generate your hydration and pace plan. GPX improves accuracy by accounting for hills, but it\'s optional.' },
-        { q: 'What distances does it support?',                    a: '5K, 10K, half marathon, marathon, and trail. The engine adapts hydration and nutrition based on distance and estimated duration.' },
+        { q: 'What distances does it support?',                    a: '5K, 10K, half marathon, marathon, trail, and any custom distance. Enter however many kilometers you want and the engine adapts hydration and nutrition accordingly.' },
         { q: 'Can I cancel the trial before I get charged?',       a: 'Yes, cancel anytime from your profile. Cancel before day 8 and you won\'t be charged anything.' },
         { q: 'Are the plans really personalized?',                 a: 'Yes. We use your reference times, weight, sweat rate, and the actual weather forecast for your race day. It\'s not a generic template.' },
       ],
