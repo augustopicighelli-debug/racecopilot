@@ -40,14 +40,7 @@ export async function sendWelcomeEmail(to: string, name?: string): Promise<void>
           <!-- Logo / título -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 

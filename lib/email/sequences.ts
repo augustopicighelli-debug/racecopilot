@@ -34,14 +34,7 @@ export async function sendOnboardingDay1Es(to: string, firstName?: string): Prom
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -127,14 +120,7 @@ export async function sendOnboardingDay1En(to: string, firstName?: string): Prom
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -220,14 +206,7 @@ export async function sendOnboardingDay3Es(to: string, firstName?: string, hasRa
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -340,14 +319,7 @@ export async function sendOnboardingDay3En(to: string, firstName?: string, hasRa
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -461,14 +433,7 @@ export async function sendOnboardingDay5Es(to: string, firstName?: string): Prom
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -574,14 +539,7 @@ export async function sendOnboardingDay5En(to: string, firstName?: string): Prom
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -688,14 +646,7 @@ export async function sendOnboardingDay7Es(to: string, firstName?: string): Prom
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -800,14 +751,7 @@ export async function sendOnboardingDay7En(to: string, firstName?: string): Prom
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -917,14 +861,7 @@ export async function sendReactivationDay3Es(to: string, firstName?: string): Pr
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -1009,14 +946,7 @@ export async function sendReactivationDay3En(to: string, firstName?: string): Pr
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -1107,14 +1037,7 @@ export async function sendReactivationDay14Es(
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -1222,14 +1145,7 @@ export async function sendReactivationDay14En(
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -1332,14 +1248,7 @@ export async function sendReactivationDay45Es(to: string, firstName?: string): P
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -1429,14 +1338,7 @@ export async function sendReactivationDay45En(to: string, firstName?: string): P
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -1536,14 +1438,7 @@ export async function sendPostRaceUpsellEs(
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -1647,14 +1542,7 @@ export async function sendPostRaceUpsellEn(
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -1771,14 +1659,7 @@ export async function sendMonthlyNewsletterEs(
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
@@ -1927,14 +1808,7 @@ export async function sendMonthlyNewsletterEn(
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <table cellpadding="0" cellspacing="0"><tr>
-                <td style="vertical-align:middle;">
-                  <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
-                </td>
-                <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
-                </td>
-              </tr></table>
+              <span style="font-size:22px;font-weight:800;color:#18181b;letter-spacing:-0.01em;">Race<span style="color:#f97316;">Copilot</span></span>
             </td>
           </tr>
 
