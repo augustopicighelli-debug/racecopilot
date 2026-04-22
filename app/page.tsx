@@ -276,6 +276,58 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── FAQ ──────────────────────────────────────────────────────────── */}
+      <section className="px-6 pb-20">
+        <div className="max-w-2xl mx-auto">
+          <SectionLabel text={l.faqLabel} />
+          <p className="text-center text-2xl sm:text-3xl font-bold mb-10">{l.faqTitle}</p>
+          <div className="space-y-3">
+            {(l.faq as readonly { q: string; a: string }[]).map(({ q, a }) => (
+              <details
+                key={q}
+                className="group rounded-2xl border overflow-hidden"
+                style={{ borderColor: 'var(--border)', background: 'var(--card)' }}
+              >
+                <summary
+                  className="flex items-center justify-between px-6 py-4 cursor-pointer select-none font-semibold text-sm list-none"
+                  style={{ color: 'var(--foreground)' }}
+                >
+                  {q}
+                  {/* chevron */}
+                  <svg
+                    className="shrink-0 ml-4 transition-transform group-open:rotate-180"
+                    width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    style={{ color: '#f97316' }}
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </summary>
+                <div className="px-6 pb-5">
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{a}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+
+          {/* Contacto */}
+          <div
+            className="mt-10 rounded-2xl border p-6 text-center"
+            style={{ borderColor: 'rgba(249,115,22,0.25)', background: 'rgba(249,115,22,0.05)' }}
+          >
+            <p className="font-semibold mb-1">{l.contactLabel}</p>
+            <p className="text-sm mb-4" style={{ color: 'var(--muted-foreground)' }}>{l.contactText}</p>
+            <a
+              href="mailto:hello@racecopilot.com"
+              className="inline-block px-6 py-2.5 rounded-xl text-sm font-semibold border transition-opacity hover:opacity-80"
+              style={{ borderColor: 'rgba(249,115,22,0.4)', color: '#f97316' }}
+            >
+              {l.contactEmail} →
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* ── Separador visual ──────────────────────────────────────────────── */}
       <div className="relative w-full h-56 overflow-hidden">
         <Image src="/start-aerial.jpg" alt="Marathon start line" fill className="object-cover object-center" />
