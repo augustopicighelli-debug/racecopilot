@@ -346,26 +346,27 @@ export default function EditRacePage() {
               </div>
             </div>
 
-              {/* GPX personal — solo si no hay slug del catálogo */}
-              {!gpxSlug && (
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                    Recorrido GPX <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
-                  </label>
-                  <input
-                    type="file"
-                    accept=".gpx,application/gpx+xml,application/xml,text/xml"
-                    onChange={(e) => setGpxFile(e.target.files?.[0] ?? null)}
-                    className="w-full px-3 py-2 rounded-lg border text-sm"
-                    style={inputStyle}
-                  />
-                  {gpxFile && <p className="text-xs mt-1" style={{ color: '#4ade80' }}>✓ {gpxFile.name}</p>}
-                  {!gpxFile && gpxUrl && <p className="text-xs mt-1" style={{ color: '#4ade80' }}>✓ GPX guardado</p>}
-                  <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
-                    Subí el GPX para un análisis de elevación más preciso.
-                  </p>
-                </div>
-              )}
+              {/* GPX personal — siempre visible en edit (puede overridear el del catálogo) */}
+              <div>
+                <label className="block text-sm font-medium mb-1" style={labelStyle}>
+                  Recorrido GPX <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
+                </label>
+                {gpxSlug && !gpxFile && !gpxUrl && (
+                  <p className="text-xs mb-1" style={{ color: '#4ade80' }}>✓ Recorrido del catálogo incluido</p>
+                )}
+                <input
+                  type="file"
+                  accept=".gpx,application/gpx+xml,application/xml,text/xml"
+                  onChange={(e) => setGpxFile(e.target.files?.[0] ?? null)}
+                  className="w-full px-3 py-2 rounded-lg border text-sm"
+                  style={inputStyle}
+                />
+                {gpxFile && <p className="text-xs mt-1" style={{ color: '#4ade80' }}>✓ {gpxFile.name}</p>}
+                {!gpxFile && gpxUrl && <p className="text-xs mt-1" style={{ color: '#4ade80' }}>✓ GPX personal guardado</p>}
+                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
+                  Subí tu propio GPX para sobreescribir el del catálogo.
+                </p>
+              </div>
 
               {/* Selector de estrategia de split — estilo ObjectiveCards */}
               <div>
