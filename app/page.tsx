@@ -69,8 +69,25 @@ export default function LandingPage() {
 
   const featureIcons = [<IconTarget key="t" />, <IconDrop key="d" />, <IconThermo key="th" />, <IconMountain key="m" />];
 
+  // JSON-LD para FAQ — Google puede mostrar preguntas en resultados
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: (l.faq as readonly { q: string; a: string }[]).map(({ q, a }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
+    })),
+  };
+
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
+      {/* JSON-LD for FAQ rich snippets */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        suppressHydrationWarning
+      />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section
