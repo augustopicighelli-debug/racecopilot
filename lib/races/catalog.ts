@@ -3,6 +3,7 @@
 // aparece automáticamente en las landings sin rebuild.
 
 import { createClient } from '@supabase/supabase-js';
+import { cleanSlug } from './utils';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
