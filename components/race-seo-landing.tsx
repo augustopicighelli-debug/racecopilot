@@ -7,6 +7,7 @@ import Link from 'next/link';
 import type { Race } from '@/lib/races/catalog';
 import { cleanName, distanceLabel } from '@/lib/races/utils';
 import { useLang } from '@/lib/lang';
+import { trackEvent } from '@/lib/analytics/pixels';
 
 type Props = { race: Race };
 
@@ -100,7 +101,8 @@ export function RaceSEOLanding({ race }: Props) {
           <h2 className="text-2xl font-bold mb-3">{copy.ctaTitle}</h2>
           <p className="mb-6 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{copy.ctaBody}</p>
           <Link href={ctaHref} className="inline-block px-8 py-4 rounded-xl font-bold text-sm"
-            style={{ background: '#f97316', color: '#fff', boxShadow: '0 0 30px rgba(249,115,22,0.35)' }}>
+            style={{ background: '#f97316', color: '#fff', boxShadow: '0 0 30px rgba(249,115,22,0.35)' }}
+            onClick={() => trackEvent('Lead', { source: 'seo_landing', race: race.slug })}>
             {copy.ctaBtn}
           </Link>
         </section>
