@@ -51,10 +51,10 @@ export const T = {
     },
     // ── Landing ───────────────────────────────────────────
     landing: {
-      badge:            '✓ Funciona para Boston, NYC, Berlin y 500+ carreras',
-      title:            'Plan de maratón personalizado para',
-      titleHighlight:   'correr más rápido',
-      subtitle:         'Ritmo km a km, agua, geles y electrolitos. Generado en base a tus tiempos reales, peso, sudoración y clima exacto del día.',
+      badge:            '✓ Carreras, fondos y entrenamientos en tus rutas',
+      title:            'Plan personalizado para',
+      titleHighlight:   'correr más rápido en cualquier distancia',
+      subtitle:         'Ritmo km a km, agua, geles y electrolitos. Para maratones, medias, fondos, o tus entrenamientos habituales. Generado en base a tus tiempos reales, peso, sudoración y clima del día.',
       ctaPrimary:       'Empezar gratis →',
       ctaSignIn:        'Ya tengo cuenta',
       ctaSecondary:     'Ver precios →',
@@ -73,8 +73,9 @@ export const T = {
       features: [
         { title: 'Objetivo realista calibrado',  desc: 'Machine learning + evidencia científica predicen tu rendimiento. Te damos 3 escenarios (ambicioso/realista/conservador) basados en tus marcas reales.' },
         { title: 'Hidratación y nutrición exacta',           desc: 'Litros de agua y cantidad/timing de geles calculados según peso, sudoración, distancia y clima. Sin calambres ni paredes.' },
-        { title: 'Clima de tu carrera ese día',      desc: 'Temperatura, viento, humedad predichos para la ciudad exacta y fecha. Ajusta automáticamente tu ritmo y flujo de hidratación.' },
+        { title: 'Clima de tu carrera/entrenamiento ese día',      desc: 'Temperatura, viento, humedad predichos para tu zona exacta y fecha. Ajusta automáticamente tu ritmo y flujo de hidratación.' },
         { title: 'Estrategia por altimetría',           desc: 'GPX inteligente: subidas y bajadas ajustan tu ritmo y gasto energético. Corre smart, no solo fuerte.' },
+        { title: 'Funciona para todo',           desc: 'Maratones (Boston, NYC, Berlin), medias, 5K, 10K, fondos, ultras o tus entrenamientos habituales en la ruta. Cualquier distancia, cualquier objetivo.' },
       ],
       // Testimonios
       testimonialsTitle: 'Corredores reales, marcas reales',
