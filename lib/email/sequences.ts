@@ -25,11 +25,11 @@ export async function sendOnboardingDay1Es(to: string, firstName?: string): Prom
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tu primera carrera en RaceCopilot</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -39,7 +39,7 @@ export async function sendOnboardingDay1Es(to: string, firstName?: string): Prom
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -48,7 +48,7 @@ export async function sendOnboardingDay1Es(to: string, firstName?: string): Prom
           <!-- Saludo -->
           <tr>
             <td style="padding-bottom:16px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 Hola ${displayName}
               </h2>
             </td>
@@ -57,10 +57,10 @@ export async function sendOnboardingDay1Es(to: string, firstName?: string): Prom
           <!-- Cuerpo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#6b7280;">
                 Queremos ayudarte a entrenar más inteligente. Lo primero es cargar tu próxima carrera.
               </p>
-              <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:15px;line-height:1.6;color:#6b7280;">
                 En 3 minutos generarás un plan personalizado basado en el recorrido, tu nivel y el clima del día.
               </p>
             </td>
@@ -79,7 +79,7 @@ export async function sendOnboardingDay1Es(to: string, firstName?: string): Prom
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Email del día 1 de tu prueba.
               </p>
@@ -118,11 +118,11 @@ export async function sendOnboardingDay1En(to: string, firstName?: string): Prom
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Your first race on RaceCopilot</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -132,7 +132,7 @@ export async function sendOnboardingDay1En(to: string, firstName?: string): Prom
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -141,7 +141,7 @@ export async function sendOnboardingDay1En(to: string, firstName?: string): Prom
           <!-- Greeting -->
           <tr>
             <td style="padding-bottom:16px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 Hi ${displayName}
               </h2>
             </td>
@@ -150,10 +150,10 @@ export async function sendOnboardingDay1En(to: string, firstName?: string): Prom
           <!-- Body -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#6b7280;">
                 We're here to help you train smarter. First step: load your next race.
               </p>
-              <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:15px;line-height:1.6;color:#6b7280;">
                 In just 3 minutes, we'll generate a personalized plan based on the course, your level, and race-day weather.
               </p>
             </td>
@@ -172,7 +172,7 @@ export async function sendOnboardingDay1En(to: string, firstName?: string): Prom
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Day 1 email of your trial.
               </p>
@@ -211,11 +211,11 @@ export async function sendOnboardingDay3Es(to: string, firstName?: string, hasRa
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cómo funciona tu plan en RaceCopilot</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -225,7 +225,7 @@ export async function sendOnboardingDay3Es(to: string, firstName?: string, hasRa
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -234,7 +234,7 @@ export async function sendOnboardingDay3Es(to: string, firstName?: string, hasRa
           <!-- Title -->
           <tr>
             <td style="padding-bottom:24px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 Cómo funciona tu plan
               </h2>
             </td>
@@ -243,9 +243,9 @@ export async function sendOnboardingDay3Es(to: string, firstName?: string, hasRa
           <!-- Feature 1 -->
           <tr>
             <td style="padding-bottom:20px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
                 <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#f97316;">Ritmo personalizado</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">Basado en tu perfil, el GPX del recorrido y ajustes por clima.</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">Basado en tu perfil, el GPX del recorrido y ajustes por clima.</p>
               </div>
             </td>
           </tr>
@@ -253,9 +253,9 @@ export async function sendOnboardingDay3Es(to: string, firstName?: string, hasRa
           <!-- Feature 2 -->
           <tr>
             <td style="padding-bottom:20px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
                 <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#f97316;">Splits y segmentos</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">Qué ritmo correr en cada kilómetro para llegar óptimo al final.</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">Qué ritmo correr en cada kilómetro para llegar óptimo al final.</p>
               </div>
             </td>
           </tr>
@@ -263,9 +263,9 @@ export async function sendOnboardingDay3Es(to: string, firstName?: string, hasRa
           <!-- Feature 3 -->
           <tr>
             <td style="padding-bottom:20px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
                 <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#f97316;">Hidratación y nutrición</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">Cuándo y cuánto tomar según la duración y condiciones.</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">Cuándo y cuánto tomar según la duración y condiciones.</p>
               </div>
             </td>
           </tr>
@@ -273,9 +273,9 @@ export async function sendOnboardingDay3Es(to: string, firstName?: string, hasRa
           <!-- Feature 4 -->
           <tr>
             <td style="padding-bottom:32px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
                 <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#f97316;">Ajustes por clima</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">Tu plan se actualiza si cambian las condiciones del día.</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">Tu plan se actualiza si cambian las condiciones del día.</p>
               </div>
             </td>
           </tr>
@@ -293,7 +293,7 @@ export async function sendOnboardingDay3Es(to: string, firstName?: string, hasRa
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Email del día 3 de tu prueba.
               </p>
@@ -331,11 +331,11 @@ export async function sendOnboardingDay3En(to: string, firstName?: string, hasRa
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>How your plan works on RaceCopilot</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -345,7 +345,7 @@ export async function sendOnboardingDay3En(to: string, firstName?: string, hasRa
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -354,7 +354,7 @@ export async function sendOnboardingDay3En(to: string, firstName?: string, hasRa
           <!-- Title -->
           <tr>
             <td style="padding-bottom:24px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 How your plan works
               </h2>
             </td>
@@ -363,9 +363,9 @@ export async function sendOnboardingDay3En(to: string, firstName?: string, hasRa
           <!-- Feature 1 -->
           <tr>
             <td style="padding-bottom:20px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
                 <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#f97316;">Personalized pacing</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">Based on your profile, course elevation, and weather adjustments.</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">Based on your profile, course elevation, and weather adjustments.</p>
               </div>
             </td>
           </tr>
@@ -373,9 +373,9 @@ export async function sendOnboardingDay3En(to: string, firstName?: string, hasRa
           <!-- Feature 2 -->
           <tr>
             <td style="padding-bottom:20px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
                 <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#f97316;">Splits & segments</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">What pace to run each kilometer to arrive strong at the finish.</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">What pace to run each kilometer to arrive strong at the finish.</p>
               </div>
             </td>
           </tr>
@@ -383,9 +383,9 @@ export async function sendOnboardingDay3En(to: string, firstName?: string, hasRa
           <!-- Feature 3 -->
           <tr>
             <td style="padding-bottom:20px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
                 <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#f97316;">Hydration & nutrition</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">When and how much to fuel based on race duration and conditions.</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">When and how much to fuel based on race duration and conditions.</p>
               </div>
             </td>
           </tr>
@@ -393,9 +393,9 @@ export async function sendOnboardingDay3En(to: string, firstName?: string, hasRa
           <!-- Feature 4 -->
           <tr>
             <td style="padding-bottom:32px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
                 <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#f97316;">Live weather updates</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">Your plan adjusts if conditions change on race day.</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">Your plan adjusts if conditions change on race day.</p>
               </div>
             </td>
           </tr>
@@ -413,7 +413,7 @@ export async function sendOnboardingDay3En(to: string, firstName?: string, hasRa
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Day 3 email of your trial.
               </p>
@@ -452,11 +452,11 @@ export async function sendOnboardingDay5Es(to: string, firstName?: string): Prom
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cómo leer tu plan de carrera</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -466,7 +466,7 @@ export async function sendOnboardingDay5Es(to: string, firstName?: string): Prom
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -475,7 +475,7 @@ export async function sendOnboardingDay5Es(to: string, firstName?: string): Prom
           <!-- Title -->
           <tr>
             <td style="padding-bottom:24px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 Guía rápida: cómo leer tu plan
               </h2>
             </td>
@@ -484,9 +484,9 @@ export async function sendOnboardingDay5Es(to: string, firstName?: string): Prom
           <!-- Tip 1 -->
           <tr>
             <td style="padding-bottom:20px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;">
-                <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#ffffff;">1. Los segmentos son tu GPS</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">Cada fila es un kilómetro. El ritmo mostrado es lo que deberías correr en ese tramo considerando la elevación.</p>
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;">
+                <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#18181b;">1. Los segmentos son tu GPS</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">Cada fila es un kilómetro. El ritmo mostrado es lo que deberías correr en ese tramo considerando la elevación.</p>
               </div>
             </td>
           </tr>
@@ -494,9 +494,9 @@ export async function sendOnboardingDay5Es(to: string, firstName?: string): Prom
           <!-- Tip 2 -->
           <tr>
             <td style="padding-bottom:20px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;">
-                <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#ffffff;">2. El color indica cómo vas</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">Verde: dentro del plan. Amarillo: un poco rápido. Rojo: demasiado rápido para tu meta.</p>
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;">
+                <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#18181b;">2. El color indica cómo vas</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">Verde: dentro del plan. Amarillo: un poco rápido. Rojo: demasiado rápido para tu meta.</p>
               </div>
             </td>
           </tr>
@@ -504,9 +504,9 @@ export async function sendOnboardingDay5Es(to: string, firstName?: string): Prom
           <!-- Tip 3 -->
           <tr>
             <td style="padding-bottom:20px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;">
-                <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#ffffff;">3. Ajustes por clima</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">Si hay mucho calor, el ritmo se relaja automáticamente. Si lluvia fuerte, más cuidado en descensos.</p>
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;">
+                <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#18181b;">3. Ajustes por clima</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">Si hay mucho calor, el ritmo se relaja automáticamente. Si lluvia fuerte, más cuidado en descensos.</p>
               </div>
             </td>
           </tr>
@@ -514,7 +514,7 @@ export async function sendOnboardingDay5Es(to: string, firstName?: string): Prom
           <!-- CTA -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0 0 16px;font-size:14px;color:#a1a1aa;">
+              <p style="margin:0 0 16px;font-size:14px;color:#6b7280;">
                 ¿Dudas? Nos falta 1 día de prueba. Carga una carrera ahora y practica.
               </p>
               <a href="${APP_URL}/races/new"
@@ -527,7 +527,7 @@ export async function sendOnboardingDay5Es(to: string, firstName?: string): Prom
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Email del día 5 de tu prueba. Quedan 2 días.
               </p>
@@ -565,11 +565,11 @@ export async function sendOnboardingDay5En(to: string, firstName?: string): Prom
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>How to read your race plan</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -579,7 +579,7 @@ export async function sendOnboardingDay5En(to: string, firstName?: string): Prom
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -588,7 +588,7 @@ export async function sendOnboardingDay5En(to: string, firstName?: string): Prom
           <!-- Title -->
           <tr>
             <td style="padding-bottom:24px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 Quick guide: reading your plan
               </h2>
             </td>
@@ -597,9 +597,9 @@ export async function sendOnboardingDay5En(to: string, firstName?: string): Prom
           <!-- Tip 1 -->
           <tr>
             <td style="padding-bottom:20px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;">
-                <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#ffffff;">1. Segments are your GPS</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">Each row is one kilometer. The pace shown accounts for the elevation profile in that section.</p>
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;">
+                <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#18181b;">1. Segments are your GPS</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">Each row is one kilometer. The pace shown accounts for the elevation profile in that section.</p>
               </div>
             </td>
           </tr>
@@ -607,9 +607,9 @@ export async function sendOnboardingDay5En(to: string, firstName?: string): Prom
           <!-- Tip 2 -->
           <tr>
             <td style="padding-bottom:20px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;">
-                <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#ffffff;">2. Colors show your progress</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">Green: on track. Yellow: slightly faster than plan. Red: too fast for your goal.</p>
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;">
+                <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#18181b;">2. Colors show your progress</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">Green: on track. Yellow: slightly faster than plan. Red: too fast for your goal.</p>
               </div>
             </td>
           </tr>
@@ -617,9 +617,9 @@ export async function sendOnboardingDay5En(to: string, firstName?: string): Prom
           <!-- Tip 3 -->
           <tr>
             <td style="padding-bottom:20px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:16px;">
-                <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#ffffff;">3. Weather adjustments</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">High heat? Pace relaxes automatically. Heavy rain? Extra caution on downhills.</p>
+              <div style="background:#f9fafb;border-radius:10px;padding:16px;">
+                <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#18181b;">3. Weather adjustments</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">High heat? Pace relaxes automatically. Heavy rain? Extra caution on downhills.</p>
               </div>
             </td>
           </tr>
@@ -627,7 +627,7 @@ export async function sendOnboardingDay5En(to: string, firstName?: string): Prom
           <!-- CTA -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0 0 16px;font-size:14px;color:#a1a1aa;">
+              <p style="margin:0 0 16px;font-size:14px;color:#6b7280;">
                 Questions? You have 2 days of trial left. Load a race and try it out.
               </p>
               <a href="${APP_URL}/races/new"
@@ -640,7 +640,7 @@ export async function sendOnboardingDay5En(to: string, firstName?: string): Prom
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Day 5 email of your trial. 2 days left.
               </p>
@@ -679,11 +679,11 @@ export async function sendOnboardingDay7Es(to: string, firstName?: string): Prom
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Último día de tu prueba — ¿necesitás ayuda?</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -693,7 +693,7 @@ export async function sendOnboardingDay7Es(to: string, firstName?: string): Prom
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -702,7 +702,7 @@ export async function sendOnboardingDay7Es(to: string, firstName?: string): Prom
           <!-- Title -->
           <tr>
             <td style="padding-bottom:16px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 Hoy termina tu prueba, ${displayName}
               </h2>
             </td>
@@ -711,7 +711,7 @@ export async function sendOnboardingDay7Es(to: string, firstName?: string): Prom
           <!-- Message -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:15px;line-height:1.6;color:#6b7280;">
                 Si activas tu plan hoy, continuarás sin interrupciones. Si no, pierdes acceso a todo lo que generaste.
               </p>
             </td>
@@ -720,8 +720,8 @@ export async function sendOnboardingDay7Es(to: string, firstName?: string): Prom
           <!-- What they lose -->
           <tr>
             <td style="padding-bottom:24px;">
-              <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#ffffff;">Lo que perderías:</p>
-              <ul style="margin:0;padding:0 0 0 20px;font-size:13px;color:#a1a1aa;">
+              <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#18181b;">Lo que perderías:</p>
+              <ul style="margin:0;padding:0 0 0 20px;font-size:13px;color:#6b7280;">
                 <li style="margin-bottom:8px;">Tu plan detallado con splits por kilómetro</li>
                 <li style="margin-bottom:8px;">Ajustes de clima en tiempo real (24hs antes de carrera)</li>
                 <li style="margin-bottom:8px;">Plan de hidratación personalizado</li>
@@ -745,7 +745,7 @@ export async function sendOnboardingDay7Es(to: string, firstName?: string): Prom
           <!-- Secondary CTA -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0;font-size:13px;color:#a1a1aa;">
+              <p style="margin:0;font-size:13px;color:#6b7280;">
                 ¿Preguntas? Respondemos en el dashboard. Todo es muy fácil.
               </p>
             </td>
@@ -753,7 +753,7 @@ export async function sendOnboardingDay7Es(to: string, firstName?: string): Prom
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Tu último email de prueba.
               </p>
@@ -791,11 +791,11 @@ export async function sendOnboardingDay7En(to: string, firstName?: string): Prom
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Your trial ends today — need help?</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -805,7 +805,7 @@ export async function sendOnboardingDay7En(to: string, firstName?: string): Prom
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -814,7 +814,7 @@ export async function sendOnboardingDay7En(to: string, firstName?: string): Prom
           <!-- Title -->
           <tr>
             <td style="padding-bottom:16px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 Your trial ends today, ${displayName}
               </h2>
             </td>
@@ -823,7 +823,7 @@ export async function sendOnboardingDay7En(to: string, firstName?: string): Prom
           <!-- Message -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:15px;line-height:1.6;color:#6b7280;">
                 Activate your plan today to continue seamlessly. If you don't, you'll lose access to everything you created.
               </p>
             </td>
@@ -832,8 +832,8 @@ export async function sendOnboardingDay7En(to: string, firstName?: string): Prom
           <!-- What they lose -->
           <tr>
             <td style="padding-bottom:24px;">
-              <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#ffffff;">What you'd lose:</p>
-              <ul style="margin:0;padding:0 0 0 20px;font-size:13px;color:#a1a1aa;">
+              <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#18181b;">What you'd lose:</p>
+              <ul style="margin:0;padding:0 0 0 20px;font-size:13px;color:#6b7280;">
                 <li style="margin-bottom:8px;">Your detailed race plan with per-km splits</li>
                 <li style="margin-bottom:8px;">Real-time weather adjustments (24hs before race)</li>
                 <li style="margin-bottom:8px;">Personalized hydration strategy</li>
@@ -857,7 +857,7 @@ export async function sendOnboardingDay7En(to: string, firstName?: string): Prom
           <!-- Secondary message -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0;font-size:13px;color:#a1a1aa;">
+              <p style="margin:0;font-size:13px;color:#6b7280;">
                 Questions? We're in your dashboard. Everything is super easy.
               </p>
             </td>
@@ -865,7 +865,7 @@ export async function sendOnboardingDay7En(to: string, firstName?: string): Prom
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Your final trial email.
               </p>
@@ -908,11 +908,11 @@ export async function sendReactivationDay3Es(to: string, firstName?: string): Pr
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>¿Qué pasó con tu plan de carrera?</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -922,7 +922,7 @@ export async function sendReactivationDay3Es(to: string, firstName?: string): Pr
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -931,7 +931,7 @@ export async function sendReactivationDay3Es(to: string, firstName?: string): Pr
           <!-- Title -->
           <tr>
             <td style="padding-bottom:24px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 Te echamos de menos, ${displayName}
               </h2>
             </td>
@@ -940,10 +940,10 @@ export async function sendReactivationDay3Es(to: string, firstName?: string): Pr
           <!-- Body -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#6b7280;">
                 Vimos que cancelaste tu suscripción. Nos gustaría saber por qué.
               </p>
-              <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:15px;line-height:1.6;color:#6b7280;">
                 ¿Fue caro? ¿Algo no funcionó? ¿Necesitás más features? Tu feedback nos ayuda a mejorar.
               </p>
             </td>
@@ -962,7 +962,7 @@ export async function sendReactivationDay3Es(to: string, firstName?: string): Pr
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Email de reactivación.
               </p>
@@ -1000,11 +1000,11 @@ export async function sendReactivationDay3En(to: string, firstName?: string): Pr
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>What happened to your race plan?</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -1014,7 +1014,7 @@ export async function sendReactivationDay3En(to: string, firstName?: string): Pr
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -1023,7 +1023,7 @@ export async function sendReactivationDay3En(to: string, firstName?: string): Pr
           <!-- Title -->
           <tr>
             <td style="padding-bottom:24px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 We miss you, ${displayName}
               </h2>
             </td>
@@ -1032,10 +1032,10 @@ export async function sendReactivationDay3En(to: string, firstName?: string): Pr
           <!-- Body -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#6b7280;">
                 We noticed you cancelled your subscription. We'd love to know why.
               </p>
-              <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:15px;line-height:1.6;color:#6b7280;">
                 Was it the price? Something didn't work? Missing a feature? Your feedback helps us improve.
               </p>
             </td>
@@ -1054,7 +1054,7 @@ export async function sendReactivationDay3En(to: string, firstName?: string): Pr
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Reactivation email.
               </p>
@@ -1098,11 +1098,11 @@ export async function sendReactivationDay14Es(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vuelve con 30% off en tu suscripción</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -1112,7 +1112,7 @@ export async function sendReactivationDay14Es(
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -1121,7 +1121,7 @@ export async function sendReactivationDay14Es(
           <!-- Title -->
           <tr>
             <td style="padding-bottom:16px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 Vuelve con una sorpresa
               </h2>
             </td>
@@ -1130,10 +1130,10 @@ export async function sendReactivationDay14Es(
           <!-- Offer highlight -->
           <tr>
             <td style="padding-bottom:32px;text-align:center;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:24px;border:1px solid #f97316;">
-                <p style="margin:0 0 8px;font-size:13px;color:#a1a1aa;text-transform:uppercase;">Oferta exclusiva</p>
+              <div style="background:#f9fafb;border-radius:10px;padding:24px;border:1px solid #f97316;">
+                <p style="margin:0 0 8px;font-size:13px;color:#6b7280;text-transform:uppercase;">Oferta exclusiva</p>
                 <p style="margin:0 0 16px;font-size:28px;font-weight:700;color:#f97316;">30% off</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">en 3 meses de suscripción</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">en 3 meses de suscripción</p>
               </div>
             </td>
           </tr>
@@ -1141,8 +1141,8 @@ export async function sendReactivationDay14Es(
           <!-- Code -->
           <tr>
             <td style="padding-bottom:32px;text-align:center;">
-              <p style="margin:0 0 8px;font-size:13px;color:#a1a1aa;">Usa el código:</p>
-              <p style="margin:0;font-size:16px;font-weight:700;color:#ffffff;font-family:monospace;">
+              <p style="margin:0 0 8px;font-size:13px;color:#6b7280;">Usa el código:</p>
+              <p style="margin:0;font-size:16px;font-weight:700;color:#18181b;font-family:monospace;">
                 ${code}
               </p>
             </td>
@@ -1151,7 +1151,7 @@ export async function sendReactivationDay14Es(
           <!-- Body -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0;font-size:14px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
                 Esperamos hayas disfrutado de RaceCopilot. Si algo no funcionó o podemos mejorar, escríbenos. Esta oferta es solo para ti.
               </p>
             </td>
@@ -1170,7 +1170,7 @@ export async function sendReactivationDay14Es(
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Oferta válida por 7 días.
               </p>
@@ -1213,11 +1213,11 @@ export async function sendReactivationDay14En(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Come back with 30% off your subscription</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -1227,7 +1227,7 @@ export async function sendReactivationDay14En(
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -1236,7 +1236,7 @@ export async function sendReactivationDay14En(
           <!-- Title -->
           <tr>
             <td style="padding-bottom:16px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 Come back with a surprise
               </h2>
             </td>
@@ -1245,10 +1245,10 @@ export async function sendReactivationDay14En(
           <!-- Offer highlight -->
           <tr>
             <td style="padding-bottom:32px;text-align:center;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:24px;border:1px solid #f97316;">
-                <p style="margin:0 0 8px;font-size:13px;color:#a1a1aa;text-transform:uppercase;">Exclusive offer</p>
+              <div style="background:#f9fafb;border-radius:10px;padding:24px;border:1px solid #f97316;">
+                <p style="margin:0 0 8px;font-size:13px;color:#6b7280;text-transform:uppercase;">Exclusive offer</p>
                 <p style="margin:0 0 16px;font-size:28px;font-weight:700;color:#f97316;">30% off</p>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">3 months of subscription</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">3 months of subscription</p>
               </div>
             </td>
           </tr>
@@ -1256,8 +1256,8 @@ export async function sendReactivationDay14En(
           <!-- Code -->
           <tr>
             <td style="padding-bottom:32px;text-align:center;">
-              <p style="margin:0 0 8px;font-size:13px;color:#a1a1aa;">Use code:</p>
-              <p style="margin:0;font-size:16px;font-weight:700;color:#ffffff;font-family:monospace;">
+              <p style="margin:0 0 8px;font-size:13px;color:#6b7280;">Use code:</p>
+              <p style="margin:0;font-size:16px;font-weight:700;color:#18181b;font-family:monospace;">
                 ${code}
               </p>
             </td>
@@ -1266,7 +1266,7 @@ export async function sendReactivationDay14En(
           <!-- Body -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0;font-size:14px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
                 We hope you enjoyed RaceCopilot. If something didn't work or we can improve, let us know. This offer is just for you.
               </p>
             </td>
@@ -1285,7 +1285,7 @@ export async function sendReactivationDay14En(
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Offer valid for 7 days.
               </p>
@@ -1323,11 +1323,11 @@ export async function sendReactivationDay45Es(to: string, firstName?: string): P
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Un último recordatorio: RaceCopilot te espera</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -1337,7 +1337,7 @@ export async function sendReactivationDay45Es(to: string, firstName?: string): P
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -1346,8 +1346,8 @@ export async function sendReactivationDay45Es(to: string, firstName?: string): P
           <!-- Testimony -->
           <tr>
             <td style="padding-bottom:32px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:24px;border-left:4px solid #f97316;">
-                <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#ffffff;font-style:italic;">
+              <div style="background:#f9fafb;border-radius:10px;padding:24px;border-left:4px solid #f97316;">
+                <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#18181b;font-style:italic;">
                   "Corría sin plan. Probé RaceCopilot y cambió todo. Ahora entiendo qué ritmo correr en cada segmento. Mi último 21K lo hice en 1:58 siguiendo el plan, justo mi meta. No vuelvo atrás."
                 </p>
                 <p style="margin:0;font-size:13px;font-weight:600;color:#f97316;">
@@ -1360,10 +1360,10 @@ export async function sendReactivationDay45Es(to: string, firstName?: string): P
           <!-- Final message -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#6b7280;">
                 Este es nuestro último email. Sabemos que decidiste no continuar, pero sabemos que corres.
               </p>
-              <p style="margin:0;font-size:14px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
                 Si tu próxima carrera es importante, RaceCopilot sigue esperándote.
               </p>
             </td>
@@ -1382,7 +1382,7 @@ export async function sendReactivationDay45Es(to: string, firstName?: string): P
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Último recordatorio. Después de esto, no recibirás más emails.
               </p>
@@ -1420,11 +1420,11 @@ export async function sendReactivationDay45En(to: string, firstName?: string): P
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>One last reminder: RaceCopilot is here for you</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -1434,7 +1434,7 @@ export async function sendReactivationDay45En(to: string, firstName?: string): P
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -1443,8 +1443,8 @@ export async function sendReactivationDay45En(to: string, firstName?: string): P
           <!-- Testimony -->
           <tr>
             <td style="padding-bottom:32px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:24px;border-left:4px solid #f97316;">
-                <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#ffffff;font-style:italic;">
+              <div style="background:#f9fafb;border-radius:10px;padding:24px;border-left:4px solid #f97316;">
+                <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#18181b;font-style:italic;">
                   "I used to race without a plan. RaceCopilot changed everything. Now I understand exactly what pace to run on each segment. My last half marathon was 1:58 following the plan — right on goal. I'm not going back."
                 </p>
                 <p style="margin:0;font-size:13px;font-weight:600;color:#f97316;">
@@ -1457,10 +1457,10 @@ export async function sendReactivationDay45En(to: string, firstName?: string): P
           <!-- Final message -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#6b7280;">
                 This is our last email. We know you chose not to continue, but we know you're still running.
               </p>
-              <p style="margin:0;font-size:14px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
                 When your next race matters, RaceCopilot is still here.
               </p>
             </td>
@@ -1479,7 +1479,7 @@ export async function sendReactivationDay45En(to: string, firstName?: string): P
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Final reminder. After this, no more emails.
               </p>
@@ -1527,11 +1527,11 @@ export async function sendPostRaceUpsellEs(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>¿Qué te perdiste en ${race}?</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -1541,7 +1541,7 @@ export async function sendPostRaceUpsellEs(
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -1550,7 +1550,7 @@ export async function sendPostRaceUpsellEs(
           <!-- Title -->
           <tr>
             <td style="padding-bottom:24px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 ¡Felicitaciones por ${race}!
               </h2>
             </td>
@@ -1559,7 +1559,7 @@ export async function sendPostRaceUpsellEs(
           <!-- Intro -->
           <tr>
             <td style="padding-bottom:24px;">
-              <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:15px;line-height:1.6;color:#6b7280;">
                 Correr una carrera es una victoria. Ahora, imagina hacerla con un plan.
               </p>
             </td>
@@ -1568,8 +1568,8 @@ export async function sendPostRaceUpsellEs(
           <!-- What they missed -->
           <tr>
             <td style="padding-bottom:24px;">
-              <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#ffffff;">Esto es lo que te perdiste:</p>
-              <ul style="margin:0;padding:0 0 0 20px;font-size:13px;color:#a1a1aa;">
+              <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#18181b;">Esto es lo que te perdiste:</p>
+              <ul style="margin:0;padding:0 0 0 20px;font-size:13px;color:#6b7280;">
                 <li style="margin-bottom:8px;">Plan detallado con ritmo para cada kilómetro</li>
                 <li style="margin-bottom:8px;">Ajustes de clima real 24hs antes de la carrera</li>
                 <li style="margin-bottom:8px;">Plan de hidratación personalizado para tu tiempo</li>
@@ -1582,7 +1582,7 @@ export async function sendPostRaceUpsellEs(
           <!-- CTA -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0 0 16px;font-size:14px;color:#a1a1aa;">
+              <p style="margin:0 0 16px;font-size:14px;color:#6b7280;">
                 Para tu próxima carrera, vamos a hacerla diferente.
               </p>
               <a href="${APP_URL}/pricing"
@@ -1595,7 +1595,7 @@ export async function sendPostRaceUpsellEs(
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Email post-carrera.
               </p>
@@ -1638,11 +1638,11 @@ export async function sendPostRaceUpsellEn(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>What you missed at ${race}</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -1652,7 +1652,7 @@ export async function sendPostRaceUpsellEn(
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -1661,7 +1661,7 @@ export async function sendPostRaceUpsellEn(
           <!-- Title -->
           <tr>
             <td style="padding-bottom:24px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 Congrats on ${race}!
               </h2>
             </td>
@@ -1670,7 +1670,7 @@ export async function sendPostRaceUpsellEn(
           <!-- Intro -->
           <tr>
             <td style="padding-bottom:24px;">
-              <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:15px;line-height:1.6;color:#6b7280;">
                 Finishing a race is a victory. Now imagine doing it with a plan.
               </p>
             </td>
@@ -1679,8 +1679,8 @@ export async function sendPostRaceUpsellEn(
           <!-- What they missed -->
           <tr>
             <td style="padding-bottom:24px;">
-              <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#ffffff;">Here's what you missed:</p>
-              <ul style="margin:0;padding:0 0 0 20px;font-size:13px;color:#a1a1aa;">
+              <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#18181b;">Here's what you missed:</p>
+              <ul style="margin:0;padding:0 0 0 20px;font-size:13px;color:#6b7280;">
                 <li style="margin-bottom:8px;">Detailed plan with pace for every kilometer</li>
                 <li style="margin-bottom:8px;">Real-time weather adjustments 24hs before race</li>
                 <li style="margin-bottom:8px;">Personalized hydration strategy for your pace</li>
@@ -1693,7 +1693,7 @@ export async function sendPostRaceUpsellEn(
           <!-- CTA -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0 0 16px;font-size:14px;color:#a1a1aa;">
+              <p style="margin:0 0 16px;font-size:14px;color:#6b7280;">
                 For your next race, we'll make it different.
               </p>
               <a href="${APP_URL}/pricing"
@@ -1706,7 +1706,7 @@ export async function sendPostRaceUpsellEn(
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Post-race email.
               </p>
@@ -1762,11 +1762,11 @@ export async function sendMonthlyNewsletterEs(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RaceCopilot — Newsletter de ${month}</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -1776,7 +1776,7 @@ export async function sendMonthlyNewsletterEs(
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -1785,7 +1785,7 @@ export async function sendMonthlyNewsletterEs(
           <!-- Header -->
           <tr>
             <td style="padding-bottom:24px;">
-              <p style="margin:0;font-size:13px;color:#a1a1aa;text-transform:uppercase;">
+              <p style="margin:0;font-size:13px;color:#6b7280;text-transform:uppercase;">
                 Newsletter de ${month.toUpperCase()}
               </p>
             </td>
@@ -1794,10 +1794,10 @@ export async function sendMonthlyNewsletterEs(
           <!-- Section 1: Tip -->
           <tr>
             <td style="padding-bottom:32px;">
-              <h2 style="margin:0 0 12px;font-size:16px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0 0 12px;font-size:16px;font-weight:600;color:#18181b;">
                 🏃 ${title}
               </h2>
-              <p style="margin:0;font-size:14px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
                 ${tip}
               </p>
             </td>
@@ -1806,11 +1806,11 @@ export async function sendMonthlyNewsletterEs(
           <!-- Section 2: Feature -->
           <tr>
             <td style="padding-bottom:32px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:20px;border-left:3px solid #f97316;">
+              <div style="background:#f9fafb;border-radius:10px;padding:20px;border-left:3px solid #f97316;">
                 <h3 style="margin:0 0 8px;font-size:14px;font-weight:600;color:#f97316;">
                   ✨ ${feature}
                 </h3>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">
+                <p style="margin:0;font-size:13px;color:#6b7280;">
                   ${fBody}
                 </p>
               </div>
@@ -1820,36 +1820,36 @@ export async function sendMonthlyNewsletterEs(
           <!-- Section 3: Upcoming races -->
           <tr>
             <td style="padding-bottom:32px;">
-              <h3 style="margin:0 0 16px;font-size:16px;font-weight:600;color:#ffffff;">
+              <h3 style="margin:0 0 16px;font-size:16px;font-weight:600;color:#18181b;">
                 🏁 Próximas carreras para seguir
               </h3>
 
               <!-- Race 1 -->
               <div style="margin-bottom:16px;">
-                <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#ffffff;">
+                <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#18181b;">
                   Carrera de Montaña del Chicamocha (Colombia)
                 </p>
-                <p style="margin:0;font-size:12px;color:#a1a1aa;">
+                <p style="margin:0;font-size:12px;color:#6b7280;">
                   42K · Elevación: 1.600m · 12 de mayo
                 </p>
               </div>
 
               <!-- Race 2 -->
               <div style="margin-bottom:16px;">
-                <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#ffffff;">
+                <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#18181b;">
                   Maratón de Buenos Aires
                 </p>
-                <p style="margin:0;font-size:12px;color:#a1a1aa;">
+                <p style="margin:0;font-size:12px;color:#6b7280;">
                   42K · Plano · 19 de mayo
                 </p>
               </div>
 
               <!-- Race 3 -->
               <div style="margin-bottom:16px;">
-                <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#ffffff;">
+                <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#18181b;">
                   Boston Marathon (USA)
                 </p>
-                <p style="margin:0;font-size:12px;color:#a1a1aa;">
+                <p style="margin:0;font-size:12px;color:#6b7280;">
                   42K · Rolling · 15 de abril
                 </p>
               </div>
@@ -1867,7 +1867,7 @@ export async function sendMonthlyNewsletterEs(
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Recibís este newsletter porque sos usuario de nuestra plataforma.
               </p>
@@ -1918,11 +1918,11 @@ export async function sendMonthlyNewsletterEn(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RaceCopilot — ${month} Newsletter</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
@@ -1932,7 +1932,7 @@ export async function sendMonthlyNewsletterEn(
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -1941,7 +1941,7 @@ export async function sendMonthlyNewsletterEn(
           <!-- Header -->
           <tr>
             <td style="padding-bottom:24px;">
-              <p style="margin:0;font-size:13px;color:#a1a1aa;text-transform:uppercase;">
+              <p style="margin:0;font-size:13px;color:#6b7280;text-transform:uppercase;">
                 ${month.toUpperCase()} NEWSLETTER
               </p>
             </td>
@@ -1950,10 +1950,10 @@ export async function sendMonthlyNewsletterEn(
           <!-- Section 1: Tip -->
           <tr>
             <td style="padding-bottom:32px;">
-              <h2 style="margin:0 0 12px;font-size:16px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0 0 12px;font-size:16px;font-weight:600;color:#18181b;">
                 🏃 ${title}
               </h2>
-              <p style="margin:0;font-size:14px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
                 ${tip}
               </p>
             </td>
@@ -1962,11 +1962,11 @@ export async function sendMonthlyNewsletterEn(
           <!-- Section 2: Feature -->
           <tr>
             <td style="padding-bottom:32px;">
-              <div style="background:#1a1a1a;border-radius:10px;padding:20px;border-left:3px solid #f97316;">
+              <div style="background:#f9fafb;border-radius:10px;padding:20px;border-left:3px solid #f97316;">
                 <h3 style="margin:0 0 8px;font-size:14px;font-weight:600;color:#f97316;">
                   ✨ ${feature}
                 </h3>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">
+                <p style="margin:0;font-size:13px;color:#6b7280;">
                   ${fBody}
                 </p>
               </div>
@@ -1976,36 +1976,36 @@ export async function sendMonthlyNewsletterEn(
           <!-- Section 3: Upcoming races -->
           <tr>
             <td style="padding-bottom:32px;">
-              <h3 style="margin:0 0 16px;font-size:16px;font-weight:600;color:#ffffff;">
+              <h3 style="margin:0 0 16px;font-size:16px;font-weight:600;color:#18181b;">
                 🏁 Upcoming races to follow
               </h3>
 
               <!-- Race 1 -->
               <div style="margin-bottom:16px;">
-                <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#ffffff;">
+                <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#18181b;">
                   Chicamocha Mountain Race (Colombia)
                 </p>
-                <p style="margin:0;font-size:12px;color:#a1a1aa;">
+                <p style="margin:0;font-size:12px;color:#6b7280;">
                   26M · Elevation: 5,250ft · May 12
                 </p>
               </div>
 
               <!-- Race 2 -->
               <div style="margin-bottom:16px;">
-                <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#ffffff;">
+                <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#18181b;">
                   Buenos Aires Marathon (Argentina)
                 </p>
-                <p style="margin:0;font-size:12px;color:#a1a1aa;">
+                <p style="margin:0;font-size:12px;color:#6b7280;">
                   26M · Flat · May 19
                 </p>
               </div>
 
               <!-- Race 3 -->
               <div style="margin-bottom:16px;">
-                <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#ffffff;">
+                <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#18181b;">
                   Boston Marathon (USA)
                 </p>
-                <p style="margin:0;font-size:12px;color:#a1a1aa;">
+                <p style="margin:0;font-size:12px;color:#6b7280;">
                   26M · Rolling · April 15
                 </p>
               </div>
@@ -2023,7 +2023,7 @@ export async function sendMonthlyNewsletterEn(
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · You're receiving this newsletter because you're a RaceCopilot user.
               </p>

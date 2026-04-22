@@ -1,4 +1,4 @@
-// Cliente Resend y funciones para emails transaccionales de RaceCopilot
+﻿// Cliente Resend y funciones para emails transaccionales de RaceCopilot
 import { Resend } from 'resend';
 
 // Instancia singleton del cliente — usa la API key del entorno
@@ -31,11 +31,11 @@ export async function sendWelcomeEmail(to: string, name?: string): Promise<void>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bienvenido a RaceCopilot</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <!-- Logo / título -->
           <tr>
@@ -45,7 +45,7 @@ export async function sendWelcomeEmail(to: string, name?: string): Promise<void>
                   <img src="https://racecopilot.com/icon.svg" width="36" height="36" alt="RC" style="display:block;border-radius:7px;" />
                 </td>
                 <td style="padding-left:10px;vertical-align:middle;">
-                  <span style="font-size:20px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></span>
+                  <span style="font-size:20px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></span>
                 </td>
               </tr></table>
             </td>
@@ -54,7 +54,7 @@ export async function sendWelcomeEmail(to: string, name?: string): Promise<void>
           <!-- Saludo -->
           <tr>
             <td style="padding-bottom:16px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 ¡Bienvenido, ${displayName}!
               </h2>
             </td>
@@ -63,7 +63,7 @@ export async function sendWelcomeEmail(to: string, name?: string): Promise<void>
           <!-- Cuerpo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">
+              <p style="margin:0;font-size:15px;line-height:1.6;color:#6b7280;">
                 Tu cuenta está lista. Cargá tu primera carrera y generá tu plan personalizado.
               </p>
             </td>
@@ -82,7 +82,7 @@ export async function sendWelcomeEmail(to: string, name?: string): Promise<void>
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Este email fue enviado porque creaste una cuenta.
               </p>
@@ -122,7 +122,7 @@ export async function sendRaceCreatedEmail(
   const formattedDate = new Date(raceDate + 'T12:00:00')
     .toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
   const distLabel = `${distanceKm % 1 === 0 ? distanceKm : distanceKm.toFixed(1)} km`;
-  const cityLine = city ? `<p style="margin:4px 0 0;font-size:13px;color:#a1a1aa;">${city}</p>` : '';
+  const cityLine = city ? `<p style="margin:4px 0 0;font-size:13px;color:#6b7280;">${city}</p>` : '';
 
   const html = `
 <!DOCTYPE html>
@@ -132,36 +132,36 @@ export async function sendRaceCreatedEmail(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Carrera guardada — ${raceName}</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <tr><td style="padding-bottom:32px;">
-            <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1>
+            <h1 style="margin:0;font-size:22px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></h1>
           </td></tr>
 
           <tr><td style="padding-bottom:8px;">
             <p style="margin:0;font-size:13px;font-weight:600;color:#f97316;text-transform:uppercase;letter-spacing:0.06em;">✓ Carrera guardada</p>
           </td></tr>
           <tr><td style="padding-bottom:24px;">
-            <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">${raceName}</h2>
+            <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">${raceName}</h2>
           </td></tr>
 
           <!-- Detalles de la carrera -->
           <tr><td style="padding-bottom:32px;">
-            <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border-radius:10px;padding:20px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:10px;padding:20px;">
               <tr>
                 <td style="padding-bottom:12px;">
                   <p style="margin:0;font-size:12px;color:#52525b;text-transform:uppercase;letter-spacing:0.06em;">Fecha</p>
-                  <p style="margin:4px 0 0;font-size:15px;color:#ffffff;font-weight:500;">${formattedDate}</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#18181b;font-weight:500;">${formattedDate}</p>
                 </td>
               </tr>
               <tr>
                 <td>
                   <p style="margin:0;font-size:12px;color:#52525b;text-transform:uppercase;letter-spacing:0.06em;">Distancia</p>
-                  <p style="margin:4px 0 0;font-size:15px;color:#ffffff;font-weight:500;">${distLabel}</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#18181b;font-weight:500;">${distLabel}</p>
                   ${cityLine}
                 </td>
               </tr>
@@ -169,7 +169,7 @@ export async function sendRaceCreatedEmail(
           </td></tr>
 
           <tr><td style="padding-bottom:16px;">
-            <p style="margin:0;font-size:14px;color:#a1a1aa;">El plan se genera con clima real 24hs antes. Podés verlo en cualquier momento.</p>
+            <p style="margin:0;font-size:14px;color:#6b7280;">El plan se genera con clima real 24hs antes. Podés verlo en cualquier momento.</p>
           </td></tr>
 
           <tr><td style="padding-bottom:32px;">
@@ -180,7 +180,7 @@ export async function sendRaceCreatedEmail(
             </a>
           </td></tr>
 
-          <tr><td style="border-top:1px solid #222222;padding-top:24px;">
+          <tr><td style="border-top:1px solid #e4e4e7;padding-top:24px;">
             <p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Confirmación de carrera.</p>
           </td></tr>
 
@@ -218,50 +218,50 @@ export async function sendRaceDayEmail(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>¡Hoy corrés! — ${raceName}</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #f97316;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #f97316;padding:40px 32px;">
 
           <tr><td style="padding-bottom:32px;">
-            <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1>
+            <h1 style="margin:0;font-size:22px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></h1>
           </td></tr>
 
           <!-- Countdown cero -->
           <tr><td style="padding-bottom:24px;text-align:center;">
-            <div style="display:inline-block;background:#1a1a1a;border:1px solid #f97316;border-radius:12px;padding:24px 48px;">
+            <div style="display:inline-block;background:#f9fafb;border:1px solid #f97316;border-radius:12px;padding:24px 48px;">
               <p style="margin:0 0 4px;font-size:14px;color:#f97316;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">HOY</p>
-              <p style="margin:0;font-size:48px;font-weight:700;color:#ffffff;line-height:1;">🏁</p>
+              <p style="margin:0;font-size:48px;font-weight:700;color:#18181b;line-height:1;">🏁</p>
             </div>
           </td></tr>
 
           <tr><td style="padding-bottom:8px;text-align:center;">
-            <h2 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">¡Es el día de ${raceName}!</h2>
+            <h2 style="margin:0;font-size:22px;font-weight:700;color:#18181b;">¡Es el día de ${raceName}!</h2>
           </td></tr>
           <tr><td style="padding-bottom:32px;text-align:center;">
-            <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">
+            <p style="margin:0;font-size:15px;line-height:1.6;color:#6b7280;">
               Meses de entrenamiento para este momento. Confiá en tu preparación.
             </p>
           </td></tr>
 
           <!-- Tips rápidos -->
           <tr><td style="padding-bottom:24px;">
-            <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border-radius:10px;padding:20px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:10px;padding:20px;">
               <tr><td style="padding-bottom:12px;">
                 <p style="margin:0;font-size:13px;font-weight:600;color:#f97316;">Recordatorios de último momento</p>
               </td></tr>
               <tr><td style="padding-bottom:8px;">
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">💧 Hidratate bien antes de salir</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">💧 Hidratate bien antes de salir</p>
               </td></tr>
               <tr><td style="padding-bottom:8px;">
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">🍌 Desayuno liviano 2-3 horas antes</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">🍌 Desayuno liviano 2-3 horas antes</p>
               </td></tr>
               <tr><td style="padding-bottom:8px;">
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">👟 Entrá despacio — el ritmo llega solo</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">👟 Entrá despacio — el ritmo llega solo</p>
               </td></tr>
               <tr><td>
-                <p style="margin:0;font-size:13px;color:#a1a1aa;">📋 Revisá tu plan con el clima de hoy</p>
+                <p style="margin:0;font-size:13px;color:#6b7280;">📋 Revisá tu plan con el clima de hoy</p>
               </td></tr>
             </table>
           </td></tr>
@@ -274,7 +274,7 @@ export async function sendRaceDayEmail(
             </a>
           </td></tr>
 
-          <tr><td style="border-top:1px solid #222222;padding-top:24px;">
+          <tr><td style="border-top:1px solid #e4e4e7;padding-top:24px;">
             <p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · ¡Buena carrera!</p>
           </td></tr>
 
@@ -335,36 +335,36 @@ export async function sendRaceReminderEmail(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${label} — ${raceName}</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
           <tr><td style="padding-bottom:32px;">
-            <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1>
+            <h1 style="margin:0;font-size:22px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></h1>
           </td></tr>
 
           <!-- Cuenta regresiva -->
           <tr><td style="padding-bottom:24px;text-align:center;">
-            <div style="display:inline-block;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:20px 40px;">
+            <div style="display:inline-block;background:#f9fafb;border:1px solid #e4e4e7;border-radius:12px;padding:20px 40px;">
               <p style="margin:0 0 4px;font-size:52px;font-weight:700;color:#f97316;line-height:1;">${daysUntil}</p>
-              <p style="margin:0;font-size:13px;color:#a1a1aa;text-transform:uppercase;letter-spacing:0.08em;">${daysUntil === 1 ? 'día' : 'días'}</p>
+              <p style="margin:0;font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;">${daysUntil === 1 ? 'día' : 'días'}</p>
             </div>
           </td></tr>
 
           <tr><td style="padding-bottom:8px;text-align:center;">
-            <h2 style="margin:0;font-size:19px;font-weight:600;color:#ffffff;">${label}</h2>
+            <h2 style="margin:0;font-size:19px;font-weight:600;color:#18181b;">${label}</h2>
           </td></tr>
           <tr><td style="padding-bottom:8px;text-align:center;">
             <p style="margin:0;font-size:15px;color:#f97316;font-weight:500;">${raceName}</p>
-            <p style="margin:4px 0 0;font-size:13px;color:#a1a1aa;">${formattedDate}</p>
+            <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">${formattedDate}</p>
           </td></tr>
 
           <!-- Tip del día -->
           <tr><td style="padding:24px 0;">
-            <div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
-              <p style="margin:0;font-size:13px;line-height:1.6;color:#a1a1aa;">${tip}</p>
+            <div style="background:#f9fafb;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
+              <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">${tip}</p>
             </div>
           </td></tr>
 
@@ -376,7 +376,7 @@ export async function sendRaceReminderEmail(
             </a>
           </td></tr>
 
-          <tr><td style="border-top:1px solid #222222;padding-top:24px;">
+          <tr><td style="border-top:1px solid #e4e4e7;padding-top:24px;">
             <p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Recordatorio automático de carrera.</p>
           </td></tr>
 
@@ -434,33 +434,33 @@ export async function sendRaceReminderEmailEn(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${label} — ${raceName}</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr><td align="center">
-      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #222222;padding:40px 32px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #e4e4e7;padding:40px 32px;">
 
         <tr><td style="padding-bottom:32px;">
-          <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1>
+          <h1 style="margin:0;font-size:22px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></h1>
         </td></tr>
 
         <tr><td style="padding-bottom:24px;text-align:center;">
-          <div style="display:inline-block;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:20px 40px;">
+          <div style="display:inline-block;background:#f9fafb;border:1px solid #e4e4e7;border-radius:12px;padding:20px 40px;">
             <p style="margin:0 0 4px;font-size:52px;font-weight:700;color:#f97316;line-height:1;">${daysUntil}</p>
-            <p style="margin:0;font-size:13px;color:#a1a1aa;text-transform:uppercase;letter-spacing:0.08em;">${daysUntil === 1 ? 'day' : 'days'}</p>
+            <p style="margin:0;font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;">${daysUntil === 1 ? 'day' : 'days'}</p>
           </div>
         </td></tr>
 
         <tr><td style="padding-bottom:8px;text-align:center;">
-          <h2 style="margin:0;font-size:19px;font-weight:600;color:#ffffff;">${label}</h2>
+          <h2 style="margin:0;font-size:19px;font-weight:600;color:#18181b;">${label}</h2>
         </td></tr>
         <tr><td style="padding-bottom:8px;text-align:center;">
           <p style="margin:0;font-size:15px;color:#f97316;font-weight:500;">${raceName}</p>
-          <p style="margin:4px 0 0;font-size:13px;color:#a1a1aa;">${formattedDate}</p>
+          <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">${formattedDate}</p>
         </td></tr>
 
         <tr><td style="padding:24px 0;">
-          <div style="background:#1a1a1a;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
-            <p style="margin:0;font-size:13px;line-height:1.6;color:#a1a1aa;">${tip}</p>
+          <div style="background:#f9fafb;border-radius:10px;padding:16px;border-left:3px solid #f97316;">
+            <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">${tip}</p>
           </div>
         </td></tr>
 
@@ -472,7 +472,7 @@ export async function sendRaceReminderEmailEn(
           </a>
         </td></tr>
 
-        <tr><td style="border-top:1px solid #222222;padding-top:24px;">
+        <tr><td style="border-top:1px solid #e4e4e7;padding-top:24px;">
           <p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Automatic race reminder.</p>
         </td></tr>
 
@@ -508,38 +508,38 @@ export async function sendRaceDayEmailEn(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Race day! — ${raceName}</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr><td align="center">
-      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #f97316;padding:40px 32px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #f97316;padding:40px 32px;">
 
         <tr><td style="padding-bottom:32px;">
-          <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Race<span style="color:#f97316;">Copilot</span></h1>
+          <h1 style="margin:0;font-size:22px;font-weight:700;color:#18181b;">Race<span style="color:#f97316;">Copilot</span></h1>
         </td></tr>
 
         <tr><td style="padding-bottom:24px;text-align:center;">
-          <div style="display:inline-block;background:#1a1a1a;border:1px solid #f97316;border-radius:12px;padding:24px 48px;">
+          <div style="display:inline-block;background:#f9fafb;border:1px solid #f97316;border-radius:12px;padding:24px 48px;">
             <p style="margin:0 0 4px;font-size:14px;color:#f97316;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">TODAY</p>
-            <p style="margin:0;font-size:48px;font-weight:700;color:#ffffff;line-height:1;">🏁</p>
+            <p style="margin:0;font-size:48px;font-weight:700;color:#18181b;line-height:1;">🏁</p>
           </div>
         </td></tr>
 
         <tr><td style="padding-bottom:8px;text-align:center;">
-          <h2 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">It's ${raceName} day!</h2>
+          <h2 style="margin:0;font-size:22px;font-weight:700;color:#18181b;">It's ${raceName} day!</h2>
         </td></tr>
         <tr><td style="padding-bottom:32px;text-align:center;">
-          <p style="margin:0;font-size:15px;line-height:1.6;color:#a1a1aa;">Months of training for this moment. Trust your preparation.</p>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:#6b7280;">Months of training for this moment. Trust your preparation.</p>
         </td></tr>
 
         <tr><td style="padding-bottom:24px;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border-radius:10px;padding:20px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:10px;padding:20px;">
             <tr><td style="padding-bottom:12px;">
               <p style="margin:0;font-size:13px;font-weight:600;color:#f97316;">Last-minute reminders</p>
             </td></tr>
-            <tr><td style="padding-bottom:8px;"><p style="margin:0;font-size:13px;color:#a1a1aa;">💧 Hydrate well before heading out</p></td></tr>
-            <tr><td style="padding-bottom:8px;"><p style="margin:0;font-size:13px;color:#a1a1aa;">🍌 Light breakfast 2-3 hours before</p></td></tr>
-            <tr><td style="padding-bottom:8px;"><p style="margin:0;font-size:13px;color:#a1a1aa;">👟 Start easy — your pace will come</p></td></tr>
-            <tr><td><p style="margin:0;font-size:13px;color:#a1a1aa;">📋 Check your plan with today's weather</p></td></tr>
+            <tr><td style="padding-bottom:8px;"><p style="margin:0;font-size:13px;color:#6b7280;">💧 Hydrate well before heading out</p></td></tr>
+            <tr><td style="padding-bottom:8px;"><p style="margin:0;font-size:13px;color:#6b7280;">🍌 Light breakfast 2-3 hours before</p></td></tr>
+            <tr><td style="padding-bottom:8px;"><p style="margin:0;font-size:13px;color:#6b7280;">👟 Start easy — your pace will come</p></td></tr>
+            <tr><td><p style="margin:0;font-size:13px;color:#6b7280;">📋 Check your plan with today's weather</p></td></tr>
           </table>
         </td></tr>
 
@@ -551,7 +551,7 @@ export async function sendRaceDayEmailEn(
           </a>
         </td></tr>
 
-        <tr><td style="border-top:1px solid #222222;padding-top:24px;">
+        <tr><td style="border-top:1px solid #e4e4e7;padding-top:24px;">
           <p style="margin:0;font-size:12px;color:#52525b;">RaceCopilot · Good luck out there!</p>
         </td></tr>
 
@@ -600,16 +600,16 @@ export async function sendWeatherAlertEmail(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cambio de clima — ${raceName}</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:system-ui,-apple-system,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:system-ui,-apple-system,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111111;border-radius:16px;border:1px solid #f97316;padding:40px 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;border:1px solid #f97316;padding:40px 32px;">
 
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:24px;">
-              <h1 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">
+              <h1 style="margin:0;font-size:22px;font-weight:700;color:#18181b;">
                 Race<span style="color:#f97316;">Copilot</span>
               </h1>
             </td>
@@ -625,36 +625,36 @@ export async function sendWeatherAlertEmail(
           </tr>
           <tr>
             <td style="padding-bottom:8px;">
-              <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;">
+              <h2 style="margin:0;font-size:20px;font-weight:600;color:#18181b;">
                 El clima cambió para ${raceName}
               </h2>
             </td>
           </tr>
           <tr>
             <td style="padding-bottom:28px;">
-              <p style="margin:0;font-size:14px;color:#a1a1aa;">${formattedDate}</p>
+              <p style="margin:0;font-size:14px;color:#6b7280;">${formattedDate}</p>
             </td>
           </tr>
 
           <!-- Comparativa -->
           <tr>
             <td style="padding-bottom:28px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border-radius:10px;padding:20px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:10px;padding:20px;">
                 <tr>
                   <td style="padding-bottom:12px;">
-                    <p style="margin:0;font-size:13px;color:#a1a1aa;">Temperatura al generar el plan</p>
-                    <p style="margin:4px 0 0;font-size:24px;font-weight:700;color:#ffffff;">${Math.round(oldTemp)}°C</p>
+                    <p style="margin:0;font-size:13px;color:#6b7280;">Temperatura al generar el plan</p>
+                    <p style="margin:4px 0 0;font-size:24px;font-weight:700;color:#18181b;">${Math.round(oldTemp)}°C</p>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <p style="margin:0;font-size:13px;color:#a1a1aa;">Temperatura actualizada</p>
+                    <p style="margin:0;font-size:13px;color:#6b7280;">Temperatura actualizada</p>
                     <p style="margin:4px 0 0;font-size:24px;font-weight:700;color:#f97316;">${Math.round(newTemp)}°C <span style="font-size:14px;">(${diffText})</span></p>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding-top:12px;border-top:1px solid #333;">
-                    <p style="margin:8px 0 0;font-size:13px;color:#a1a1aa;">Humedad: ${newHumidity}% · Viento: ${Math.round(newWindKmh)} km/h</p>
+                    <p style="margin:8px 0 0;font-size:13px;color:#6b7280;">Humedad: ${newHumidity}% · Viento: ${Math.round(newWindKmh)} km/h</p>
                   </td>
                 </tr>
               </table>
@@ -664,7 +664,7 @@ export async function sendWeatherAlertEmail(
           <!-- CTA -->
           <tr>
             <td style="padding-bottom:32px;">
-              <p style="margin:0 0 16px;font-size:14px;color:#a1a1aa;">
+              <p style="margin:0 0 16px;font-size:14px;color:#6b7280;">
                 Te recomendamos regenerar tu plan para que refleje las condiciones actuales.
               </p>
               <a href="${APP_URL}/races/${raceId}"
@@ -677,7 +677,7 @@ export async function sendWeatherAlertEmail(
 
           <!-- Footer -->
           <tr>
-            <td style="border-top:1px solid #222222;padding-top:24px;">
+            <td style="border-top:1px solid #e4e4e7;padding-top:24px;">
               <p style="margin:0;font-size:12px;color:#52525b;">
                 RaceCopilot · Alerta automática 24hs antes de tu carrera.
               </p>
