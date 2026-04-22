@@ -357,7 +357,7 @@ export default function LandingPage() {
 
       {/* ── Separador visual ──────────────────────────────────────────────── */}
       <div className="relative w-full h-56 overflow-hidden">
-        <Image src="/start-aerial.jpg" alt="Marathon start line" fill className="object-cover object-center" />
+        <Image src="/start-aerial.jpg" alt="Marathon start line" fill className="object-cover object-center" loading="lazy" />
         <div
           className="absolute inset-0"
           style={{ background: 'linear-gradient(to bottom, var(--background) 0%, transparent 25%, transparent 75%, var(--background) 100%)' }}
@@ -366,7 +366,7 @@ export default function LandingPage() {
 
       {/* ── CTA final ─────────────────────────────────────────────────────── */}
       <section className="relative mx-4 mb-20 rounded-3xl overflow-hidden text-center">
-        <Image src="/finish-line.jpg" alt="Finish line" fill className="object-cover object-center" />
+        <Image src="/finish-line.jpg" alt="Finish line" fill className="object-cover object-center" loading="lazy" />
         <div className="absolute inset-0 rounded-3xl" style={{ background: 'rgba(10,10,10,0.78)' }} />
         <div className="relative px-8 py-16" style={{ zIndex: 1 }}>
           <h2 className="text-2xl sm:text-3xl font-extrabold mb-3">{l.ctaSectionTitle}</h2>
