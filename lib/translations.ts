@@ -26,6 +26,8 @@ export const T = {
       logout:   'Salir',
       terms:    'Términos',
       privacy:  'Privacidad',
+      help:        'Ayuda',
+      helpSubject: 'Necesito ayuda con RaceCopilot',
     },
     auth: {
       title:       'Tu plan de carrera inteligente',
@@ -508,6 +510,8 @@ export const T = {
       logout:   'Sign out',
       terms:    'Terms',
       privacy:  'Privacy',
+      help:        'Help',
+      helpSubject: 'I need help with RaceCopilot',
     },
     auth: {
       title:       'Your intelligent race plan',

@@ -2,6 +2,7 @@
 import { UnitsProvider } from '@/lib/units';
 import { LangProvider } from '@/lib/lang';
 import { Navbar } from '@/components/navbar';
+import { HelpButton } from '@/components/help-button';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +12,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <Navbar />
         {/* pt-14 compensa la altura fija del Navbar (h-14 = 56px) */}
         <div className="pt-14">{children}</div>
+        <HelpButton />
       </UnitsProvider>
     </LangProvider>
   );
