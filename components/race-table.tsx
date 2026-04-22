@@ -104,22 +104,22 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
     const notes = buildNotes(s, hydrationByKm.has(s.km), nutritionByKm.has(s.km));
     return (
       <tr key={`detail-${s.km}`} className="border-b border-[var(--border)]/30 bg-[var(--background)]/50">
-        <td className="py-1 pl-6 pr-2 font-mono text-[var(--muted-foreground)]">{s.km}</td>
-        <td className={`py-1 px-2 text-right font-mono ${paceColor(s.paceSecondsPerKm, avgPace)}`}>
+        <td className="py-1 pl-5 pr-1 font-mono text-[var(--muted-foreground)]">{s.km}</td>
+        <td className={`py-1 px-1 text-right font-mono ${paceColor(s.paceSecondsPerKm, avgPace)}`}>
           {fmtPaceShort(s.paceSecondsPerKm)}
         </td>
-        <td className="py-1 px-2 text-right font-mono text-[var(--muted-foreground)]">
+        <td className="py-1 px-1 text-right font-mono text-[var(--muted-foreground)]">
           {formatTime(s.cumulativeTimeSeconds)}
         </td>
-        <td className="py-1 px-2">
-          {ml ? <span className="text-blue-400 text-xs">{fmtVol(ml)}</span> : null}
+        <td className="py-1 px-1">
+          {ml ? <span className="text-blue-400">{fmtVol(ml)}</span> : null}
         </td>
-        <td className="py-1 px-2 text-xs">
+        <td className="py-1 px-1">
           {nutItems && nutItems.map((n, i) => (
             <span key={i} className="text-amber-400">{n.label}{i < nutItems.length - 1 ? ', ' : ''}</span>
           ))}
         </td>
-        <td className="py-1 pl-2 text-xs text-[var(--muted-foreground)]">
+        <td className="hidden sm:table-cell py-1 pl-1 pr-3 text-[var(--muted-foreground)]">
           {notes.join(', ')}
         </td>
       </tr>
@@ -142,16 +142,17 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
           {expandAll ? p.collapseAll : p.expandAll}
         </button>
       </CardHeader>
-      <CardContent className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <CardContent className="p-0 sm:p-6">
+        <table className="w-full" style={{ fontSize: 'clamp(10px, 2.5vw, 14px)' }}>
           <thead>
             <tr className="border-b border-[var(--border)] text-[var(--muted-foreground)]">
-              <th className="text-left py-2 pr-2">{p.colKm}</th>
-              <th className="text-right py-2 px-2">{p.colPace}</th>
-              <th className="text-right py-2 px-2">{p.colTime}</th>
-              <th className="text-left py-2 px-2">{p.colHydration}</th>
-              <th className="text-left py-2 px-2">{p.colNutrition}</th>
-              <th className="text-left py-2 pl-2">{p.colNotes}</th>
+              <th className="text-left py-2 pl-3 pr-1">{p.colKm}</th>
+              <th className="text-right py-2 px-1">{p.colPace}</th>
+              <th className="text-right py-2 px-1">{p.colTime}</th>
+              <th className="text-left py-2 px-1">{p.colHydration}</th>
+              <th className="text-left py-2 px-1">{p.colNutrition}</th>
+              {/* Notas ocultas en mobile — solo sm+ */}
+              <th className="hidden sm:table-cell text-left py-2 pl-1 pr-3">{p.colNotes}</th>
             </tr>
           </thead>
           <tbody>
@@ -171,25 +172,25 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
                   className="border-b border-[var(--border)]/50 cursor-pointer hover:bg-[var(--accent)]/30 transition-colors"
                   onClick={() => toggleChunk(chunk.index)}
                 >
-                  <td className="py-2 pr-2 font-medium">
-                    <span className="inline-block w-4 text-[var(--muted-foreground)] text-xs">
+                  <td className="py-2 pl-3 pr-1 font-medium">
+                    <span className="inline-block w-3 text-[var(--muted-foreground)]">
                       {open ? '▾' : '▸'}
                     </span>
                     {chunk.label}
                   </td>
-                  <td className={`py-2 px-2 text-right font-mono ${paceColor(chunk.avgPaceChunk, avgPace)}`}>
+                  <td className={`py-2 px-1 text-right font-mono ${paceColor(chunk.avgPaceChunk, avgPace)}`}>
                     {fmtPaceShort(chunk.avgPaceChunk)}
                   </td>
-                  <td className="py-2 px-2 text-right font-mono text-[var(--muted-foreground)]">
+                  <td className="py-2 px-1 text-right font-mono text-[var(--muted-foreground)]">
                     {formatTime(chunk.endTime)}
                   </td>
-                  <td className="py-2 px-2">
-                    {chunkMl > 0 && <span className="text-blue-400 text-xs">{fmtVol(chunkMl)}</span>}
+                  <td className="py-2 px-1">
+                    {chunkMl > 0 && <span className="text-blue-400">{fmtVol(chunkMl)}</span>}
                   </td>
-                  <td className="py-2 px-2 text-xs">
+                  <td className="py-2 px-1">
                     {nutSummary.length > 0 && <span className="text-amber-400">{nutSummary.join(', ')}</span>}
                   </td>
-                  <td />
+                  <td className="hidden sm:table-cell" />
                 </tr>,
                 ...(open ? chunk.splits.map(s => renderDetailRow(s)) : []),
               ];

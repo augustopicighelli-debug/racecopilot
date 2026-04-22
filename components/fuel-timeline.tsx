@@ -83,6 +83,24 @@ export function FuelTimeline({ hydration, nutrition }: FuelTimelineProps) {
       </CardHeader>
 
       <CardContent className="p-0 pb-2">
+        {/* Leyenda de íconos */}
+        <div className="flex flex-wrap gap-x-4 gap-y-1 px-4 pt-2 pb-3" style={{ borderBottom: '1px solid var(--border)' }}>
+          <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--muted-foreground)' }}>
+            <Droplets size={12} className="text-sky-400 shrink-0" /> Agua
+          </span>
+          <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--muted-foreground)' }}>
+            <Zap size={12} className="shrink-0" style={{ color: '#a78bfa' }} /> Gel
+          </span>
+          {hasCafCol && (
+            <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--muted-foreground)' }}>
+              <Coffee size={12} className="shrink-0" style={{ color: '#fbbf24' }} /> Gel+cafeína
+            </span>
+          )}
+          <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--muted-foreground)' }}>
+            <Pill size={12} className="shrink-0" style={{ color: '#6ee7b7' }} /> Sal
+          </span>
+        </div>
+
         {/* Tip: si hay un solo producto de nutrición */}
         {nutrition.events.length > 0 && new Set(nutrition.events.map(e => e.product.name)).size <= 1 && (
           <div
@@ -123,46 +141,31 @@ export function FuelTimeline({ hydration, nutrition }: FuelTimelineProps) {
                   {kmLabel}
                 </span>
 
-                {/* Agua */}
+                {/* Agua — solo ícono + volumen (dato útil, no label) */}
                 <span className="flex items-center gap-1 text-sm">
                   {row.water && (
                     <>
-                      <Droplets size={13} className="text-sky-400 shrink-0" />
-                      <span className="font-medium text-sky-300">{fmtVol(row.water.ml)}</span>
+                      <Droplets size={14} className="text-sky-400 shrink-0" />
+                      <span className="font-medium text-sky-300 text-xs">{fmtVol(row.water.ml)}</span>
                     </>
                   )}
                 </span>
 
-                {/* Gel sin cafeína */}
-                <span className="flex items-center gap-1 text-sm">
-                  {row.gel && (
-                    <>
-                      <Zap size={13} className="shrink-0" style={{ color: '#a78bfa' }} />
-                      <span className="font-medium" style={{ color: 'var(--foreground)' }}>{row.gel}</span>
-                    </>
-                  )}
+                {/* Gel sin cafeína — solo ícono */}
+                <span className="flex items-center justify-center">
+                  {row.gel && <Zap size={15} className="shrink-0" style={{ color: '#a78bfa' }} />}
                 </span>
 
-                {/* Gel con cafeína */}
+                {/* Gel con cafeína — solo ícono */}
                 {hasCafCol && (
-                  <span className="flex items-center gap-1 text-sm">
-                    {row.cafGel && (
-                      <>
-                        <Coffee size={13} className="shrink-0" style={{ color: '#fbbf24' }} />
-                        <span className="font-medium" style={{ color: '#fbbf24' }}>{row.cafGel}</span>
-                      </>
-                    )}
+                  <span className="flex items-center justify-center">
+                    {row.cafGel && <Coffee size={15} className="shrink-0" style={{ color: '#fbbf24' }} />}
                   </span>
                 )}
 
-                {/* Sal */}
-                <span className="flex items-center gap-1 text-sm">
-                  {row.salt && (
-                    <>
-                      <Pill size={13} className="shrink-0" style={{ color: '#6ee7b7' }} />
-                      <span className="font-medium" style={{ color: 'var(--foreground)' }}>{row.salt}</span>
-                    </>
-                  )}
+                {/* Sal — solo ícono */}
+                <span className="flex items-center justify-center">
+                  {row.salt && <Pill size={15} className="shrink-0" style={{ color: '#6ee7b7' }} />}
                 </span>
 
                 {/* Tiempo */}
