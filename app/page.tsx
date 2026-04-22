@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useLang } from '@/lib/lang';
 import { ShowcaseMockup } from '@/components/showcase-mockup';
+import { trackEvent } from '@/lib/analytics/pixels';
 
 // ── Íconos inline para las features ──────────────────────────────────────────
 
@@ -129,20 +130,26 @@ export default function LandingPage() {
 
           {/* CTAs — primario (registro) + secundario (login) */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-5">
-            <Link
-              href="/login?tab=register"
-              className="px-8 py-3.5 rounded-xl text-sm font-bold transition-opacity hover:opacity-90"
+            <button
+              onClick={() => {
+                trackEvent('lead', { section: 'hero', cta: 'signup' });
+                window.location.href = '/login?tab=register';
+              }}
+              className="px-8 py-3.5 rounded-xl text-sm font-bold transition-opacity hover:opacity-90 cursor-pointer"
               style={{ background: '#f97316', color: '#fff', boxShadow: '0 0 32px rgba(249,115,22,0.45)' }}
             >
               {l.ctaPrimary}
-            </Link>
-            <Link
-              href="/login"
-              className="px-8 py-3.5 rounded-xl text-sm font-semibold border transition-opacity hover:opacity-80"
+            </button>
+            <button
+              onClick={() => {
+                trackEvent('lead', { section: 'hero', cta: 'login' });
+                window.location.href = '/login';
+              }}
+              className="px-8 py-3.5 rounded-xl text-sm font-semibold border transition-opacity hover:opacity-80 cursor-pointer"
               style={{ borderColor: 'rgba(255,255,255,0.22)', color: 'rgba(245,245,245,0.88)' }}
             >
               {l.ctaSignIn}
-            </Link>
+            </button>
           </div>
 
           {/* Proof social mínima */}
@@ -283,13 +290,16 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <Link
-            href="/pricing"
-            className="inline-block mt-8 px-6 py-3 rounded-xl text-sm font-semibold border transition-opacity hover:opacity-80"
+          <button
+            onClick={() => {
+              trackEvent('lead', { section: 'pricing', cta: 'see_plans' });
+              window.location.href = '/pricing';
+            }}
+            className="inline-block mt-8 px-6 py-3 rounded-xl text-sm font-semibold border transition-opacity hover:opacity-80 cursor-pointer"
             style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
           >
             {l.seePlans}
-          </Link>
+          </button>
         </div>
       </section>
 
@@ -362,20 +372,26 @@ export default function LandingPage() {
           <h2 className="text-2xl sm:text-3xl font-extrabold mb-3">{l.ctaSectionTitle}</h2>
           <p className="mb-8 text-sm" style={{ color: 'rgba(245,245,245,0.75)' }}>{l.ctaSectionSubtitle}</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/login?tab=register"
-              className="inline-block px-8 py-4 rounded-2xl text-sm font-bold transition-opacity hover:opacity-90"
+            <button
+              onClick={() => {
+                trackEvent('lead', { section: 'final_cta', cta: 'signup' });
+                window.location.href = '/login?tab=register';
+              }}
+              className="inline-block px-8 py-4 rounded-2xl text-sm font-bold transition-opacity hover:opacity-90 cursor-pointer"
               style={{ background: '#f97316', color: '#fff', boxShadow: '0 0 40px rgba(249,115,22,0.5)' }}
             >
               {l.ctaPrimary}
-            </Link>
-            <Link
-              href="/login"
-              className="inline-block px-8 py-4 rounded-2xl text-sm font-semibold border transition-opacity hover:opacity-80"
+            </button>
+            <button
+              onClick={() => {
+                trackEvent('lead', { section: 'final_cta', cta: 'login' });
+                window.location.href = '/login';
+              }}
+              className="inline-block px-8 py-4 rounded-2xl text-sm font-semibold border transition-opacity hover:opacity-80 cursor-pointer"
               style={{ borderColor: 'rgba(255,255,255,0.22)', color: 'rgba(245,245,245,0.88)' }}
             >
               {l.ctaSignIn}
-            </Link>
+            </button>
           </div>
         </div>
       </section>
