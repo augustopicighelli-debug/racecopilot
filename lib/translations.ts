@@ -98,7 +98,7 @@ export const T = {
       faqTitle:  'Todo lo que necesitás saber',
       faq: [
         { q: '¿Necesito saber mi ritmo para generar el plan?',        a: 'No. Con un tiempo de referencia (aunque sea de un entrenamiento) el motor calcula tu ritmo objetivo. Si no tenés ninguno, podés usar el objetivo "Terminar" y te generamos un plan conservador.' },
-        { q: '¿El plan funciona sin GPX?',                            a: 'Sí. Si no tenés GPX igual generamos el plan completo. También podés elegir entre más de 500 carreras de nuestro catálogo que ya tienen el recorrido cargado. El GPX (propio o del catálogo) mejora la precisión ajustando por subidas, bajadas y viento.' },
+        { q: '¿El plan funciona sin GPX?',                            a: 'Sí. Si tu carrera está en nuestro catálogo de +500 carreras, el recorrido ya está incluido y no necesitás nada más. Si no está, podés subir tu propio GPX o cargarlo sin recorrido y el plan igual funciona — el GPX solo mejora la precisión ajustando por subidas, bajadas y viento.' },
         { q: '¿Para qué distancias funciona?',                        a: '5K, 10K, media maratón, maratón, trail y cualquier distancia personalizada. Ingresás los kilómetros que sean y el motor adapta los cálculos de hidratación y nutrición.' },
         { q: '¿Puedo cancelar el trial antes de que me cobren?',      a: 'Sí, cancelás en cualquier momento desde tu perfil. Si cancelás antes del día 8 no se te cobra nada.' },
         { q: '¿Los planes son realmente personalizados?',             a: 'Sí. Usamos modelos de machine learning probados y basados en evidencia científica para predecir tu rendimiento. Los cruzamos con tu peso, sudoración, la altimetría del recorrido y el pronóstico del clima del día exacto de tu carrera. No es un plan genérico.' },
@@ -579,7 +579,7 @@ export const T = {
       faqTitle:  'Everything you need to know',
       faq: [
         { q: 'Do I need to know my pace to generate a plan?',      a: 'No. With any reference time (even from a training run) the engine calculates your target pace. If you have none, choose the "Finish" goal and we generate a conservative plan.' },
-        { q: 'Does the plan work without a GPX file?',             a: 'Yes. Without a GPX we still generate your full plan. You can also pick from 500+ races in our catalog that already include the route. A GPX (your own or from the catalog) improves accuracy by accounting for hills, descents and wind.' },
+        { q: 'Does the plan work without a GPX file?',             a: 'Yes. If your race is in our 500+ race catalog, the route is already included — no action needed. If it\'s not, you can upload your own GPX or proceed without one and the plan still works — GPX just improves accuracy by accounting for hills, descents and wind.' },
         { q: 'What distances does it support?',                    a: '5K, 10K, half marathon, marathon, trail, and any custom distance. Enter however many kilometers you want and the engine adapts hydration and nutrition accordingly.' },
         { q: 'Can I cancel the trial before I get charged?',       a: 'Yes, cancel anytime from your profile. Cancel before day 8 and you won\'t be charged anything.' },
         { q: 'Are the plans really personalized?',                 a: 'Yes. We use evidence-based machine learning models to predict your performance, combined with your weight, sweat rate, course elevation and the actual weather forecast for your exact race day. Not a generic template.' },

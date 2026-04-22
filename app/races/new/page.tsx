@@ -400,25 +400,27 @@ export default function NewRacePage() {
                 </div>
               </div>
 
-              {/* GPX personal — opcional, mejora el perfil de elevación */}
-              <div>
-                <label className="block text-sm font-medium mb-1" style={labelStyle}>
-                  Recorrido GPX <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
-                </label>
-                <input
-                  type="file"
-                  accept=".gpx,application/gpx+xml,application/xml,text/xml"
-                  onChange={(e) => setGpxFile(e.target.files?.[0] ?? null)}
-                  className="w-full px-3 py-2 rounded-lg border text-sm"
-                  style={inputStyle}
-                />
-                {gpxFile && (
-                  <p className="text-xs mt-1" style={{ color: '#4ade80' }}>✓ {gpxFile.name}</p>
-                )}
-                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
-                  Subí el GPX de tu carrera para un análisis de elevación real.
-                </p>
-              </div>
+              {/* GPX personal — solo si no eligió del catálogo (que ya trae el recorrido) */}
+              {!gpxSlug && (
+                <div>
+                  <label className="block text-sm font-medium mb-1" style={labelStyle}>
+                    Recorrido GPX <span style={{ color: 'var(--border)' }}>({t.common.optional})</span>
+                  </label>
+                  <input
+                    type="file"
+                    accept=".gpx,application/gpx+xml,application/xml,text/xml"
+                    onChange={(e) => setGpxFile(e.target.files?.[0] ?? null)}
+                    className="w-full px-3 py-2 rounded-lg border text-sm"
+                    style={inputStyle}
+                  />
+                  {gpxFile && (
+                    <p className="text-xs mt-1" style={{ color: '#4ade80' }}>✓ {gpxFile.name}</p>
+                  )}
+                  <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
+                    Subí el GPX para un análisis de elevación más preciso.
+                  </p>
+                </div>
+              )}
 
               {/* Selector de estrategia de split — estilo ObjectiveCards */}
               <div>
