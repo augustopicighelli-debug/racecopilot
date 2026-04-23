@@ -6,7 +6,6 @@ import {
   sendOnboardingDay1Es, sendOnboardingDay1En,
   sendOnboardingDay3Es, sendOnboardingDay3En,
   sendOnboardingDay5Es, sendOnboardingDay5En,
-  sendOnboardingDay7Es, sendOnboardingDay7En,
   sendReactivationDay3Es, sendReactivationDay3En,
   sendReactivationDay14Es, sendReactivationDay14En,
   sendReactivationDay45Es, sendReactivationDay45En,
@@ -78,12 +77,6 @@ export async function GET(req: NextRequest) {
       } catch (e: any) { errors.push(`onboarding-d5:${user.id}: ${e.message}`); }
     }
 
-    if (daysRegistered === 7) {
-      try {
-        await (en ? sendOnboardingDay7En : sendOnboardingDay7Es)(user.email, firstName);
-        sent.push(`onboarding-d7:${user.id}`);
-      } catch (e: any) { errors.push(`onboarding-d7:${user.id}: ${e.message}`); }
-    }
 
     // === REACTIVACIÓN ===
     if (!runner.is_premium && runner.premium_until) {

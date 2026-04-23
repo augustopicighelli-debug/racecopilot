@@ -116,7 +116,9 @@ function DashboardContent() {
 
   const daysUntil = (d: string) => {
     const diff = Math.ceil((new Date(d + 'T12:00:00').getTime() - Date.now()) / 86400000);
-    return diff > 0 ? `en ${diff}d` : diff === 0 ? 'hoy' : 'pasada';
+    if (diff > 0) return t.race.badgeInDays(diff);
+    if (diff === 0) return t.race.badgeToday;
+    return t.race.badgePast;
   };
 
   if (loading) return (

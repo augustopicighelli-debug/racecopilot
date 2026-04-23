@@ -1,5 +1,6 @@
-// Cron horario: envía el email de race day cuando son las 5am en la timezone de la carrera
-// Corre cada hora. Marca raceday_email_sent=true para no reenviar.
+// Cron diario (3am UTC): envía el email de race day a todos los que corren hoy.
+// En plan Hobby de Vercel no se puede correr cada hora, así que se envía a las 3am UTC (~medianoche AR).
+// Marca raceday_email_sent=true para no reenviar.
 // Protegido con CRON_SECRET
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -43,23 +44,6 @@ export async function GET(req: NextRequest) {
   const errors: string[] = [];
 
   for (const race of races) {
-    // Si no hay timezone, usar UTC-3 (Argentina) como fallback
-    const tz = race.timezone ?? 'America/Argentina/Buenos_Aires';
-
-    // Obtener la hora local actual en esa timezone
-    const now = new Date();
-    const localHour = parseInt(
-      new Intl.DateTimeFormat('en', {
-        timeZone: tz,
-        hour: 'numeric',
-        hour12: false,
-      }).format(now),
-      10,
-    );
-
-    // Solo enviar si son las 5am en la timezone de la carrera
-    if (localHour !== 5) continue;
-
     const runner = runnerMap[race.runner_id];
     if (!runner) continue;
     const { email, language } = runner;

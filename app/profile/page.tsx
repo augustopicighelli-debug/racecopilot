@@ -141,7 +141,8 @@ function NutritionKitGuide({ hasGel, hasCafGel, hasSalt }: {
 export default function ProfilePage() {
   const router = useRouter();
   const { t } = useLang();
-  const { fmtDist, fmtPace } = useUnits();
+  const { fmtDist, fmtPace, units } = useUnits();
+  const imp = units === 'imperial';
 
   // --- Estado global ---
   const [runnerId, setRunnerId]           = useState<string | null>(null);
@@ -163,6 +164,13 @@ export default function ProfilePage() {
   const [restingHr, setRestingHr] = useState('');
   const [weeklyKm, setWeeklyKm]   = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
+
+  // weekly_km se guarda siempre en km; en imperial se muestra y edita en millas
+  const weeklyKmDisplay = imp && weeklyKm ? String(Math.round(parseFloat(weeklyKm) * 0.621371)) : weeklyKm;
+  const handleWeeklyKmChange = (v: string) => {
+    if (imp && v) setWeeklyKm(String(parseFloat(v) / 0.621371));
+    else setWeeklyKm(v);
+  };
 
   // --- Sección C: tiempos de referencia ---
   const [refRaces, setRefRaces]         = useState<ReferenceRace[]>([]);
@@ -298,7 +306,7 @@ export default function ProfilePage() {
       if (!repDist || repDist <= 0) { setRefError('Distancia por rep inválida'); return; }
       if (paceSecPerKm <= 0)        { setRefError('Ritmo inválido'); return; }
       distKm   = count * repDist;
-      timeSecs = distKm * paceSecPerKm;
+      timeSecs = Math.round(distKm * paceSecPerKm);
     } else {
       distKm = parseFloat(refDist);
       const hh = parseInt(refTimeHH) || 0;
@@ -564,12 +572,12 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--muted-foreground)' }}>
-                  {t.profile.fieldWeeklyKm} <span style={{ color: 'var(--border)' }}>{t.profile.opc}</span>
+                  {imp ? t.profile.fieldWeeklyKm.replace('Km', 'Mi') : t.profile.fieldWeeklyKm} <span style={{ color: 'var(--border)' }}>{t.profile.opc}</span>
                 </label>
                 <input
-                  type="number" step="0.1" min="0" max="300"
-                  value={weeklyKm} onChange={(e) => setWeeklyKm(e.target.value)}
-                  placeholder="50"
+                  type="number" step="1" min="0" max="300"
+                  value={weeklyKmDisplay} onChange={(e) => handleWeeklyKmChange(e.target.value)}
+                  placeholder={imp ? '31' : '50'}
                   className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none" style={inputStyle}
                 />
               </div>

@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { formatPaceShort } from '@/lib/format';
+import { useLang } from '@/lib/lang';
 import type { GpxPoint, SplitKm } from '@/lib/engine/types';
 
 interface CourseMapProps {
@@ -34,6 +35,7 @@ function paceToColor(pace: number, avgPace: number): string {
 
 export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProps) {
   const [view, setView] = useState<'plano' | 'isometrica'>('plano');
+  const { t } = useLang();
 
   const data = useMemo(() => {
     if (points.length === 0) return null;
@@ -260,13 +262,13 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Circuito</CardTitle>
+        <CardTitle>{t.plan.courseTitle}</CardTitle>
         <div className="flex gap-1">
           <button
             onClick={() => setView('plano')}
             className={`text-xs px-2 py-1 rounded ${view === 'plano' ? 'bg-[var(--primary)]/20 text-[var(--primary)]' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}
           >
-            Plano
+            {t.plan.courseFlat}
           </button>
           <button
             onClick={() => setView('isometrica')}
@@ -280,13 +282,13 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
         {/* Legend */}
         <div className="flex items-center gap-3 mb-3 text-xs text-[var(--muted-foreground)]">
           <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-1.5 rounded" style={{ background: 'oklch(0.75 0.17 160)' }} /> Rapido
+            <span className="inline-block w-3 h-1.5 rounded" style={{ background: 'oklch(0.75 0.17 160)' }} /> {t.plan.courseFast}
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-1.5 rounded" style={{ background: 'oklch(0.6 0 0 / 0.6)' }} /> Promedio
+            <span className="inline-block w-3 h-1.5 rounded" style={{ background: 'oklch(0.6 0 0 / 0.6)' }} /> {t.plan.courseAvg}
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-1.5 rounded" style={{ background: 'oklch(0.65 0.2 27)' }} /> Lento
+            <span className="inline-block w-3 h-1.5 rounded" style={{ background: 'oklch(0.65 0.2 27)' }} /> {t.plan.courseSlow}
           </span>
         </div>
 
@@ -319,7 +321,7 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
             <g>
               <circle cx={data.sp.x} cy={data.sp.y} r="5" fill="oklch(0.75 0.17 160)" />
               <text x={data.sp.x} y={data.sp.y - 9} textAnchor="middle" fill="oklch(0.75 0.17 160)" fontSize="9" fontWeight="bold" fontFamily="system-ui">
-                LARGADA
+                {t.plan.courseStart}
               </text>
             </g>
 
@@ -327,7 +329,7 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
             <g>
               <circle cx={data.ep.x} cy={data.ep.y} r="5" fill="oklch(0.65 0.2 27)" />
               <text x={data.ep.x} y={data.ep.y - 9} textAnchor="middle" fill="oklch(0.65 0.2 27)" fontSize="9" fontWeight="bold" fontFamily="system-ui">
-                META
+                {t.plan.courseFinish}
               </text>
             </g>
           </svg>
@@ -414,7 +416,7 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
             <g>
               <circle cx={data.isoStart.x} cy={data.isoStart.y} r="4" fill="oklch(0.75 0.17 160)" />
               <text x={data.isoStart.x} y={data.isoStart.y - 16} textAnchor="middle" fill="oklch(0.75 0.17 160)" fontSize="8" fontWeight="bold" fontFamily="system-ui">
-                LARGADA
+                {t.plan.courseStart}
               </text>
               <text x={data.isoStart.x} y={data.isoStart.y - 7} textAnchor="middle" fill="oklch(0.75 0.17 160 / 0.75)" fontSize="7" fontFamily="system-ui">
                 {data.startElev}m
@@ -425,7 +427,7 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
             <g>
               <circle cx={data.isoEnd.x} cy={data.isoEnd.y} r="4" fill="oklch(0.65 0.2 27)" />
               <text x={data.isoEnd.x} y={data.isoEnd.y - 16} textAnchor="middle" fill="oklch(0.65 0.2 27)" fontSize="8" fontWeight="bold" fontFamily="system-ui">
-                META
+                {t.plan.courseFinish}
               </text>
               <text x={data.isoEnd.x} y={data.isoEnd.y - 7} textAnchor="middle" fill="oklch(0.65 0.2 27 / 0.75)" fontSize="7" fontFamily="system-ui">
                 {data.endElev}m

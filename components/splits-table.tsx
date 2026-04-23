@@ -35,9 +35,11 @@ export function SplitsTable({ splits, avgPace }: SplitsTableProps) {
           <tbody>
             {splits.map((s: SplitKm) => {
               const notes = [s.elevationNote, s.windNote].filter(Boolean).join(', ');
+              // Separador cada 5km más fuerte que el de cada 1km
+              const isMilestone = s.km % 5 === 0;
               return (
-                <tr key={s.km} className="border-b border-[var(--border)]/50">
-                  <td className="py-1.5 pr-2 font-mono">{s.km}</td>
+                <tr key={s.km} className={isMilestone ? 'border-b border-[var(--border)]' : 'border-b border-[var(--border)]/30'}>
+                  <td className={`py-1.5 pr-2 font-mono ${isMilestone ? 'font-bold' : ''}`}>{s.km}</td>
                   <td className={`py-1.5 px-2 text-right font-mono ${paceColor(s.paceSecondsPerKm, avgPace)}`}>
                     {formatPaceShort(s.paceSecondsPerKm)}
                   </td>

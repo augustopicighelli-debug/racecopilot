@@ -86,18 +86,18 @@ export function FuelTimeline({ hydration, nutrition }: FuelTimelineProps) {
         {/* Leyenda de íconos */}
         <div className="flex flex-wrap gap-x-4 gap-y-1 px-4 pt-2 pb-3" style={{ borderBottom: '1px solid var(--border)' }}>
           <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--muted-foreground)' }}>
-            <Droplets size={12} className="text-sky-400 shrink-0" /> Agua
+            <Droplets size={12} className="text-sky-400 shrink-0" /> {p.fuelWater}
           </span>
           <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--muted-foreground)' }}>
-            <Zap size={12} className="shrink-0" style={{ color: '#a78bfa' }} /> Gel
+            <Zap size={12} className="shrink-0" style={{ color: '#a78bfa' }} /> {p.fuelGel}
           </span>
           {hasCafCol && (
             <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--muted-foreground)' }}>
-              <Coffee size={12} className="shrink-0" style={{ color: '#fbbf24' }} /> Gel+cafeína
+              <Coffee size={12} className="shrink-0" style={{ color: '#fbbf24' }} /> {p.fuelGelCaf}
             </span>
           )}
           <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--muted-foreground)' }}>
-            <Pill size={12} className="shrink-0" style={{ color: '#6ee7b7' }} /> Sal
+            <Pill size={12} className="shrink-0" style={{ color: '#6ee7b7' }} /> {p.fuelSalt}
           </span>
         </div>
 
@@ -109,8 +109,8 @@ export function FuelTimeline({ hydration, nutrition }: FuelTimelineProps) {
           >
             <Lightbulb size={13} className="shrink-0 mt-0.5" style={{ color: '#f97316' }} />
             <span>
-              Tenés un solo producto de nutrición. Agregar una pastilla de sal y un gel sin cafeína puede mejorar la estrategia.{' '}
-              <a href="/profile" className="underline" style={{ color: '#f97316' }}>Agregar productos →</a>
+              {p.fuelTip}{' '}
+              <a href="/profile" className="underline" style={{ color: '#f97316' }}>{p.fuelTipLink}</a>
             </span>
           </div>
         )}

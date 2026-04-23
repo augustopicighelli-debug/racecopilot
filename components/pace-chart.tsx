@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { formatPaceShort } from '@/lib/format';
+import { useLang } from '@/lib/lang';
 import type { SplitKm } from '@/lib/engine/types';
 
 interface PaceChartProps {
@@ -19,7 +20,7 @@ interface PaceChartProps {
   avgPace: number;
 }
 
-const CustomTooltip = ({ active, payload, label, avgPace }: any) => {
+const CustomTooltip = ({ active, payload, label, avgPace, paceVsAvg }: any) => {
   if (!active || !payload?.[0]) return null;
   const d = payload[0].payload;
   const sign = d.delta >= 0 ? '+' : '';
@@ -40,13 +41,14 @@ const CustomTooltip = ({ active, payload, label, avgPace }: any) => {
         {formatPaceShort(d.pace)}/km
       </div>
       <div style={{ color: '#a1a1aa', fontSize: '11px', marginTop: '2px' }}>
-        {sign}{d.delta}s vs promedio
+        {sign}{d.delta}s {paceVsAvg}
       </div>
     </div>
   );
 };
 
 export function PaceChart({ splits, avgPace }: PaceChartProps) {
+  const { t } = useLang();
   const data = splits.map((s) => ({
     km: s.km,
     delta: +(s.paceSecondsPerKm - avgPace).toFixed(1),
@@ -57,7 +59,7 @@ export function PaceChart({ splits, avgPace }: PaceChartProps) {
     <Card>
       <CardHeader>
         <CardTitle>
-          Ritmo vs promedio ({formatPaceShort(avgPace)}/km)
+          {t.plan.paceChartTitle(formatPaceShort(avgPace))}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -79,7 +81,7 @@ export function PaceChart({ splits, avgPace }: PaceChartProps) {
                 domain={['auto', 'auto']}
               />
               <Tooltip
-                content={<CustomTooltip avgPace={avgPace} />}
+                content={<CustomTooltip avgPace={avgPace} paceVsAvg={t.plan.paceVsAvg} />}
                 cursor={{ fill: 'oklch(0.3 0 0 / 0.3)' }}
               />
               <ReferenceLine y={0} stroke="oklch(0.708 0 0)" strokeDasharray="3 3" />

@@ -110,13 +110,6 @@ export function WeatherCard({ weather }: WeatherCardProps) {
             </div>
           </div>
         )}
-        {/* Atribución requerida por Visual Crossing plan free */}
-        <p className="text-[10px] text-right mt-2" style={{ color: 'var(--muted-foreground)', opacity: 0.5 }}>
-          Powered by{' '}
-          <a href="https://www.visualcrossing.com" target="_blank" rel="noopener noreferrer" className="underline">
-            Visual Crossing
-          </a>
-        </p>
       </CardContent>
     </Card>
   );

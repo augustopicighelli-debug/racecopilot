@@ -255,8 +255,8 @@ function RacePage() {
       if (!repDist || repDist <= 0)    { setRefError('Distancia por rep inválida'); return; }
       if (paceSecPerKm <= 0)           { setRefError('Ritmo inválido'); return; }
 
-      distKm   = count * repDist;               // distancia total en km
-      timeSecs = distKm * paceSecPerKm;         // tiempo total = dist × ritmo
+      distKm   = count * repDist;
+      timeSecs = Math.round(distKm * paceSecPerKm);
     } else {
       // Modo carrera: leer HH/MM/SS manualmente
       distKm = parseFloat(refDist);
@@ -455,13 +455,13 @@ function RacePage() {
             <span className="text-lg">⛰</span>
             {!!race?.elevation_gain && (
               <div>
-                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>↑ Ascenso</p>
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>↑ {t.plan.ascent}</p>
                 <p className="font-semibold text-sm">{fmtElev(race.elevation_gain)}</p>
               </div>
             )}
             {!!race?.elevation_loss && (
               <div>
-                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>↓ Descenso</p>
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>↓ {t.plan.descent}</p>
                 <p className="font-semibold text-sm">{fmtElev(race.elevation_loss)}</p>
               </div>
             )}
@@ -772,9 +772,9 @@ function RacePage() {
         {plan && !planLoading && (
           <div className="grid grid-cols-3 gap-3 mb-4 no-print">
             {([
-              { val: 'negative' as const, label: 'Negativo', Icon: TrendingDown, desc: 'Arrancá conservador, acelerá al final' },
-              { val: 'even'     as const, label: 'Neutro',   Icon: ArrowRight,   desc: 'Ritmo parejo de principio a fin' },
-              { val: 'positive' as const, label: 'Positivo', Icon: TrendingUp,   desc: 'Arrancá fuerte, administrá al final' },
+              { val: 'negative' as const, label: t.plan.strategyNegative, Icon: TrendingDown, desc: t.plan.strategyNegativeDesc },
+              { val: 'even'     as const, label: t.plan.strategyEven,     Icon: ArrowRight,   desc: t.plan.strategyEvenDesc },
+              { val: 'positive' as const, label: t.plan.strategyPositive, Icon: TrendingUp,   desc: t.plan.strategyPositiveDesc },
             ]).map(opt => (
               <button
                 key={opt.val}

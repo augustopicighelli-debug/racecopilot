@@ -2,6 +2,7 @@
 
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { useLang } from '@/lib/lang';
 import type { CourseProfile } from '@/lib/engine/types';
 
 interface ElevationChartProps {
@@ -9,6 +10,7 @@ interface ElevationChartProps {
 }
 
 export function ElevationChart({ course }: ElevationChartProps) {
+  const { t } = useLang();
   let cumulativeElevation = 0;
   const data = course.segments.map(seg => {
     cumulativeElevation += seg.elevationGain - seg.elevationLoss;
@@ -24,7 +26,7 @@ export function ElevationChart({ course }: ElevationChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Elevacion</CardTitle>
+        <CardTitle>{t.plan.elevationLabel}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-48">

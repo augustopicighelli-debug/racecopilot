@@ -67,13 +67,15 @@ export function RaceResult({ raceId, planTimeS, planPaceS, distanceKm, actualTim
   // ── Si ya hay resultado: mostrar comparativa ──────────────────────────────
   if (actualTimeS && !editing) {
     const diffS         = actualTimeS - planTimeS;
-    const diffPct       = ((diffS / planTimeS) * 100).toFixed(1);
+    const diffPctNum    = Math.abs((diffS / planTimeS) * 100);
+    const diffPct       = String(Math.round(diffPctNum));
     const actualPaceS   = actualTimeS / distanceKm;
     const paceDiffS     = actualPaceS - planPaceS;
     const faster        = diffS < 0;
-    const accentColor   = faster ? '#22c55e' : diffS > 0 ? '#ef4444' : '#a1a1aa';
+    // Color por magnitud: verde <5%, amarillo 5-10%, rojo >10%
+    const accentColor   = diffS === 0 ? '#a1a1aa' : diffPctNum < 5 ? '#22c55e' : diffPctNum < 10 ? '#f59e0b' : '#ef4444';
     const diffLabel     = faster
-      ? t.result.faster(fmtTime(Math.abs(diffS)), String(Math.abs(Number(diffPct))))
+      ? t.result.faster(fmtTime(Math.abs(diffS)), diffPct)
       : diffS > 0
       ? t.result.slower(fmtTime(diffS), diffPct)
       : t.result.exact;

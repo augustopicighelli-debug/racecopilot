@@ -168,7 +168,7 @@ export default function OnboardingPage() {
       if (!repDist || repDist <= 0) { setRefError('Distancia por rep inválida'); return; }
       if (paceSecPerKm <= 0)        { setRefError('Ritmo inválido'); return; }
       distKm   = count * repDist;
-      timeSecs = distKm * paceSecPerKm;
+      timeSecs = Math.round(distKm * paceSecPerKm);
     } else {
       distKm   = parseFloat(refDist);
       timeSecs = (parseInt(refTimeHH) || 0) * 3600 + (parseInt(refTimeMM) || 0) * 60 + (parseInt(refTimeSS) || 0);
