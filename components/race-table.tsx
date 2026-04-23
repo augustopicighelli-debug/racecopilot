@@ -103,12 +103,16 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
     const nutItems = nutritionByKm.get(s.km);
     const notes = buildNotes(s, hydrationByKm.has(s.km), nutritionByKm.has(s.km));
     return (
-      <tr key={`detail-${s.km}`} className="border-b border-[var(--border)]/30 bg-[var(--background)]/50">
-        <td className="py-1 pl-5 pr-1 font-mono text-[var(--muted-foreground)]">{s.km}</td>
+      <tr
+        key={`detail-${s.km}`}
+        className="border-b border-[var(--border)]/15"
+        style={{ background: 'rgba(255,255,255,0.02)', fontSize: '0.875em', opacity: 0.82 }}
+      >
+        <td className="py-1 pl-6 pr-1 font-mono" style={{ color: 'var(--muted-foreground)', opacity: 0.65 }}>{s.km}</td>
         <td className={`py-1 px-1 text-right font-mono ${paceColor(s.paceSecondsPerKm, avgPace)}`}>
           {fmtPaceShort(s.paceSecondsPerKm)}
         </td>
-        <td className="py-1 px-1 text-right font-mono text-[var(--muted-foreground)]">
+        <td className="py-1 px-1 text-right font-mono" style={{ color: 'var(--muted-foreground)' }}>
           {formatTime(s.cumulativeTimeSeconds)}
         </td>
         <td className="py-1 px-1">
@@ -119,7 +123,7 @@ export function RaceTable({ splits, avgPace, hydration, nutrition }: RaceTablePr
             <span key={i} className="text-amber-400">{n.label}{i < nutItems.length - 1 ? ', ' : ''}</span>
           ))}
         </td>
-        <td className="hidden sm:table-cell py-1 pl-1 pr-3 text-[var(--muted-foreground)]">
+        <td className="hidden sm:table-cell py-1 pl-1 pr-3" style={{ color: 'var(--muted-foreground)' }}>
           {notes.join(', ')}
         </td>
       </tr>
