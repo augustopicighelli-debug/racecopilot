@@ -1,4 +1,6 @@
+'use client';
 import { Badge } from '@/components/ui/badge';
+import { useUnits } from '@/lib/units';
 
 interface RaceHeaderProps {
   name: string;
@@ -19,6 +21,7 @@ export function RaceHeader({
   hasGpx,
   confidence,
 }: RaceHeaderProps) {
+  const { fmtElev, fmtDist } = useUnits();
   const dateFormatted = new Date(date + 'T00:00:00').toLocaleDateString('es-AR', {
     weekday: 'long',
     year: 'numeric',
@@ -34,9 +37,9 @@ export function RaceHeader({
       <h1 className="text-3xl font-bold tracking-tight">{name}</h1>
       <p className="text-[var(--muted-foreground)] capitalize">{dateFormatted}</p>
       <div className="flex flex-wrap gap-2">
-        <Badge variant="outline">{distanceKm} km</Badge>
-        <Badge variant="outline">D+ {Math.round(elevationGain)}m</Badge>
-        <Badge variant="outline">D- {Math.round(elevationLoss)}m</Badge>
+        <Badge variant="outline">{fmtDist(distanceKm)}</Badge>
+        <Badge variant="outline">D+ {fmtElev(elevationGain)}</Badge>
+        <Badge variant="outline">D- {fmtElev(elevationLoss)}</Badge>
         {hasGpx && <Badge variant="success">GPX</Badge>}
         <Badge variant={confidenceVariant}>Confianza {confidence}%</Badge>
       </div>

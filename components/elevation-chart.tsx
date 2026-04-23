@@ -3,6 +3,7 @@
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useLang } from '@/lib/lang';
+import { useUnits } from '@/lib/units';
 import type { CourseProfile } from '@/lib/engine/types';
 
 interface ElevationChartProps {
@@ -11,12 +12,15 @@ interface ElevationChartProps {
 
 export function ElevationChart({ course }: ElevationChartProps) {
   const { t } = useLang();
+  const { units } = useUnits();
+  const imp = units === 'imperial';
   let cumulativeElevation = 0;
   const data = course.segments.map(seg => {
     cumulativeElevation += seg.elevationGain - seg.elevationLoss;
+    const elevM = cumulativeElevation;
     return {
       km: seg.kmIndex + 1,
-      elevation: Math.round(cumulativeElevation),
+      elevation: Math.round(imp ? elevM * 3.28084 : elevM),
       gradient: seg.avgGradientPercent,
     };
   });
@@ -48,7 +52,7 @@ export function ElevationChart({ course }: ElevationChartProps) {
                 tick={{ fontSize: 11, fill: 'oklch(0.708 0 0)' }}
                 axisLine={false}
                 tickLine={false}
-                unit="m"
+                unit={imp ? 'ft' : 'm'}
               />
               <Tooltip
                 contentStyle={{
@@ -59,7 +63,7 @@ export function ElevationChart({ course }: ElevationChartProps) {
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 formatter={(value: any, name: any) => {
-                  if (name === 'elevation') return [`${value}m`, 'Elevacion'];
+                  if (name === 'elevation') return [`${value}${imp ? 'ft' : 'm'}`, t.plan.elevationLabel];
                   return [value, name];
                 }}
                 labelFormatter={(km) => `Km ${km}`}

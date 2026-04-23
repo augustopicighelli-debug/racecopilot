@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { formatPaceShort } from '@/lib/format';
 import { useLang } from '@/lib/lang';
+import { useUnits } from '@/lib/units';
 import type { GpxPoint, SplitKm } from '@/lib/engine/types';
 
 interface CourseMapProps {
@@ -36,6 +37,7 @@ function paceToColor(pace: number, avgPace: number): string {
 export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProps) {
   const [view, setView] = useState<'plano' | 'isometrica'>('plano');
   const { t } = useLang();
+  const { fmtElev } = useUnits();
 
   const data = useMemo(() => {
     if (points.length === 0) return null;
@@ -407,7 +409,7 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
                   fontFamily="system-ui"
                   fill={l.trend === 'up' ? 'oklch(0.65 0.15 27 / 0.9)' : 'oklch(0.7 0.14 160 / 0.9)'}
                 >
-                  {l.trend === 'up' ? '▲' : '▼'} {l.elev}m
+                  {l.trend === 'up' ? '▲' : '▼'} {fmtElev(l.elev)}
                 </text>
               </g>
             ))}
@@ -419,7 +421,7 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
                 {t.plan.courseStart}
               </text>
               <text x={data.isoStart.x} y={data.isoStart.y - 7} textAnchor="middle" fill="oklch(0.75 0.17 160 / 0.75)" fontSize="7" fontFamily="system-ui">
-                {data.startElev}m
+                {fmtElev(data.startElev)}
               </text>
             </g>
 
@@ -430,16 +432,16 @@ export function CourseMap({ points, distanceKm, splits, avgPace }: CourseMapProp
                 {t.plan.courseFinish}
               </text>
               <text x={data.isoEnd.x} y={data.isoEnd.y - 7} textAnchor="middle" fill="oklch(0.65 0.2 27 / 0.75)" fontSize="7" fontFamily="system-ui">
-                {data.endElev}m
+                {fmtElev(data.endElev)}
               </text>
             </g>
 
             {/* Elevation scale */}
             <text x={data.isoW + 5} y={30} fill="oklch(0.5 0 0)" fontSize="7" fontFamily="system-ui">
-              {data.maxElev}m
+              {fmtElev(data.maxElev)}
             </text>
             <text x={data.isoW + 5} y={data.isoH - 30} fill="oklch(0.5 0 0)" fontSize="7" fontFamily="system-ui">
-              {data.minElev}m
+              {fmtElev(data.minElev)}
             </text>
           </svg>
         )}
