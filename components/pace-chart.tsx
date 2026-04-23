@@ -11,8 +11,8 @@ import {
   Cell,
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { formatPaceShort } from '@/lib/format';
 import { useLang } from '@/lib/lang';
+import { useUnits } from '@/lib/units';
 import type { SplitKm } from '@/lib/engine/types';
 
 interface PaceChartProps {
@@ -20,7 +20,7 @@ interface PaceChartProps {
   avgPace: number;
 }
 
-const CustomTooltip = ({ active, payload, label, avgPace, paceVsAvg }: any) => {
+const CustomTooltip = ({ active, payload, label, paceVsAvg, fmtPace }: any) => {
   if (!active || !payload?.[0]) return null;
   const d = payload[0].payload;
   const sign = d.delta >= 0 ? '+' : '';
@@ -38,7 +38,7 @@ const CustomTooltip = ({ active, payload, label, avgPace, paceVsAvg }: any) => {
         Km {d.km}
       </div>
       <div style={{ color, fontFamily: 'monospace', fontSize: '16px', fontWeight: 700 }}>
-        {formatPaceShort(d.pace)}/km
+        {fmtPace(d.pace)}
       </div>
       <div style={{ color: '#a1a1aa', fontSize: '11px', marginTop: '2px' }}>
         {sign}{d.delta}s {paceVsAvg}
@@ -49,6 +49,7 @@ const CustomTooltip = ({ active, payload, label, avgPace, paceVsAvg }: any) => {
 
 export function PaceChart({ splits, avgPace }: PaceChartProps) {
   const { t } = useLang();
+  const { fmtPace } = useUnits();
   const data = splits.map((s) => ({
     km: s.km,
     delta: +(s.paceSecondsPerKm - avgPace).toFixed(1),
@@ -59,7 +60,7 @@ export function PaceChart({ splits, avgPace }: PaceChartProps) {
     <Card>
       <CardHeader>
         <CardTitle>
-          {t.plan.paceChartTitle(formatPaceShort(avgPace))}
+          {t.plan.paceChartTitle(fmtPace(avgPace))}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -81,7 +82,7 @@ export function PaceChart({ splits, avgPace }: PaceChartProps) {
                 domain={['auto', 'auto']}
               />
               <Tooltip
-                content={<CustomTooltip avgPace={avgPace} paceVsAvg={t.plan.paceVsAvg} />}
+                content={<CustomTooltip paceVsAvg={t.plan.paceVsAvg} fmtPace={fmtPace} />}
                 cursor={{ fill: 'oklch(0.3 0 0 / 0.3)' }}
               />
               <ReferenceLine y={0} stroke="oklch(0.708 0 0)" strokeDasharray="3 3" />

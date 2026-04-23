@@ -269,7 +269,7 @@ export const T = {
       fuelTip:        'Tenés un solo producto de nutrición. Agregar una pastilla de sal y un gel sin cafeína puede mejorar la estrategia.',
       fuelTipLink:    'Agregar productos →',
       // PaceChart
-      paceChartTitle: (pace: string) => `Ritmo vs promedio (${pace}/km)`,
+      paceChartTitle: (pace: string) => `Ritmo vs promedio (${pace})`,
       paceVsAvg:      'vs promedio',
       // Elevación en tooltip
       elevationLabel: 'Elevación',
@@ -776,7 +776,7 @@ export const T = {
       fuelSalt:       'Salt',
       fuelTip:        'You only have one nutrition product. Adding a salt pill and a caffeine-free gel can improve your strategy.',
       fuelTipLink:    'Add products →',
-      paceChartTitle: (pace: string) => `Pace vs average (${pace}/km)`,
+      paceChartTitle: (pace: string) => `Pace vs average (${pace})`,
       paceVsAvg:      'vs average',
       elevationLabel: 'Elevation',
       strategyNegative:     'Negative',
